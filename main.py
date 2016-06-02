@@ -51,64 +51,149 @@ logger.debug("Version : " + str(sys.version))
 client = discord.Client()
 
 planification = {} #{"channel":[time objects]}
-
+canards = [] #[{"channel" : channel, "time" : time.time()}]
+@asyncio.coroutine
 def planifie():
     global planification
 
     planification_ = {}
+
+    logger.debug("Time now : " + str(time.time()))
 
     for server in client.servers:
         logger.debug("Serveur " + str(server))
         for channel in server.channels:
             if channel.type == discord.ChannelType.text:
 
-                logger.debug(" |- Check channel : " + channel.id)
+                logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
                 permissions = channel.permissions_for(server.me)
                 if permissions.read_messages and permissions.send_messages:
-                    logger.debug("   |-Ajout channel : " + channel.id)
-                    templist = []
-                    now = time.time()
-                    thisDay = now - (now % 3600)
-                    for id in range(1, canardsJours + 1):
-                        templist.append(int(thisDay + random.randint(0,3600)))
-                    planification_[str(channel)] = templist
+                    if (channelWL and int(channel.id) in whitelist) or not channelWL:
+
+                        logger.debug("   |-Ajout channel : " + channel.id)
+                        templist = []
+                        now = time.time()
+                        thisDay = now - (now % 86400)
+                        for id in range(1, canardsJours + 1):
+                            templist.append(int(thisDay + random.randint(0,86400)))
+                        planification_[channel] = sorted(templist)
 
     logger.debug("Nouvelle planification : " + str(planification_))
 
     logger.debug("Supression de l'ancienne planification, et application de la nouvelle")
+
     planification = planification_ #{"channel":[time objects]}
 
+def nouveauCanard(canard):
+    logger.debug("Nouveau canard : " + str(canard))
+    yield from client.send_message(canard["channel"], "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK")
+    canards.append(canard)
+
+def getprochaincanard():
+    now = time.time()
+    prochaincanard = {"time" :0, "channel" : None}
+    for channel in planification.keys(): # Determination du prochain canard
+        for canard in planification[channel]:
+            if canard > now:
+                if canard < prochaincanard["time"] or prochaincanard["time"] == 0:
+                    prochaincanard = {"time" : canard, "channel" : channel}
+    timetonext = prochaincanard["time"] - time.time()
+
+    if not prochaincanard["channel"]:
+        thisDay = now - (now % 86400)
+        logger.debug("Plus de canards pour aujourd'hui ! Attente jusqu'a demain (" + str(thisDay + 86400 - time.time()) + " sec)")
+        yield from asyncio.sleep(thisDay + 86400 - time.time())
+        prochaincanard = yield from  getprochaincanard()
+    else:
+
+        logger.debug("Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name)
+
+    return prochaincanard
+
+@asyncio.coroutine
+def mainloop():
+    logger.debug("Entrée dans la boucle principale")
+    exit_ = False
+    prochaincanard = yield from getprochaincanard()
+    while not exit_:
+        now = time.time()
+
+        if int(time.time()) % 60 == 0:
+            timetonext = prochaincanard["time"] - time.time()
+            logger.debug("Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name)
+
+        if prochaincanard["time"] < time.time(): #CANARD !
+            nouveauCanard(prochaincanard)
+            prochaincanard = yield from getprochaincanard()
+
+        for canard in canards:
+            if canard["time"] + (60 * tempsAttente) > time.time(): #Canard qui se barre
+                yield from client.send_message(canard["channel"], "Le canard s'échappe.     ·°'`'°-.,¸¸.·°'`")
+                canards.remove(canard)
+        yield from asyncio.sleep(2)
 
 
 @client.async_event
 def on_ready():
     logger.info("Connecté comme " + str(client.user.name) + " | " + str(client.user.id))
     logger.info("Creation de la planification")
-    planifie()
+    yield from planifie()
     logger.info("Lancers de canards planifiés")
     logger.info("Initialisation terminée :) Ce jeu, ca va faire un carton !")
-
-
+    yield from mainloop()
 
 @client.async_event
 def on_message(message):
     if message.author == client.user:
         return
 
+    if int(message.channel.id) not in whitelist:
+        logger.debug("Message trouvé mais pas en WL : " + str(message.channel) + " | " + str(message.content))
+        return
 
 
     if message.content.startswith('!bang'):
-        tmp = yield from client.send_message(message.channel, 'BOUM')
+        logger.debug("> BANG (" + str(message.author) + ")")
+        if canards:
+            canardencours = None
+            for canard in canards:
+                if canard["channel"] == message.channel:
+                    canardencours = canard
+                    break
 
-        time.sleep(1)
-        yield from client.edit_message(tmp, 'BOUM !')
-        time.sleep(2)
-        yield from client.edit_message(tmp, 'BANG !')
+            if canardencours:
+                canards.remove(canardencours)
+                tmp = yield from client.send_message(message.channel, 'BANG')
+                yield from asyncio.sleep(1)
+                if random.randint(1,100) < 75:
+                    yield from client.edit_message(tmp, str(message.author) + "> **BOUM**\tTu l'as eu en " + str(int(time.time() - canardencours["time"]))  + " secondes, ce qui te fait un total de" + "X" + " canards sur #" + str(message.channel) + ".     \_X<   *COUAC*   [10 xp]")
+                else:
+                    yield from client.edit_message(tmp, str(message.author) + "> **PIEWW**\tTu à raté le canard !")
+
+            else:
+                yield from client.send_message(message.channel, "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+        else:
+            yield from client.send_message(message.channel, "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
 
 
     elif message.content.startswith('!ping'):
+        logger.debug("> PING (" + str(message.author) + ")")
         tmp = yield from client.send_message(message.channel, 'BOUM')
-        time.sleep(1)
+        yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
+
+    elif message.content.startswith("!coin"):
+        logger.debug("> COIN (" + str(message.author) + ")")
+        yield from nouveauCanard({"channel" : message.channel, "time" : int(time.time())})
+
+    elif message.content.startswith("!aide") or message.content.startswith("!help"):
+        yield from client.send_message(message.channel, aideMsg)
+
+    elif message.content.startswith("!info"):
+        logger.debug("INFO (" + str(message.author) + ")")
+        yield from client.send_message(message.channel, ":robot: Channel object " + str(message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
+
+
+
 
 client.run(token)
