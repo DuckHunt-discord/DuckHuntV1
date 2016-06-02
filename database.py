@@ -23,7 +23,7 @@ def getChannelTable(channel):
 
 def updatePlayerInfo(channel, info):
     table = getChannelTable(channel)
-    table.upsert(info)
+    table.upsert(info, ["id_"])
 
 def addToStat(channel, player, stat, value):
     dict_ = {"name": player.name, "id_": player.id, stat: int(getStat(channel, player, stat)) + value }
@@ -38,5 +38,17 @@ def getStat(channel, player, stat):
         userDict = getChannelTable(channel).find_one(id_=player.id)
         return userDict[stat]
     except:
-        return 0
+        if stat == "chargeurs" or stat == "balles":
+            return 2
+        else:
+            return 0
+
+def giveBack(logger):
+    logger.debug("C'est l'heure de passer à l'armurerie.")
+    for table in db.tables:
+        logger.debug("|- " + str(table))
+        table_ = db.load_table(table_name=table)
+        for player in table_.all():
+            logger.debug("   |- " + player["name"] )
+            table_.upsert({"id_": player["id_"], "chargeurs": 2}, ['id_'])
 

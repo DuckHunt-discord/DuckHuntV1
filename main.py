@@ -6,8 +6,9 @@ MODULE DESC
 """
 # Constants #
 import random
-import database
 import time
+
+import database
 
 __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
@@ -125,26 +126,29 @@ def mainloop():
     while not exit_:
         now = time.time()
 
-        if int(time.time()) % 60 == 0:
-            timetonext = prochaincanard["time"] - time.time()
+        if int(now) % 86400 in [0,1]:
+            database.giveBack(logger)
+
+        if int(now) % 60 == 0:
+            timetonext = prochaincanard["time"] - now
             logger.debug(
                 "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" +
                 prochaincanard["channel"].name)
             logger.debug("Canards en cours : " + str(canards))
 
-        if prochaincanard["time"] < time.time():  # CANARD !
+        if prochaincanard["time"] < now:  # CANARD !
             nouveauCanard(prochaincanard)
             prochaincanard = yield from getprochaincanard()
 
         for canard in canards:
-            if int(canard["time"] + tempsAttente) < int(time.time()):  # Canard qui se barre
+            if int(canard["time"] + tempsAttente) < int(now):  # Canard qui se barre
                 logger.debug(
                     "Le canard de " + str(canard["time"]) + " est resté trop longtemps, il s'échappe. (il est " + str(
-                        int(time.time())) + ", et il aurait du rester jusqu'a " + str(
+                        int(now)) + ", et il aurait du rester jusqu'a " + str(
                         int(canard["time"] + tempsAttente)) + " )")
                 yield from client.send_message(canard["channel"], "Le canard s'échappe.     ·°'\`'°-.,¸¸.·°'\`")
                 canards.remove(canard)
-        yield from asyncio.sleep(2)
+        yield from asyncio.sleep(1)
 
 
 @client.async_event
@@ -168,6 +172,13 @@ def on_message(message):
 
     if message.content.startswith('!bang'):
         logger.debug("> BANG (" + str(message.author) + ")")
+        if database.getStat(message.channel, message.author, "balles") < 0:
+            yield from client.send_message(message.channel, str(
+                message.author.mention) + " > **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
+                database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
+                database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+        else:
+            database.addToStat(message.channel, message.author, "balles", -1)
         if canards:
             canardencours = None
             for canard in canards:
@@ -179,35 +190,64 @@ def on_message(message):
 
                 if random.randint(1, 100) < 75:
                     canards.remove(canardencours)
-                    tmp = yield from client.send_message(message.channel, 'BANG')
+                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
                     yield from asyncio.sleep(1)
                     database.addToStat(message.channel, message.author, "canardsTues", 1)
                     database.addToStat(message.channel, message.author, "exp", 10)
                     yield from client.edit_message(tmp,
                                                    str(message.author.mention) + " > **BOUM**\tTu l'as eu en " + str(
                                                        int(time.time() - canardencours[
-                                                           "time"])) + " secondes, ce qui te fait un total de" + "X" + " canards sur #" + str(
+                                                           "time"])) + " secondes, ce qui te fait un total de " + str(
+                                                       database.getStat(message.channel, message.author,
+                                                                        "canardsTues")) + " canards sur #" + str(
                                                        message.channel) + ".     \_X<   *COUAC*   [10 xp]")
 
 
 
                 else:
-                    tmp = yield from client.send_message(message.channel, 'BANG')
+                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
                     yield from asyncio.sleep(1)
                     yield from client.edit_message(tmp,
-                                                   str(message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
+                                                   str(
+                                                       message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
-                yield from client.send_message(message.channel, str(message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
                 database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
                 database.addToStat(message.channel, message.author, "exp", -2)
         else:
-            yield from client.send_message(message.channel, str(message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+            yield from client.send_message(message.channel, str(
+                message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
             database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
             database.addToStat(message.channel, message.author, "exp", -2)
 
+    elif message.content.startswith("!reload"):
+        if database.getStat(message.channel, message.author, "balles") <= 0:
+            if database.getStat(message.channel, message.author, "chargeurs") > 0:
+                database.setStat(message.channel, message.author, "balles", 2)
+                database.addToStat(message.channel, message.author, "chargeurs", -1)
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > Tu recharges ton arme. | Munitions dans l'arme : " + str(
+                    database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
+                    database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+            else:
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > Tu es à court de munitions. | Munitions dans l'arme : " + str(
+                    database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
+                    database.getStat(message.channel, message.author, "chargeurs")) + "/X")
 
+        else:
+            yield from client.send_message(message.channel, str(
+                message.author.mention) + " > Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : " + str(
+                database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
+                database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+
+    elif message.content.startswith("-,_,.-"):
+        yield from client.send_message(message.channel, str(
+            message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
+        database.addToStat(message.channel, message.author, "exp", -1)
 
     elif message.content.startswith('!ping'):
         logger.debug("> PING (" + str(message.author) + ")")
@@ -215,13 +255,44 @@ def on_message(message):
         yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
 
+    elif message.content.startswith("!duckstat"):
+        logger.debug("> DUCKSTATS (" + str(message.author) + ")")
+        yield from client.send_message(message.channel, str(
+            message.author.mention) + " > Tes statistiques : \n" \
+                                      "Canards tués : " + str(
+            database.getStat(message.channel, message.author, "canardsTues")) + "\n" \
+                                                                                "Tirs manqués : " + str(
+            database.getStat(message.channel, message.author, "tirsManques")) + "\n" \
+                                                                                "Experience : " + str(
+            database.getStat(message.channel, message.author, "exp")) + "\n" \
+                                                                        "Tirs sans canards : " + str(
+            database.getStat(message.channel, message.author, "tirsSansCanards")) + "\n" \
+                                                                                    "Balles : " + str(
+            database.getStat(message.channel, message.author, "balles")) + "\n" \
+                                                                           "Chargeurs : " + str(
+            database.getStat(message.channel, message.author, "chargeurs")))
+
+
     elif message.content.startswith("!coin"):
         logger.debug("> COIN (" + str(message.author) + ")")
 
-        if message.author.id in admins:
+        if int(message.author.id) in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
-            yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
+            yield from client.send_message(message.channel,
+                                           str(message.author.mention) + " > Oupas (Permission Denied)")
+
+    elif message.content.startswith("!giveback"):
+        logger.debug("> GIVEBACK (" + str(message.author) + ")")
+
+        if int(message.author.id) in admins:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > En cours...")
+            database.giveBack(logger)
+            yield from client.send_message(message.channel,
+                                           str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
+        else:
+            yield from client.send_message(message.channel,
+                                           str(message.author.mention) + " > Oupas (Permission Denied)")
 
     elif message.content.startswith("!aide") or message.content.startswith("!help"):
         yield from client.send_message(message.channel, aideMsg)
@@ -230,13 +301,8 @@ def on_message(message):
         logger.debug("INFO (" + str(message.author) + ")")
         yield from client.send_message(message.channel, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
-        yield from client.send_message(message.channel, ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
-
-    elif message.content.startswith("-,,.-"):
-        yield from client.send_message(message.channel, str(
-            message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
-        database.addToStat(message.channel, message.author, "exp", -1)
-
+        yield from client.send_message(message.channel, ":robot: Author  object " + str(
+            message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
 
 
 client.run(token)
