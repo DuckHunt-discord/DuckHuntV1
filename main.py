@@ -109,6 +109,6 @@ def on_message(message):
     elif message.content.startswith('!ping'):
         tmp = yield from client.send_message(message.channel, 'BOUM')
         time.sleep(1)
-        yield from client.edit_message(tmp, '... Oups ! Pardin, pong !')
+        yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
 
 client.run(token)
