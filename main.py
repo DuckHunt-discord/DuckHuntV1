@@ -98,17 +98,17 @@ def on_message(message):
 
 
     if message.content.startswith('!bang'):
-        counter = 0
         tmp = yield from client.send_message(message.channel, 'BOUM')
 
         time.sleep(1)
-        yield from client.edit_message(tmp, 'BOUM !'.format(counter))
+        yield from client.edit_message(tmp, 'BOUM !')
         time.sleep(2)
-        yield from client.edit_message(tmp, 'BANG !'.format(counter))
+        yield from client.edit_message(tmp, 'BANG !')
 
 
-    elif message.content.startswith('!sleep'):
-        yield from asyncio.sleep(5)
-        yield from client.send_message(message.channel, 'Done sleeping')
+    elif message.content.startswith('!ping'):
+        tmp = yield from client.send_message(message.channel, 'BOUM')
+        time.sleep(1)
+        yield from client.edit_message(tmp, '... Oups ! Pardin, pong !')
 
 client.run(token)
