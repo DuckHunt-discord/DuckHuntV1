@@ -6,7 +6,7 @@ MODULE DESC
 """
 # Constants #
 import random
-
+import database
 import time
 
 __author__ = "Arthur — paris-ci"
@@ -130,14 +130,19 @@ def mainloop():
             logger.debug(
                 "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" +
                 prochaincanard["channel"].name)
+            logger.debug("Canards en cours : " + str(canards))
 
         if prochaincanard["time"] < time.time():  # CANARD !
             nouveauCanard(prochaincanard)
             prochaincanard = yield from getprochaincanard()
 
         for canard in canards:
-            if canard["time"] + (60 * tempsAttente) > time.time():  # Canard qui se barre
-                yield from client.send_message(canard["channel"], "Le canard s'échappe.     ·°'`'°-.,¸¸.·°'`")
+            if int(canard["time"] + tempsAttente) < int(time.time()):  # Canard qui se barre
+                logger.debug(
+                    "Le canard de " + str(canard["time"]) + " est resté trop longtemps, il s'échappe. (il est " + str(
+                        int(time.time())) + ", et il aurait du rester jusqu'a " + str(
+                        int(canard["time"] + tempsAttente)) + " )")
+                yield from client.send_message(canard["channel"], "Le canard s'échappe.     ·°'\`'°-.,¸¸.·°'\`")
                 canards.remove(canard)
         yield from asyncio.sleep(2)
 
@@ -176,22 +181,25 @@ def on_message(message):
                     canards.remove(canardencours)
                     tmp = yield from client.send_message(message.channel, 'BANG')
                     yield from asyncio.sleep(1)
-                    yield from client.edit_message(tmp, "@" + str(message.author) + "> **BOUM**\tTu l'as eu en " + str(
-                        int(time.time() - canardencours[
-                            "time"])) + " secondes, ce qui te fait un total de" + "X" + " canards sur #" + str(
-                        message.channel) + ".     \_X<   *COUAC*   [10 xp]")
+                    yield from client.edit_message(tmp,
+                                                   str(message.author.mention) + " > **BOUM**\tTu l'as eu en " + str(
+                                                       int(time.time() - canardencours[
+                                                           "time"])) + " secondes, ce qui te fait un total de" + "X" + " canards sur #" + str(
+                                                       message.channel) + ".     \_X<   *COUAC*   [10 xp]")
                 else:
                     tmp = yield from client.send_message(message.channel, 'BANG')
                     yield from asyncio.sleep(1)
                     yield from client.edit_message(tmp,
-                                                   "@" + str(message.author) + "> **PIEWW**\tTu à raté le canard !")
+                                                   str(message.author.mention) + " > **PIEWW**\tTu à raté le canard !")
 
             else:
                 yield from client.send_message(message.channel,
-                                               "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+                                               str(
+                                                   message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
         else:
             yield from client.send_message(message.channel,
-                                           "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+                                           str(
+                                               message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
 
 
     elif message.content.startswith('!ping'):
@@ -211,6 +219,10 @@ def on_message(message):
         logger.debug("INFO (" + str(message.author) + ")")
         yield from client.send_message(message.channel, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
+
+    elif message.content.startswith("-,,.-"):
+        yield from client.send_message(message.channel, str(
+            message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
 
 
 client.run(token)
