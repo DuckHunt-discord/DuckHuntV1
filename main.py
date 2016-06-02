@@ -181,25 +181,32 @@ def on_message(message):
                     canards.remove(canardencours)
                     tmp = yield from client.send_message(message.channel, 'BANG')
                     yield from asyncio.sleep(1)
+                    database.addToStat(message.channel, message.author, "canardsTues", 1)
+                    database.addToStat(message.channel, message.author, "exp", 10)
                     yield from client.edit_message(tmp,
                                                    str(message.author.mention) + " > **BOUM**\tTu l'as eu en " + str(
                                                        int(time.time() - canardencours[
                                                            "time"])) + " secondes, ce qui te fait un total de" + "X" + " canards sur #" + str(
                                                        message.channel) + ".     \_X<   *COUAC*   [10 xp]")
+
+
+
                 else:
                     tmp = yield from client.send_message(message.channel, 'BANG')
                     yield from asyncio.sleep(1)
                     yield from client.edit_message(tmp,
-                                                   str(message.author.mention) + " > **PIEWW**\tTu à raté le canard !")
-
+                                                   str(message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
+                    database.addToStat(message.channel, message.author, "tirsManques", 1)
+                    database.addToStat(message.channel, message.author, "exp", -1)
             else:
-                yield from client.send_message(message.channel,
-                                               str(
-                                                   message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+                yield from client.send_message(message.channel, str(message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+                database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
+                database.addToStat(message.channel, message.author, "exp", -2)
         else:
-            yield from client.send_message(message.channel,
-                                           str(
-                                               message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+            database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
+            database.addToStat(message.channel, message.author, "exp", -2)
+
 
 
     elif message.content.startswith('!ping'):
@@ -210,7 +217,11 @@ def on_message(message):
 
     elif message.content.startswith("!coin"):
         logger.debug("> COIN (" + str(message.author) + ")")
-        yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
+
+        if message.author.id in admins:
+            yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
 
     elif message.content.startswith("!aide") or message.content.startswith("!help"):
         yield from client.send_message(message.channel, aideMsg)
@@ -219,10 +230,13 @@ def on_message(message):
         logger.debug("INFO (" + str(message.author) + ")")
         yield from client.send_message(message.channel, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
+        yield from client.send_message(message.channel, ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
 
     elif message.content.startswith("-,,.-"):
         yield from client.send_message(message.channel, str(
             message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
+        database.addToStat(message.channel, message.author, "exp", -1)
+
 
 
 client.run(token)

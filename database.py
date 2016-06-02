@@ -12,17 +12,31 @@ import dataset
 
 db = dataset.connect('sqlite:///scores.db')
 
-def _getservertable(server):
-    return db[server.id]
+def _gettable(server, channel):
+    return db[server.id + "-" + channel.id]
 
-def getchanneldict(channel):
+def getChannelTable(channel):
     server = channel.server
-    serverTable = _getservertable(server)
-    return serverTable.find_one(channel=channel.id)
+    table = _gettable(server, channel)
+    return table
 
-def createChannelTable(channel):
-    server = channel.server
-    serverTable = _getservertable(server)
-    table = serverTable[channel.id]
-    table.insert(dict(name='0000', canardsTues=0, tirsManques=0))
+
+def updatePlayerInfo(channel, info):
+    table = getChannelTable(channel)
+    table.upsert(info)
+
+def addToStat(channel, player, stat, value):
+    dict_ = {"name": player.name, "id_": player.id, stat: int(getStat(channel, player, stat)) + value }
+    updatePlayerInfo(channel, dict_)
+
+def setStat(channel, player, stat, value):
+    dict_ = {"name": player.name, "id_": player.id, stat: value }
+    updatePlayerInfo(channel, dict_)
+
+def getStat(channel, player, stat):
+    try:
+        userDict = getChannelTable(channel).find_one(id_=player.id)
+        return userDict[stat]
+    except:
+        return 0
 

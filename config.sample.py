@@ -2,6 +2,8 @@
 # !/usr/bin/env python3.5
 
 token = "Enter a bot token here"
+admins = [138751484517941259]
+
 canardsJours = 99
 channelWL = False
 whitelist = [136797998217822208, 184672042770104321, 187961300704428033] # Ids des channels sur lequel le bot est actif
