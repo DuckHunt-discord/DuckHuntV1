@@ -11,7 +11,6 @@ tempsAttente = 5 * 60
 
 deleteCommands = True
 
-
 aideMsg = """Aide pour DuckHunt :
 ```Le but du jeu est de tuer les canards dès que vous les voyez ! C'est un peu un fps, mais pour discord :°)
 
