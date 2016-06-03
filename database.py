@@ -9,7 +9,8 @@ __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
 
 import dataset
-import config
+
+
 
 db = dataset.connect('sqlite:///scores.db')
 

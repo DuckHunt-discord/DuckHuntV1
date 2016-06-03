@@ -177,10 +177,10 @@ def on_message(message):
         if database.getStat(message.channel, message.author, "enrayee", default=False):
             yield from client.send_message(message.channel, str(message.author.mention) + " > Votre arme est enrayée, il faut la recharger pour la décoincer.")
             return
-        if database.getStat(message.channel, message.author, "sabotee", default=False):
+        if database.getStat(message.channel, message.author, "sabotee", default="-") != "-" :
             yield from client.send_message(message.channel, str(message.author.mention) + " > Votre arme est sabotée, remerciez " + database.getStat(message.channel, message.author, "sabotee", default=False) + " pour cette mauvaise blague." )
             database.setStat(message.channel, message.author, "enrayee", True)
-            database.setStat(message.channel, message.author, "sabotee", False)
+            database.setStat(message.channel, message.author, "sabotee", "-")
             return
 
         if database.getStat(message.channel, message.author, "balles") <= 0:
@@ -312,21 +312,34 @@ def on_message(message):
                 yield from client.send_message(message.author,  str(message.author.mention) + " > :champagne: Ta réserve de chargeurs est déjà pleine !")
 
         elif item == 17:
-            if len(args_) < 2:
+            if len(args_) <= 2:
                 yield from client.send_message(message.author,  str(message.author.mention) + " > C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p")
+                if deleteCommands:
+                    logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                    yield from client.delete_message(message)
                 return
+            args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[2])
             if target is None:
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
-                    yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
+                    yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne : " + args_[2])
+                    if deleteCommands:
+                        logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                        yield from client.delete_message(message)
+                    return
+
 
             if database.getStat(message.channel, message.author, "exp") > 14:
-                if not database.getStat(message.channel, target, "sabotee", False):
+                if database.getStat(message.channel, target, "sabotee", "-") == "-":
                     yield from client.send_message(message.author,  str(message.author.mention) + " > :ok: Tu sabote l'arme de " + target.name + "! Elle est maintenent enrayée... Mais il ne le sais pas !")
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
-                yield from client.send_message(message.author,  str(message.author.mention) + " > :ok: L'arme de " + target.name + " est déjà sabotée!")
+                else:
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > :ok: L'arme de " + target.name + " est déjà sabotée!")
+
+            else:
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
 
         elif item == 23:
             if database.getStat(message.channel, message.author, "exp") > 50:
@@ -334,6 +347,11 @@ def on_message(message):
                 database.addToStat(message.channel, message.author, "exp", -50)
                 yield from asyncio.sleep(75)
                 yield from client.send_message(message.channel, "-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*")
+            else:
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+
+        else:
+            yield from client.send_message(message.author,  str(message.author.mention) + " > :x: Objet non trouvé :'(")
 
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
@@ -401,6 +419,7 @@ def on_message(message):
         if len(args_) == 1:
             target = message.author
         else:
+            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[1])
             if target is None:
                 target = message.channel.server.get_member(args_[1])
@@ -419,11 +438,11 @@ def on_message(message):
                                                                         "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
                                                                                                                                                   "Tirs sans canards : " + str(
             database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
-                                                                            "Balles : " + str(database.getStat(message.channel, target, "balles")) + "\n" \
+                                                                            "Balles : " + str(database.getStat(message.channel, target, "balles", default=2)) + "\n" \
                                                                                                                                                      "Chargeurs : " + str(
-            database.getStat(message.channel, target, "chargeurs")) + "\n" \
+            database.getStat(message.channel, target, "chargeurs", default=2)) + "\n" \
             "Meilleur Temps : " + str(
-                    database.getStat(message.channel, target, "meilleurTemps")) )
+                    database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)) )
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
