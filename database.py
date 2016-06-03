@@ -9,7 +9,7 @@ __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
 
 import dataset
-
+import config
 
 
 db = dataset.connect('sqlite:///scores.db')
@@ -52,8 +52,6 @@ def topScores(channel):
     table = getChannelTable(channel)
     return sorted(table.all(), key=lambda k: k['exp'], reverse=True) # Retourne l'ensemble des joueurs dans une liste par exp
 
-
-
 def giveBack(logger):
     logger.debug("C'est l'heure de passer à l'armurerie.")
     for table in db.tables:
@@ -61,5 +59,30 @@ def giveBack(logger):
         table_ = db.load_table(table_name=table)
         for player in table_.all():
             logger.debug("   |- " + player["name"] )
-            table_.upsert({"id_": player["id_"], "chargeurs": 2, "confisque": False}, ['id_'])
+            table_.upsert({"id_": player["id_"], "chargeurs": getPlayerLevelWithExp(player["exp"])["chargeurs"], "confisque": False}, ['id_'])
 
+def getPlayerLevel(channel, player):
+    plexp = getStat(channel, player, "exp")
+    lvexp = -5
+    numero = 0
+    while lvexp < plexp:
+        if numero + 1 > len(config.levels):
+            level = config.levels[numero]
+            return level
+        lvexp = config.levels[numero + 1]["expMin"]
+        level = config.levels[numero]
+        numero += 1
+
+    return level
+
+def getPlayerLevelWithExp(exp):
+    lvexp = -5
+    numero = 0
+    while lvexp < exp:
+        if numero + 1 > len(config.levels):
+            level = config.levels[numero]
+            return level
+        lvexp = config.levels[numero]["expMin"]
+        level = config.levels[numero]
+        numero += 1
+    return level
