@@ -36,7 +36,11 @@ def setStat(channel, player, stat, value):
 def getStat(channel, player, stat):
     try:
         userDict = getChannelTable(channel).find_one(id_=player.id)
-        return userDict[stat]
+        if userDict[stat] is not None:
+            return userDict[stat]
+        else:
+            return 0
+
     except:
         if stat == "chargeurs" or stat == "balles":
             return 2
