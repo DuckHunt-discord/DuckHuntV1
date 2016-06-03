@@ -311,13 +311,13 @@ def on_message(message):
         logger.debug("> SHOP (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
-            yield from client.send_message(message.channel,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
+            yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
             return
         else:
             try:
                 item = int(args_[1])
             except ValueError:
-                yield from client.send_message(message.channel,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
                 return
 
         if item == 1:
@@ -327,22 +327,22 @@ def on_message(message):
                     database.addToStat(message.channel, message.author, "balles", 1)
                     database.addToStat(message.channel, message.author, "exp", -7)
                 else:
-                    yield from client.send_message(message.channel,  str(message.author.mention) + " > Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > Tu n'as pas assez d'experience pour effectuer cet achat ! !")
 
             else:
-                yield from client.send_message(message.channel,  str(message.author.mention) + " > Ton chargeur est déjà plein !")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > Ton chargeur est déjà plein !")
 
         elif item == 2:
             if database.getStat(message.channel, message.author, "chargeurs") < 2:
                 if database.getStat(message.channel, message.author, "exp") > 13:
-                    yield from client.send_message(message.channel,  str(message.author.mention) + " > Tu ajoutes un chargeur à ta réserve pour 13 points d'experience")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > Tu ajoutes un chargeur à ta réserve pour 13 points d'experience")
                     database.addToStat(message.channel, message.author, "chargeurs", 1)
                     database.addToStat(message.channel, message.author, "exp", -13)
                 else:
-                    yield from client.send_message(message.channel,  str(message.author.mention) + " > Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > Tu n'as pas assez d'experience pour effectuer cet achat ! !")
 
             else:
-                yield from client.send_message(message.channel,  str(message.author.mention) + " > Ta réserve de chargeurs est déjà pleine !")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > Ta réserve de chargeurs est déjà pleine !")
 
 
 
