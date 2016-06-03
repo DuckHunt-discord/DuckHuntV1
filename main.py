@@ -106,14 +106,14 @@ def getprochaincanard():
 
     if not prochaincanard["channel"]:
         thisDay = now - (now % 86400)
-        logger.debug("Plus de canards pour aujourd'hui ! Attente jusqu'a demain (" + str(
-            thisDay + 86400 - time.time()) + " sec)")
+        logger.debug("Plus de canards pour aujourd'hui ! Attente jusqu'a demain (" + str(thisDay + 86400 - time.time()) + " sec)")
         yield from asyncio.sleep(thisDay + 86400 - time.time())
         prochaincanard = yield from  getprochaincanard()
     else:
 
-        logger.debug("Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" +
-                     prochaincanard["channel"].name)
+        logger.debug(
+            "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name + " - " +
+            prochaincanard["channel"].server.name)
 
     return prochaincanard
 
@@ -126,26 +126,24 @@ def mainloop():
     while not exit_:
         now = time.time()
 
-        if int(now) % 86400 in [0,1]:
+        if int(now) % 86400 in [0, 1]:
             database.giveBack(logger)
 
         if int(now) % 60 == 0:
             timetonext = prochaincanard["time"] - now
             logger.debug(
-                "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" +
-                prochaincanard["channel"].name)
+                "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name + " - " +
+                prochaincanard["channel"].server.name)
             logger.debug("Canards en cours : " + str(canards))
 
         if prochaincanard["time"] < now:  # CANARD !
-            nouveauCanard(prochaincanard)
+            yield from nouveauCanard(prochaincanard)
             prochaincanard = yield from getprochaincanard()
 
         for canard in canards:
             if int(canard["time"] + tempsAttente) < int(now):  # Canard qui se barre
-                logger.debug(
-                    "Le canard de " + str(canard["time"]) + " est resté trop longtemps, il s'échappe. (il est " + str(
-                        int(now)) + ", et il aurait du rester jusqu'a " + str(
-                        int(canard["time"] + tempsAttente)) + " )")
+                logger.debug("Le canard de " + str(canard["time"]) + " est resté trop longtemps, il s'échappe. (il est " + str(
+                    int(now)) + ", et il aurait du rester jusqu'a " + str(int(canard["time"] + tempsAttente)) + " )")
                 yield from client.send_message(canard["channel"], "Le canard s'échappe.     ·°'\`'°-.,¸¸.·°'\`")
                 canards.remove(canard)
         yield from asyncio.sleep(1)
@@ -167,18 +165,18 @@ def on_message(message):
         return
 
     if int(message.channel.id) not in whitelist:
-        logger.debug("Message trouvé mais pas en WL : " + str(message.channel) + " | " + str(message.content))
         return
 
     if message.content.startswith('!bang'):
         logger.debug("> BANG (" + str(message.author) + ")")
-        if database.getStat(message.channel, message.author, "balles") < 0:
-            yield from client.send_message(message.channel, str(
-                message.author.mention) + " > **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
-                database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
-                database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+        if database.getStat(message.channel, message.author, "balles") <= 0:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
+                database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
+                database.getStat(message.channel, message.author, "chargeurs")) + "/2")
+            return
         else:
             database.addToStat(message.channel, message.author, "balles", -1)
+
         if canards:
             canardencours = None
             for canard in canards:
@@ -194,22 +192,17 @@ def on_message(message):
                     yield from asyncio.sleep(1)
                     database.addToStat(message.channel, message.author, "canardsTues", 1)
                     database.addToStat(message.channel, message.author, "exp", 10)
-                    yield from client.edit_message(tmp,
-                                                   str(message.author.mention) + " > **BOUM**\tTu l'as eu en " + str(
-                                                       int(time.time() - canardencours[
-                                                           "time"])) + " secondes, ce qui te fait un total de " + str(
-                                                       database.getStat(message.channel, message.author,
-                                                                        "canardsTues")) + " canards sur #" + str(
-                                                       message.channel) + ".     \_X<   *COUAC*   [10 xp]")
+                    yield from client.edit_message(tmp, str(message.author.mention) + " > :skull_crossbones: **BOUM**\tTu l'as eu en " + str(
+                        int(time.time() - canardencours["time"])) + " secondes, ce qui te fait un total de " + str(
+                        database.getStat(message.channel, message.author, "canardsTues")) + " canards sur #" + str(
+                        message.channel) + ".     \_X<   *COUAC*   [10 xp]")
 
 
 
                 else:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
                     yield from asyncio.sleep(1)
-                    yield from client.edit_message(tmp,
-                                                   str(
-                                                       message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
+                    yield from client.edit_message(tmp, str(message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
@@ -228,23 +221,22 @@ def on_message(message):
             if database.getStat(message.channel, message.author, "chargeurs") > 0:
                 database.setStat(message.channel, message.author, "balles", 2)
                 database.addToStat(message.channel, message.author, "chargeurs", -1)
-                yield from client.send_message(message.channel, str(
-                    message.author.mention) + " > Tu recharges ton arme. | Munitions dans l'arme : " + str(
-                    database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
-                    database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+                yield from client.send_message(message.channel, str(message.author.mention) + " > Tu recharges ton arme. | Munitions dans l'arme : " + str(
+                    database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
+                    database.getStat(message.channel, message.author, "chargeurs")) + "/2")
             else:
-                yield from client.send_message(message.channel, str(
-                    message.author.mention) + " > Tu es à court de munitions. | Munitions dans l'arme : " + str(
-                    database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
-                    database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+                yield from client.send_message(message.channel,
+                                               str(message.author.mention) + " > Tu es à court de munitions. | Munitions dans l'arme : " + str(
+                                                   database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
+                                                   database.getStat(message.channel, message.author, "chargeurs")) + "/2")
 
         else:
-            yield from client.send_message(message.channel, str(
-                message.author.mention) + " > Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : " + str(
-                database.getStat(message.channel, message.author, "balles")) + "/X | Chargeurs restants : " + str(
-                database.getStat(message.channel, message.author, "chargeurs")) + "/X")
+            yield from client.send_message(message.channel,
+                                           str(message.author.mention) + " > Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : " + str(
+                                               database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
+                                               database.getStat(message.channel, message.author, "chargeurs")) + "/2")
 
-    elif message.content.startswith("-,_,.-"):
+    elif message.content.startswith("-,,.-"):
         yield from client.send_message(message.channel, str(
             message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
         database.addToStat(message.channel, message.author, "exp", -1)
@@ -257,20 +249,29 @@ def on_message(message):
 
     elif message.content.startswith("!duckstat"):
         logger.debug("> DUCKSTATS (" + str(message.author) + ")")
-        yield from client.send_message(message.channel, str(
-            message.author.mention) + " > Tes statistiques : \n" \
-                                      "Canards tués : " + str(
-            database.getStat(message.channel, message.author, "canardsTues")) + "\n" \
-                                                                                "Tirs manqués : " + str(
-            database.getStat(message.channel, message.author, "tirsManques")) + "\n" \
-                                                                                "Experience : " + str(
-            database.getStat(message.channel, message.author, "exp")) + "\n" \
-                                                                        "Tirs sans canards : " + str(
-            database.getStat(message.channel, message.author, "tirsSansCanards")) + "\n" \
-                                                                                    "Balles : " + str(
-            database.getStat(message.channel, message.author, "balles")) + "\n" \
-                                                                           "Chargeurs : " + str(
-            database.getStat(message.channel, message.author, "chargeurs")))
+
+        args_ = message.content.split(" ")
+        if len(args_) == 1:
+            target = message.author
+        else:
+            target = message.channel.server.get_member_named(args_[1])
+            if target is None:
+                target = message.channel.server.get_member(args_[1])
+                if target is None:
+                    yield from client.send_message(message.channel, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
+                    return
+
+        yield from client.send_message(message.channel, str(message.author.mention) + " > Statistiques : \n" \
+                                                                              "Canards tués : " + str(
+            database.getStat(message.channel, target, "canardsTues")) + "\n" \
+                                                                        "Tirs manqués : " + str(
+            database.getStat(message.channel, target, "tirsManques")) + "\n" \
+                                                                        "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
+                                                                                                                                                  "Tirs sans canards : " + str(
+            database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
+                                                                            "Balles : " + str(database.getStat(message.channel, target, "balles")) + "\n" \
+                                                                                                                                                     "Chargeurs : " + str(
+            database.getStat(message.channel, target, "chargeurs")))
 
 
     elif message.content.startswith("!coin"):
@@ -279,8 +280,7 @@ def on_message(message):
         if int(message.author.id) in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
-            yield from client.send_message(message.channel,
-                                           str(message.author.mention) + " > Oupas (Permission Denied)")
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
 
     elif message.content.startswith("!giveback"):
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
@@ -288,11 +288,9 @@ def on_message(message):
         if int(message.author.id) in admins:
             yield from client.send_message(message.channel, str(message.author.mention) + " > En cours...")
             database.giveBack(logger)
-            yield from client.send_message(message.channel,
-                                           str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
         else:
-            yield from client.send_message(message.channel,
-                                           str(message.author.mention) + " > Oupas (Permission Denied)")
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
 
     elif message.content.startswith("!aide") or message.content.startswith("!help"):
         yield from client.send_message(message.channel, aideMsg)
@@ -301,8 +299,8 @@ def on_message(message):
         logger.debug("INFO (" + str(message.author) + ")")
         yield from client.send_message(message.channel, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
-        yield from client.send_message(message.channel, ":robot: Author  object " + str(
-            message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
+        yield from client.send_message(message.channel,
+                                       ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
 
 
 client.run(token)
