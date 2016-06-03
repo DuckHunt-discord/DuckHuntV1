@@ -17,10 +17,16 @@ aideMsg = """Aide pour DuckHunt :
 Les commandes disponibles sont les suivantes :
 
 Commandes joueur:
-!bang\t\tPour (tenter) de tuer le canard qui est apparu. e pas tirer quand il n'y a pas de canards, sinon...
+!bang\t\tPour (tenter) de tuer le canard qui est apparu. Ne pas tirer quand il n'y a pas de canards, sinon...
 !reload\t\tRecharge ou décoince votre arme
 !duckstats\t\tAffiche les statistiques DuckHunt
+!shop\t\tPermet d'acher des items à l'aide de points d'experience.
 !aide\t\tAffiche l'aide
+
+Liste des items dans le shop:
+
+N°1\t\tAjoute une balle a votre arme (7 exp)
+N°2\t\tAjoute un chargeur à votre réserve (13 exp)
 
 Commandes admin:
 !info\t\tAffiche des informations sur le channel en cours
