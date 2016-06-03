@@ -11,6 +11,7 @@ tempsAttente = 5 * 60
 
 deleteCommands = True
 
+
 aideMsg = """Aide pour DuckHunt :
 ```Le but du jeu est de tuer les canards dès que vous les voyez ! C'est un peu un fps, mais pour discord :°)
 
@@ -20,7 +21,8 @@ Commandes joueur:
 !bang\t\tPour (tenter) de tuer le canard qui est apparu. Ne pas tirer quand il n'y a pas de canards, sinon...
 !reload\t\tRecharge ou décoince votre arme
 !duckstats\t\tAffiche les statistiques DuckHunt
-!shop\t\tPermet d'acher des items à l'aide de points d'experience.
+!shop [N° ITEM]\t\tPermet d'acher des items à l'aide de points d'experience.
+!top <Nombre de joueurs maxi>\t\tAffiche les meilleurs scores
 !aide\t\tAffiche l'aide
 
 Liste des items dans le shop:

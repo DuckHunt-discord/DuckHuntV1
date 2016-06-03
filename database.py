@@ -50,6 +50,12 @@ def getStat(channel, player, stat):
         else:
             return 0
 
+def topScores(channel):
+    table = getChannelTable(channel)
+    return sorted(table.all(), key=lambda k: k['exp'], reverse=True) # Retourne l'ensemble des joueurs dans une liste par exp
+
+
+
 def giveBack(logger):
     logger.debug("C'est l'heure de passer à l'armurerie.")
     for table in db.tables:

@@ -5,10 +5,6 @@ Discord-duckhunt -- main.py
 MODULE DESC 
 """
 # Constants #
-import random
-import time
-
-import database
 
 __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
@@ -28,6 +24,11 @@ from logging.handlers import RotatingFileHandler
 import sys
 import discord
 import asyncio
+import random
+import time
+
+import database
+from prettytable import PrettyTable
 
 from config import *
 
@@ -53,7 +54,6 @@ client = discord.Client()
 
 planification = {}  # {"channel":[time objects]}
 canards = []  # [{"channel" : channel, "time" : time.time()}]
-
 
 @asyncio.coroutine
 def planifie():
@@ -294,6 +294,46 @@ def on_message(message):
         yield from client.send_message(message.channel, str(
             message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
         database.addToStat(message.channel, message.author, "exp", -1)
+
+    elif message.content.startswith("!top"):
+        logger.debug("> TOPSCORES (" + str(message.author) + ")")
+        args_ = message.content.split(" ")
+        if len(args_) == 1:
+            nombre = 15
+        else:
+            try:
+                nombre = int(args_[1])
+                if nombre not in range(1,50):
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
+                    if deleteCommands:
+                        logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                        yield from client.delete_message(message)
+                    return
+
+            except ValueError:
+                yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`")
+                if deleteCommands:
+                    logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                    yield from client.delete_message(message)
+                return
+        x = PrettyTable()
+
+        x._set_field_names(["Position", "Pseudo", "Experience", "Canards Tués"])
+        i = 0
+        for joueur in database.topScores(message.channel):
+            i += 1
+            if joueur["canardsTues"] is None:
+                joueur["canardsTues"] = "AUCUN !"
+            if joueur["exp"] is None:
+                joueur["exp"] = 0
+            x.add_row([i, joueur["name"], joueur["exp"], joueur["canardsTues"]])
+
+        yield from client.send_message(message.author, "```" + x.get_string(end=nombre, sortby="Position") + "```")
+
+
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
 
     elif message.content.startswith('!ping'):
 
