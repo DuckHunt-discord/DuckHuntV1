@@ -228,6 +228,9 @@ def on_message(message):
                     if database.getStat(message.channel, message.author, "meilleurTemps", default=tempsAttente) > int(now - canardencours["time"]):
                         database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
 
+                    if random.randint(0,100) < 25:
+                        yield from client.send_message(message.channel, str(message.author.mention) + " > En fouillant les buissons autour du canard, tu trouves " + random.choice(inutilite))
+
 
 
 
