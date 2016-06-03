@@ -28,8 +28,11 @@ Liste des items dans le shop:
 
 N°1\t\tAjoute une balle a votre arme (7 exp)
 N°2\t\tAjoute un chargeur à votre réserve (13 exp)
+N°23\t\tInvoque un canard mécanique (faux canard), 75 secondes aprés la commande sur le chan (50 exp)
+
 
 Commandes admin:
 !info\t\tAffiche des informations sur le channel en cours
+!giveback\t\tDonne aux joueurs leurs armes et des chargeurs, comme à minuit !
 !coin\t\tFait apparaitre un canard
 ```"""

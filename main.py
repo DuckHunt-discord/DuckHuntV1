@@ -247,7 +247,7 @@ def on_message(message):
         logger.debug("> SHOP (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
-            yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
+            yield from client.send_message(message.author,  str(message.author.mention) + " > :mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
             if deleteCommands:
                 logger.debug("Supression du message : " + message.author.name + " | " + message.content)
                 yield from client.delete_message(message)
@@ -256,7 +256,7 @@ def on_message(message):
             try:
                 item = int(args_[1])
             except ValueError:
-                yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
                 if deleteCommands:
                     logger.debug("Supression du message : " + message.author.name + " | " + message.content)
                     yield from client.delete_message(message)
@@ -265,26 +265,32 @@ def on_message(message):
         if item == 1:
             if database.getStat(message.channel, message.author, "balles") < 2:
                 if database.getStat(message.channel, message.author, "exp") > 7:
-                    yield from client.send_message(message.channel,  str(message.author.mention) + " > Tu ajoutes une balle dans ton arme pour 7 points d'experience")
+                    yield from client.send_message(message.channel,  str(message.author.mention) + " > :money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience")
                     database.addToStat(message.channel, message.author, "balles", 1)
                     database.addToStat(message.channel, message.author, "exp", -7)
                 else:
-                    yield from client.send_message(message.author,  str(message.author.mention) + " > Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
 
             else:
-                yield from client.send_message(message.author,  str(message.author.mention) + " > Ton chargeur est déjà plein !")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :champagne: Ton chargeur est déjà plein !")
 
         elif item == 2:
             if database.getStat(message.channel, message.author, "chargeurs") < 2:
                 if database.getStat(message.channel, message.author, "exp") > 13:
-                    yield from client.send_message(message.author,  str(message.author.mention) + " > Tu ajoutes un chargeur à ta réserve pour 13 points d'experience")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > :money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience")
                     database.addToStat(message.channel, message.author, "chargeurs", 1)
                     database.addToStat(message.channel, message.author, "exp", -13)
                 else:
-                    yield from client.send_message(message.author,  str(message.author.mention) + " > Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
 
             else:
-                yield from client.send_message(message.author,  str(message.author.mention) + " > Ta réserve de chargeurs est déjà pleine !")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :champagne: Ta réserve de chargeurs est déjà pleine !")
+        elif item == 23:
+            if database.getStat(message.channel, message.author, "exp") > 50:
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !")
+                database.addToStat(message.channel, message.author, "exp", -50)
+                yield from asyncio.sleep(75)
+                yield from client.send_message(message.channel, "-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*")
 
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
@@ -304,14 +310,14 @@ def on_message(message):
             try:
                 nombre = int(args_[1])
                 if nombre not in range(1,50):
-                    yield from client.send_message(message.author,  str(message.author.mention) + " > Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > :mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
                     if deleteCommands:
                         logger.debug("Supression du message : " + message.author.name + " | " + message.content)
                         yield from client.delete_message(message)
                     return
 
             except ValueError:
-                yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`")
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`")
                 if deleteCommands:
                     logger.debug("Supression du message : " + message.author.name + " | " + message.content)
                     yield from client.delete_message(message)
@@ -328,7 +334,7 @@ def on_message(message):
                 joueur["exp"] = 0
             x.add_row([i, joueur["name"], joueur["exp"], joueur["canardsTues"]])
 
-        yield from client.send_message(message.author, "```" + x.get_string(end=nombre, sortby="Position") + "```")
+        yield from client.send_message(message.author, ":cocktail: Meilleurs scores pour #" + message.channel.name + " : :cocktail:\n```" + x.get_string(end=nombre, sortby="Position") + "```")
 
 
         if deleteCommands:
