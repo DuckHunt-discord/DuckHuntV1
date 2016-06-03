@@ -239,85 +239,27 @@ def on_message(message):
                                            str(message.author.mention) + " > Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : " + str(
                                                database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
                                                database.getStat(message.channel, message.author, "chargeurs")) + "/2")
-
-    elif message.content.startswith("-,,.-"):
-        yield from client.send_message(message.channel, str(
-            message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
-        database.addToStat(message.channel, message.author, "exp", -1)
-
-    elif message.content.startswith('!ping'):
-        logger.debug("> PING (" + str(message.author) + ")")
-        tmp = yield from client.send_message(message.channel, 'BOUM')
-        yield from asyncio.sleep(4)
-        yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
-
-    elif message.content.startswith("!duckstat"):
-        logger.debug("> DUCKSTATS (" + str(message.author) + ")")
-
-        args_ = message.content.split(" ")
-        if len(args_) == 1:
-            target = message.author
-        else:
-            target = message.channel.server.get_member_named(args_[1])
-            if target is None:
-                target = message.channel.server.get_member(args_[1])
-                if target is None:
-                    yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
-                    return
-
-        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques : \n" \
-                                                                                      "Canards tués : " + str(
-            database.getStat(message.channel, target, "canardsTues")) + "\n" \
-                                                                        "Tirs manqués : " + str(
-            database.getStat(message.channel, target, "tirsManques")) + "\n" \
-                                                                        "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
-                                                                                                                                                  "Tirs sans canards : " + str(
-            database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
-                                                                            "Balles : " + str(database.getStat(message.channel, target, "balles")) + "\n" \
-                                                                                                                                                     "Chargeurs : " + str(
-            database.getStat(message.channel, target, "chargeurs")) + "\n" \
-            "Meilleur Temps : " + str(
-                    database.getStat(message.channel, target, "meilleurTemps")) )
-
-    elif message.content.startswith("!coin"):
-        logger.debug("> COIN (" + str(message.author) + ")")
-
-        if int(message.author.id) in admins:
-            yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
-        else:
-            yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
-
-    elif message.content.startswith("!giveback"):
-        logger.debug("> GIVEBACK (" + str(message.author) + ")")
-
-        if int(message.author.id) in admins:
-            yield from client.send_message(message.author, str(message.author.mention) + " > En cours...")
-            database.giveBack(logger)
-            yield from client.send_message(message.author, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
-        else:
-            yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
-
-    elif message.content.startswith("!aide") or message.content.startswith("!help"):
-        yield from client.send_message(message.author, aideMsg)
-
-    elif message.content.startswith("!info"):
-        logger.debug("INFO (" + str(message.author) + ")")
-        yield from client.send_message(message.channel, ":robot: Channel object " + str(
-            message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
-        yield from client.send_message(message.channel,
-                                       ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
 
     elif message.content.startswith("!shop"):
         logger.debug("> SHOP (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
             yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
+            if deleteCommands:
+                logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                yield from client.delete_message(message)
             return
         else:
             try:
                 item = int(args_[1])
             except ValueError:
                 yield from client.send_message(message.author,  str(message.author.mention) + " > Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
+                if deleteCommands:
+                    logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                    yield from client.delete_message(message)
                 return
 
         if item == 1:
@@ -343,6 +285,99 @@ def on_message(message):
 
             else:
                 yield from client.send_message(message.author,  str(message.author.mention) + " > Ta réserve de chargeurs est déjà pleine !")
+
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
+    elif message.content.startswith("-,,.-"):
+        yield from client.send_message(message.channel, str(
+            message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
+        database.addToStat(message.channel, message.author, "exp", -1)
+
+    elif message.content.startswith('!ping'):
+
+        logger.debug("> PING (" + str(message.author) + ")")
+        tmp = yield from client.send_message(message.channel, 'BOUM')
+        yield from asyncio.sleep(4)
+        yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
+    elif message.content.startswith("!duckstat"):
+        logger.debug("> DUCKSTATS (" + str(message.author) + ")")
+
+        args_ = message.content.split(" ")
+        if len(args_) == 1:
+            target = message.author
+        else:
+            target = message.channel.server.get_member_named(args_[1])
+            if target is None:
+                target = message.channel.server.get_member(args_[1])
+                if target is None:
+                    yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
+                    if deleteCommands:
+                        logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+                        yield from client.delete_message(message)
+                    return
+
+        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques : \n" \
+                                                                                      "Canards tués : " + str(
+            database.getStat(message.channel, target, "canardsTues")) + "\n" \
+                                                                        "Tirs manqués : " + str(
+            database.getStat(message.channel, target, "tirsManques")) + "\n" \
+                                                                        "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
+                                                                                                                                                  "Tirs sans canards : " + str(
+            database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
+                                                                            "Balles : " + str(database.getStat(message.channel, target, "balles")) + "\n" \
+                                                                                                                                                     "Chargeurs : " + str(
+            database.getStat(message.channel, target, "chargeurs")) + "\n" \
+            "Meilleur Temps : " + str(
+                    database.getStat(message.channel, target, "meilleurTemps")) )
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
+    elif message.content.startswith("!aide") or message.content.startswith("!help"):
+        yield from client.send_message(message.author, aideMsg)
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
+    elif message.content.startswith("!giveback"):
+        logger.debug("> GIVEBACK (" + str(message.author) + ")")
+
+        if int(message.author.id) in admins:
+            yield from client.send_message(message.author, str(message.author.mention) + " > En cours...")
+            database.giveBack(logger)
+            yield from client.send_message(message.author, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
+        else:
+            yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
+    elif message.content.startswith("!coin"):
+        logger.debug("> COIN (" + str(message.author) + ")")
+
+        if int(message.author.id) in admins:
+            yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
+    elif message.content.startswith("!info"):
+        logger.debug("INFO (" + str(message.author) + ")")
+        yield from client.send_message(message.channel, ":robot: Channel object " + str(
+            message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
+        yield from client.send_message(message.channel,
+                                       ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
 
 
 
