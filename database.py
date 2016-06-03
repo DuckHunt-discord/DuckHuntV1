@@ -34,21 +34,18 @@ def setStat(channel, player, stat, value):
     dict_ = {"name": player.name, "id_": player.id, stat: value }
     updatePlayerInfo(channel, dict_)
 
-def getStat(channel, player, stat):
+def getStat(channel, player, stat, default=0):
     try:
         userDict = getChannelTable(channel).find_one(id_=player.id)
         if userDict[stat] is not None:
             return userDict[stat]
         else:
-            return 0
+            setStat(channel, player, stat, default)
+            return default
 
     except:
-        if stat == "chargeurs" or stat == "balles":
-            return 2
-        elif stat == "meilleurTemps":
-            return config.tempsAttente
-        else:
-            return 0
+        setStat(channel, player, stat, default)
+        return default
 
 def topScores(channel):
     table = getChannelTable(channel)
@@ -63,5 +60,5 @@ def giveBack(logger):
         table_ = db.load_table(table_name=table)
         for player in table_.all():
             logger.debug("   |- " + player["name"] )
-            table_.upsert({"id_": player["id_"], "chargeurs": 2}, ['id_'])
+            table_.upsert({"id_": player["id_"], "chargeurs": 2, "confisque": False}, ['id_'])
 

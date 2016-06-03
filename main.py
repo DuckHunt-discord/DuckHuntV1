@@ -170,13 +170,26 @@ def on_message(message):
     if message.content.startswith('!bang'):
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
+        if database.getStat(message.channel, message.author, "confisque", default=False):
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Vous n'etes pas armé")
+            return
+
+        if database.getStat(message.channel, message.author, "enrayee", default=False):
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Votre arme est enrayée, il faut la recharger pour la décoincer.")
+            return
+
         if database.getStat(message.channel, message.author, "balles") <= 0:
             yield from client.send_message(message.channel, str(message.author.mention) + " > **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
                 database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
                 database.getStat(message.channel, message.author, "chargeurs")) + "/2")
             return
         else:
-            database.addToStat(message.channel, message.author, "balles", -1)
+            if random.randint(1, 100) < database.getStat(message.channel, message.author, "enrayement", default=80):
+                database.addToStat(message.channel, message.author, "balles", -1)
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > Ton arme s'est enrayée, recharge la pour la décoincer.")
+                database.setStat(message.channel, message.author, "enrayee", True)
+                return
 
         if canards:
             canardencours = None
@@ -187,7 +200,7 @@ def on_message(message):
 
             if canardencours:
 
-                if random.randint(1, 100) < 75:
+                if random.randint(1, 100) < database.getStat(message.channel, message.author, "precision", default=50):
                     canards.remove(canardencours)
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
                     yield from asyncio.sleep(1)
@@ -197,7 +210,7 @@ def on_message(message):
                         int(now - canardencours["time"])) + " secondes, ce qui te fait un total de " + str(
                         database.getStat(message.channel, message.author, "canardsTues")) + " canards sur #" + str(
                         message.channel) + ".     \_X<   *COUAC*   [10 xp]")
-                    if database.getStat(message.channel, message.author, "meilleurTemps") > int(now - canardencours["time"]):
+                    if database.getStat(message.channel, message.author, "meilleurTemps", default=tempsAttente) > int(now - canardencours["time"]):
                         database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
 
 
@@ -221,24 +234,31 @@ def on_message(message):
             database.addToStat(message.channel, message.author, "exp", -2)
 
     elif message.content.startswith("!reload"):
-        if database.getStat(message.channel, message.author, "balles") <= 0:
-            if database.getStat(message.channel, message.author, "chargeurs") > 0:
-                database.setStat(message.channel, message.author, "balles", 2)
+        if database.getStat(message.channel, message.author, "enrayee", default=False):
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Tu décoinces ton arme.")
+            database.setStat(message.channel, message.author, "enrayee", False)
+            if database.getStat(message.channel, message.author, "balles", default=2) > 0:
+                return
+
+
+        if database.getStat(message.channel, message.author, "balles", default=2) <= 0:
+            if database.getStat(message.channel, message.author, "chargeurs", default=2) > 0:
+                database.setStat(message.channel, message.author, "balles", 2, )
                 database.addToStat(message.channel, message.author, "chargeurs", -1)
                 yield from client.send_message(message.author, str(message.author.mention) + " > Tu recharges ton arme. | Munitions dans l'arme : " + str(
-                    database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
-                    database.getStat(message.channel, message.author, "chargeurs")) + "/2")
+                    database.getStat(message.channel, message.author, "balles", default=2)) + "/2 | Chargeurs restants : " + str(
+                    database.getStat(message.channel, message.author, "chargeurs", default=2)) + "/2")
             else:
                 yield from client.send_message(message.author,
                                                str(message.author.mention) + " > Tu es à court de munitions. | Munitions dans l'arme : " + str(
-                                                   database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
-                                                   database.getStat(message.channel, message.author, "chargeurs")) + "/2")
+                                                   database.getStat(message.channel, message.author, "balles", default=2)) + "/2 | Chargeurs restants : " + str(
+                                                   database.getStat(message.channel, message.author, "chargeurs", default=2)) + "/2")
 
         else:
             yield from client.send_message(message.author,
                                            str(message.author.mention) + " > Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : " + str(
-                                               database.getStat(message.channel, message.author, "balles")) + "/2 | Chargeurs restants : " + str(
-                                               database.getStat(message.channel, message.author, "chargeurs")) + "/2")
+                                               database.getStat(message.channel, message.author, "balles", default=2)) + "/2 | Chargeurs restants : " + str(
+                                               database.getStat(message.channel, message.author, "chargeurs", default=2)) + "/2")
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
@@ -263,7 +283,7 @@ def on_message(message):
                 return
 
         if item == 1:
-            if database.getStat(message.channel, message.author, "balles") < 2:
+            if database.getStat(message.channel, message.author, "balles", default=2) < 2:
                 if database.getStat(message.channel, message.author, "exp") > 7:
                     yield from client.send_message(message.channel,  str(message.author.mention) + " > :money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience")
                     database.addToStat(message.channel, message.author, "balles", 1)
@@ -275,7 +295,7 @@ def on_message(message):
                 yield from client.send_message(message.author,  str(message.author.mention) + " > :champagne: Ton chargeur est déjà plein !")
 
         elif item == 2:
-            if database.getStat(message.channel, message.author, "chargeurs") < 2:
+            if database.getStat(message.channel, message.author, "chargeurs", default=2) < 2:
                 if database.getStat(message.channel, message.author, "exp") > 13:
                     yield from client.send_message(message.author,  str(message.author.mention) + " > :money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience")
                     database.addToStat(message.channel, message.author, "chargeurs", 1)
