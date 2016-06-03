@@ -9,6 +9,7 @@ __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
 
 import dataset
+import config
 
 db = dataset.connect('sqlite:///scores.db')
 
@@ -44,6 +45,8 @@ def getStat(channel, player, stat):
     except:
         if stat == "chargeurs" or stat == "balles":
             return 2
+        elif stat == "meilleurTemps":
+            return config.tempsAttente
         else:
             return 0
 
