@@ -177,6 +177,11 @@ def on_message(message):
         if database.getStat(message.channel, message.author, "enrayee", default=False):
             yield from client.send_message(message.channel, str(message.author.mention) + " > Votre arme est enrayée, il faut la recharger pour la décoincer.")
             return
+        if database.getStat(message.channel, message.author, "sabotee", default=False):
+            yield from client.send_message(message.channel, str(message.author.mention) + " > Votre arme est sabotée, remerciez " + database.getStat(message.channel, message.author, "sabotee", default=False) + " pour cette mauvaise blague." )
+            database.setStat(message.channel, message.author, "enrayee", True)
+            database.setStat(message.channel, message.author, "sabotee", False)
+            return
 
         if database.getStat(message.channel, message.author, "balles") <= 0:
             yield from client.send_message(message.channel, str(message.author.mention) + " > **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
@@ -305,6 +310,24 @@ def on_message(message):
 
             else:
                 yield from client.send_message(message.author,  str(message.author.mention) + " > :champagne: Ta réserve de chargeurs est déjà pleine !")
+
+        elif item == 17:
+            if len(args_) < 2:
+                yield from client.send_message(message.author,  str(message.author.mention) + " > C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p")
+                return
+            target = message.channel.server.get_member_named(args_[2])
+            if target is None:
+                target = message.channel.server.get_member(args_[2])
+                if target is None:
+                    yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
+
+            if database.getStat(message.channel, message.author, "exp") > 14:
+                if not database.getStat(message.channel, target, "sabotee", False):
+                    yield from client.send_message(message.author,  str(message.author.mention) + " > :ok: Tu sabote l'arme de " + target.name + "! Elle est maintenent enrayée... Mais il ne le sais pas !")
+                    database.addToStat(message.channel, message.author, "exp", -14)
+                    database.setStat(message.channel, target, "sabotee", message.author.name)
+                yield from client.send_message(message.author,  str(message.author.mention) + " > :ok: L'arme de " + target.name + " est déjà sabotée!")
+
         elif item == 23:
             if database.getStat(message.channel, message.author, "exp") > 50:
                 yield from client.send_message(message.author,  str(message.author.mention) + " > :money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !")
