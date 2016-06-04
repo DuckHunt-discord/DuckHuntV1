@@ -127,8 +127,9 @@ def mainloop():
     while not exit_:
         now = time.time()
 
-        if (int(now)+ 7200) % 86400 in [0, 1]:
+        if (int(now)+ 7200) % 86400 == 0:
             database.giveBack(logger)
+            planifie()
 
         if int(now) % 60 == 0:
             timetonext = prochaincanard["time"] - now

@@ -8,7 +8,7 @@ canardsJours = 99
 channelWL = False
 whitelist = [136797998217822208, 184672042770104321, 187961300704428033] # Ids des channels sur lequel le bot est actif
 tempsAttente = 5 * 60
-levels = [{"niveau": 0, "expMin": -5, "nom": "danger public", "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 1},
+levels = [{"niveau": 0, "expMin": -999, "nom": "danger public", "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 1},
           {"niveau": 1, "expMin": -4, "nom": "touriste", "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 2},
           {"niveau": 2, "expMin": 20, "nom": "noob", "precision": 56, "fiabilitee": 86, "balles": 6, "chargeurs": 2},
           {"niveau": 3, "expMin": 50, "nom": "stagiaire", "precision": 57, "fiabilitee": 87, "balles": 6, "chargeurs": 2},
@@ -61,7 +61,7 @@ Commandes joueur:
 !bang\t\tPour (tenter) de tuer le canard qui est apparu. Ne pas tirer quand il n'y a pas de canards, sinon...
 !reload\t\tRecharge ou décoince votre arme
 !duckstats\t\tAffiche les statistiques DuckHunt
-!shop [N° ITEM]\t\tPermet d'acher des items à l'aide de points d'experience.
+!shop [N° ITEM] <argument>\t\tPermet d'acher des items à l'aide de points d'experience.
 !top <Nombre de joueurs maxi>\t\tAffiche les meilleurs scores
 !aide\t\tAffiche l'aide
 
@@ -69,6 +69,7 @@ Liste des items dans le shop:
 
 N°1\t\tAjoute une balle a votre arme (7 exp)
 N°2\t\tAjoute un chargeur à votre réserve (13 exp)
+N°17\t\tSabote l'arme de <argument> (14 exp)
 N°23\t\tInvoque un canard mécanique (faux canard), 75 secondes aprés la commande sur le chan (50 exp)
 
 

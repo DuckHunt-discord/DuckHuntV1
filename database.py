@@ -63,7 +63,7 @@ def giveBack(logger):
 
 def getPlayerLevel(channel, player):
     plexp = getStat(channel, player, "exp")
-    lvexp = -5
+    lvexp = -9999
     numero = 0
     while lvexp < plexp:
         if numero + 1 > len(config.levels):
@@ -76,7 +76,7 @@ def getPlayerLevel(channel, player):
     return level
 
 def getPlayerLevelWithExp(exp):
-    lvexp = -5
+    lvexp = -9999
     numero = 0
     while lvexp < exp:
         if numero + 1 > len(config.levels):
