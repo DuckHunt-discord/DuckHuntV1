@@ -386,9 +386,11 @@ def on_message(message):
                                                str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
         elif item == 20:
             if database.getStat(message.channel, message.author, "exp") > 8:
-                yield from client.send_message(message.author, ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de " + message.author.mention +  ". Ca lui coûte 8 exp !")
+                yield from client.send_message(message.channel, ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de " + message.author.mention +  ". Ca lui coûte 8 exp !")
                 database.addToStat(message.channel, message.author, "exp", -8)
-                yield from asyncio.sleep(random.randint(0, 60*10))
+                dans = random.randint(0, 60*10)
+                logger.debug("Appeau lancé pour dans " + str(dans) + "sec")
+                yield from asyncio.sleep(dans)
                 nouveauCanard({"time": int(time.time()), "channel": message.channel})
 
             else:
