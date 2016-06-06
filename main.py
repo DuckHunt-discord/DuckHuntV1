@@ -491,18 +491,22 @@ def on_message(message):
                         logger.debug("Supression du message : " + message.author.name + " | " + message.content)
                         yield from client.delete_message(message)
                     return
+        x = PrettyTable()
 
-        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du chasseur : \n" \
-            "Canards tués : " + str(database.getStat(message.channel, target, "canardsTues")) + "\n" \
-            "Tirs manqués : " + str(database.getStat(message.channel, target, "tirsManques")) + "\n" \
-            "Tirs sans canards : " + str(database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
-            "Balles : " + str(database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + "/" + str(database.getPlayerLevel(message.channel, target)["balles"]) + "\n" \
-            "Chargeurs : " + str(database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + "/" + str(database.getPlayerLevel(message.channel, target)["chargeurs"]) + "\n" \
-            "Meilleur Temps : " + str(database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)) + "\n" \
-            "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
-            "Niveau : " + str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"+ "\n"\
-            "Précision du tir : " + str(database.getPlayerLevel(message.channel, target)["precision"]) + "\n"\
-            "Fiabilitée de l'arme : " + str(database.getPlayerLevel(message.channel, target)["fiabilitee"])                           )
+        x._set_field_names(["Statistique", "Valeur"])
+        x.add_row(["Canards tués", database.getStat(message.channel, target, "canardsTues")])
+        x.add_row(["Tirs manqués", database.getStat(message.channel, target, "tirsManques")])
+        x.add_row(["Tirs sans canards", database.getStat(message.channel, target, "tirsSansCanards")])
+        x.add_row(["Meilleur temps de tir", database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)])
+        x.add_row(["Balles dans le chargeur actuel", str(database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + " / " + str(database.getPlayerLevel(message.channel, target)["balles"])])
+        x.add_row(["Chargeurs restants", str(database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + " / " + str(database.getPlayerLevel(message.channel, target)["chargeurs"])])
+        x.add_row(["Experience", database.getStat(message.channel, target, "exp")])
+        x.add_row(["Niveau actuel", str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"])
+        x.add_row(["Précision des tirs", database.getPlayerLevel(message.channel, target)["precision"]])
+        x.add_row(["Fiabilitée de l'arme", database.getPlayerLevel(message.channel, target)["fiabilitee"]])
+
+        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du chasseur : \n```" + x.get_string() + "```\nhttps://api-d.com/snaps/table_de_progression.html")
+
 
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
