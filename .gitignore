@@ -189,3 +189,5 @@ local.properties
 .idea/
 Discord-duckhunt.iml
 /config.py
+.DS_Store
+scores.db

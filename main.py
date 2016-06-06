@@ -77,7 +77,7 @@ def planifie():
                         logger.debug("   |-Ajout channel : " + channel.id)
                         templist = []
                         now = time.time()
-                        thisDay = now - (now % 86400)
+                        thisDay = now - (now % 86400) + 7200
                         for id in range(1, canardsJours + 1):
                             templist.append(int(thisDay + random.randint(0, 86400)))
                         planification_[channel] = sorted(templist)
@@ -107,9 +107,10 @@ def getprochaincanard():
 
     if not prochaincanard["channel"]:
         thisDay = now - (now % 86400)
-        logger.debug("Plus de canards pour aujourd'hui ! Attente jusqu'a demain (" + str(thisDay + 86400 - time.time()) + " sec)")
-        yield from asyncio.sleep(thisDay + 86400 - time.time())
-        prochaincanard = yield from  getprochaincanard()
+        logger.debug("Plus de canards pour aujourd'hui !  Il faut attendre jusqu'a demain (" + str(thisDay + 86400 - time.time()) + " sec)")
+        # yield from asyncio.sleep(thisDay + 86401 - time.time())
+        # prochaincanard = yield from  getprochaincanard()
+        yield from asyncio.sleep(30)
     else:
 
         logger.debug(
@@ -127,9 +128,10 @@ def mainloop():
     while not exit_:
         now = time.time()
 
-        if (int(now)+ 7200) % 86400 == 0:
+        if (int(now) + 7200) % 86400 == 0:
             database.giveBack(logger)
-            planifie()
+            yield from planifie()
+            prochaincanard = yield from getprochaincanard()
 
         if int(now) % 60 == 0:
             timetonext = prochaincanard["time"] - now
@@ -138,7 +140,7 @@ def mainloop():
                 prochaincanard["channel"].server.name)
             logger.debug("Canards en cours : " + str(canards))
 
-        if prochaincanard["time"] < now:  # CANARD !
+        if prochaincanard["time"] < now and prochaincanard["time"] is not 0:  # CANARD !
             yield from nouveauCanard(prochaincanard)
             prochaincanard = yield from getprochaincanard()
 
@@ -180,7 +182,9 @@ def on_message(message):
             yield from client.send_message(message.channel,
                                            str(message.author.mention) + " > Votre arme est enrayée, il faut la recharger pour la décoincer.")
             return
-        if database.getStat(message.channel, message.author, "sabotee", default="-") != "-":
+        if database.getStat(message.channel, message.author, "sabotee", default="-") is not "-":
+            logger.debug("Arme sabotée par : " + database.getStat(message.channel, message.author, "sabotee", default="-"))
+
             yield from client.send_message(message.channel,
                                            str(message.author.mention) + " > Votre arme est sabotée, remerciez " + database.getStat(message.channel,
                                                                                                                                     message.author,
@@ -193,11 +197,11 @@ def on_message(message):
         if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) <= 0:
             yield from client.send_message(message.channel, str(message.author.mention) + " > **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
                 database.getStat(message.channel, message.author, "balles",
-                                 default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" +
-                                           str(database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
+                                 default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" + str(
+                database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
                 database.getStat(message.channel, message.author, "chargeurs",
-                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"])) + "/" +
-                                           str(database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
+                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"])) + "/" + str(
+                database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
             return
         else:
             if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["fiabilitee"]:
@@ -229,8 +233,9 @@ def on_message(message):
                     if database.getStat(message.channel, message.author, "meilleurTemps", default=tempsAttente) > int(now - canardencours["time"]):
                         database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
 
-                    if random.randint(0,100) < 25:
-                        yield from client.send_message(message.channel, str(message.author.mention) + " > En fouillant les buissons autour du canard, tu trouves " + random.choice(inutilite))
+                    if random.randint(0, 100) < 25:
+                        yield from client.send_message(message.channel, str(
+                            message.author.mention) + " > En fouillant les buissons autour du canard, tu trouves " + random.choice(inutilite))
 
 
 
@@ -260,34 +265,38 @@ def on_message(message):
                 return
 
         if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) <= 0:
-            if database.getStat(message.channel, message.author, "chargeurs", default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) > 0:
-                database.setStat(message.channel, message.author, "balles", database.getPlayerLevel(message.channel, message.author)["balles"] )
+            if database.getStat(message.channel, message.author, "chargeurs",
+                                default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) > 0:
+                database.setStat(message.channel, message.author, "balles", database.getPlayerLevel(message.channel, message.author)["balles"])
                 database.addToStat(message.channel, message.author, "chargeurs", -1)
                 yield from client.send_message(message.author, str(message.author.mention) + " > Tu recharges ton arme. | Munitions dans l'arme : " + str(
                     database.getStat(message.channel, message.author, "balles",
-                                     default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" +
-                                               str(database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
+                                     default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" + str(
+                    database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
                     database.getStat(message.channel, message.author, "chargeurs",
-                                     default=database.getPlayerLevel(message.channel, message.author)["chargeurs"])) + "/" +
-                                               str(database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
+                                     default=database.getPlayerLevel(message.channel, message.author)["chargeurs"])) + "/" + str(
+                    database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
             else:
                 yield from client.send_message(message.author,
                                                str(message.author.mention) + " > Tu es à court de munitions. | Munitions dans l'arme : " + str(
                                                    database.getStat(message.channel, message.author, "balles",
-                                                                    default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" +
-                                               str(database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
+                                                                    default=database.getPlayerLevel(message.channel, message.author)[
+                                                                        "balles"])) + "/" + str(
+                                                   database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
                                                    database.getStat(message.channel, message.author, "chargeurs",
-                                                                    default=database.getPlayerLevel(message.channel, message.author)["chargeurs"])) + "/" +
-                                               str(database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
+                                                                    default=database.getPlayerLevel(message.channel, message.author)[
+                                                                        "chargeurs"])) + "/" + str(
+                                                   database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
         else:
             yield from client.send_message(message.author,
                                            str(message.author.mention) + " > Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : " + str(
                                                database.getStat(message.channel, message.author, "balles",
-                                                                default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" +
-                                           str(database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
+                                                                default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" + str(
+                                               database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
                                                database.getStat(message.channel, message.author, "chargeurs",
-                                                                default=database.getPlayerLevel(message.channel, message.author)["chargeurs"])) + "/" +
-                                           str(database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
+                                                                default=database.getPlayerLevel(message.channel, message.author)[
+                                                                    "chargeurs"])) + "/" + str(
+                                               database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
@@ -314,7 +323,8 @@ def on_message(message):
                 return
 
         if item == 1:
-            if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) < database.getPlayerLevel(message.channel, message.author)["balles"]:
+            if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) < \
+                    database.getPlayerLevel(message.channel, message.author)["balles"]:
                 if database.getStat(message.channel, message.author, "exp") > 7:
                     yield from client.send_message(message.channel, str(
                         message.author.mention) + " > :money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience")
@@ -328,7 +338,9 @@ def on_message(message):
                 yield from client.send_message(message.author, str(message.author.mention) + " > :champagne: Ton chargeur est déjà plein !")
 
         elif item == 2:
-            if database.getStat(message.channel, message.author, "chargeurs", default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) < database.getPlayerLevel(message.channel, message.author)["chargeurs"]:
+            if database.getStat(message.channel, message.author, "chargeurs",
+                                default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) < \
+                    database.getPlayerLevel(message.channel, message.author)["chargeurs"]:
                 if database.getStat(message.channel, message.author, "exp") > 13:
                     yield from client.send_message(message.author, str(
                         message.author.mention) + " > :money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience")
@@ -372,6 +384,17 @@ def on_message(message):
             else:
                 yield from client.send_message(message.author,
                                                str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+        elif item == 20:
+            if database.getStat(message.channel, message.author, "exp") > 8:
+                yield from client.send_message(message.author, ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de " + message.author.mention +  ". Ca lui coûte 8 exp !")
+                database.addToStat(message.channel, message.author, "exp", -8)
+                yield from asyncio.sleep(random.randint(0, 60*10))
+                nouveauCanard({"time": int(time.time()), "channel": message.channel})
+
+            else:
+                yield from client.send_message(message.author,
+                                               str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
+
 
         elif item == 23:
             if database.getStat(message.channel, message.author, "exp") > 50:
@@ -468,19 +491,13 @@ def on_message(message):
                     return
 
         yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du " + database.getPlayerLevel(message.channel, message.author)["nom"] + ": \n" \
-                                                                                     "Canards tués : " + str(
-            database.getStat(message.channel, target, "canardsTues")) + "\n" \
-                                                                        "Tirs manqués : " + str(
-            database.getStat(message.channel, target, "tirsManques")) + "\n" \
-                                                                        "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
-                                                                                                                                                  "Tirs sans canards : " + str(
-            database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
-                                                                            "Balles : " + str(
-            database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + "/" + str(database.getPlayerLevel(message.channel, target)["balles"]) + "\n" \
-                                                                              "Chargeurs : " + str(
-            database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + "/" + str(database.getPlayerLevel(message.channel, target)["chargeurs"]) + "\n" \
-                                                                                 "Meilleur Temps : " + str(
-            database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)))
+            "Canards tués : " + str(database.getStat(message.channel, target, "canardsTues")) + "\n" \
+            "Tirs manqués : " + str(database.getStat(message.channel, target, "tirsManques")) + "\n" \
+            "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
+            "Tirs sans canards : " + str(database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
+            "Balles : " + str(database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + "/" + str(database.getPlayerLevel(message.channel, target)["balles"]) + "\n" \
+            "Chargeurs : " + str(database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + "/" + str(database.getPlayerLevel(message.channel, target)["chargeurs"]) + "\n" \
+            "Meilleur Temps : " + str(database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)))
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
@@ -524,6 +541,21 @@ def on_message(message):
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
+
+    elif message.content.startswith("!nextduck"):
+        logger.debug("> NEXTDUCK (" + str(message.author) + ")")
+
+        if int(message.author.id) in admins:
+            prochaincanard = yield from getprochaincanard()
+            timetonext = int(prochaincanard["time"] - time.time())
+            yield from client.send_message(message.author, "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name + " - " +
+                                           prochaincanard["channel"].server.name)
+        else:
+            yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
+        if deleteCommands:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+
 
 
 client.run(token)
