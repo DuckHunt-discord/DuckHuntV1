@@ -389,9 +389,9 @@ def on_message(message):
                 yield from client.send_message(message.channel, ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de " + message.author.mention +  ". Ca lui coûte 8 exp !")
                 database.addToStat(message.channel, message.author, "exp", -8)
                 dans = random.randint(0, 60*10)
-                logger.debug("Appeau lancé pour dans " + str(dans) + "sec")
+                logger.debug("Appeau lancé pour dans " + str(dans) + "sec sur " + message.channel.name + " | " + message.channel.server.name )
                 yield from asyncio.sleep(dans)
-                nouveauCanard({"time": int(time.time()), "channel": message.channel})
+                yield from nouveauCanard({"time": int(time.time()), "channel": message.channel})
 
             else:
                 yield from client.send_message(message.author,
@@ -416,7 +416,7 @@ def on_message(message):
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
 
-    elif message.content.startswith("-,,.-"):
+    elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "/_^<" in message.content:
         yield from client.send_message(message.channel, str(
             message.author.mention) + " > Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
         database.addToStat(message.channel, message.author, "exp", -1)
@@ -492,14 +492,15 @@ def on_message(message):
                         yield from client.delete_message(message)
                     return
 
-        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du " + database.getPlayerLevel(message.channel, message.author)["nom"] + ": \n" \
+        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du chasseur : \n" \
             "Canards tués : " + str(database.getStat(message.channel, target, "canardsTues")) + "\n" \
             "Tirs manqués : " + str(database.getStat(message.channel, target, "tirsManques")) + "\n" \
             "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
             "Tirs sans canards : " + str(database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
             "Balles : " + str(database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + "/" + str(database.getPlayerLevel(message.channel, target)["balles"]) + "\n" \
             "Chargeurs : " + str(database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + "/" + str(database.getPlayerLevel(message.channel, target)["chargeurs"]) + "\n" \
-            "Meilleur Temps : " + str(database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)))
+            "Meilleur Temps : " + str(database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)) + "\n"\
+            "Niveau : " + str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")")
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
