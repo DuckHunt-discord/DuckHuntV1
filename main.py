@@ -495,12 +495,15 @@ def on_message(message):
         yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du chasseur : \n" \
             "Canards tués : " + str(database.getStat(message.channel, target, "canardsTues")) + "\n" \
             "Tirs manqués : " + str(database.getStat(message.channel, target, "tirsManques")) + "\n" \
-            "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
             "Tirs sans canards : " + str(database.getStat(message.channel, target, "tirsSansCanards")) + "\n" \
             "Balles : " + str(database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + "/" + str(database.getPlayerLevel(message.channel, target)["balles"]) + "\n" \
             "Chargeurs : " + str(database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + "/" + str(database.getPlayerLevel(message.channel, target)["chargeurs"]) + "\n" \
-            "Meilleur Temps : " + str(database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)) + "\n"\
-            "Niveau : " + str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")")
+            "Meilleur Temps : " + str(database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)) + "\n" \
+            "Experience : " + str(database.getStat(message.channel, target, "exp")) + "\n" \
+            "Niveau : " + str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"+ "\n"\
+            "Précision du tir : " + str(database.getPlayerLevel(message.channel, target)["precision"]) + "\n"\
+            "Fiabilitée de l'arme : " + str(database.getPlayerLevel(message.channel, target)["fiabilitee"])                           )
+
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
