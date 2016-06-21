@@ -26,11 +26,13 @@ import discord
 import asyncio
 import random
 import time
+import json
 
 import database
 from prettytable import PrettyTable
 
 from config import *
+
 
 ## INIT ##
 logger = logging.getLogger("duckhunt")
@@ -55,6 +57,25 @@ client = discord.Client()
 planification = {}  # {"channel":[time objects]}
 canards = []  # [{"channel" : channel, "time" : time.time()}]
 
+def JSONsaveToDisk(data, filename):
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, sort_keys=True, indent=4, ensure_ascii=False)
+
+def JSONloadFromDisk(filename, default="{}", error=False):
+    try:
+        file = open(filename, 'r')
+        data = json.load(file)
+        return data
+    except IOError:
+        if not error:
+            file = open(filename, 'w')
+            file.write(default)
+            file.close()
+            file = open(filename, 'r')
+            data = json.load(file)
+            return data
+        else:
+            raise
 
 @asyncio.coroutine
 def planifie():
@@ -63,24 +84,28 @@ def planifie():
     planification_ = {}
 
     logger.debug("Time now : " + str(time.time()))
+    yield from asyncio.sleep(2)
+    now = time.time()
+    thisDay = now - (now % 86400)
+    servers = JSONloadFromDisk("channels.json", default="{}")
 
     for server in client.servers:
         logger.debug("Serveur " + str(server))
-        for channel in server.channels:
-            if channel.type == discord.ChannelType.text:
-
-                logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
-                permissions = channel.permissions_for(server.me)
-                if permissions.read_messages and permissions.send_messages:
-                    if (channelWL and int(channel.id) in whitelist) or not channelWL:
-
-                        logger.debug("   |-Ajout channel : " + channel.id)
-                        templist = []
-                        now = time.time()
-                        thisDay = now - (now % 86400) + 7200
-                        for id in range(1, canardsJours + 1):
-                            templist.append(int(thisDay + random.randint(0, 86400)))
-                        planification_[channel] = sorted(templist)
+        if not server.id in servers:
+            logger.debug(" |- Serveur inexistant dans channels.json")
+        else:
+            for channel in server.channels:
+                if channel.type == discord.ChannelType.text:
+                    logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
+                    permissions = channel.permissions_for(server.me)
+                    if permissions.read_messages and permissions.send_messages:
+                        #if (channelWL and int(channel.id) in whitelist) or not channelWL:
+                        if channel.id in servers[server.id]["channels"]:
+                            logger.debug("   |-Ajout channel : " + channel.id)
+                            templist = []
+                            for id in range(1, canardsJours + 1):
+                                templist.append(int(thisDay + random.randint(0, 86400)))
+                            planification_[channel] = sorted(templist)
 
     logger.debug("Nouvelle planification : " + str(planification_))
 
@@ -94,7 +119,7 @@ def nouveauCanard(canard):
     yield from client.send_message(canard["channel"], "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK")
     canards.append(canard)
 
-
+@asyncio.coroutine
 def getprochaincanard():
     now = time.time()
     prochaincanard = {"time": 0, "channel": None}
@@ -110,7 +135,8 @@ def getprochaincanard():
         logger.debug("Plus de canards pour aujourd'hui !  Il faut attendre jusqu'a demain (" + str(thisDay + 86400 - time.time()) + " sec)")
         # yield from asyncio.sleep(thisDay + 86401 - time.time())
         # prochaincanard = yield from  getprochaincanard()
-        yield from asyncio.sleep(30)
+        return {"time": 0, "channel": None}
+
     else:
 
         logger.debug(
@@ -128,20 +154,24 @@ def mainloop():
     while not exit_:
         now = time.time()
 
-        if (int(now) + 7200) % 86400 == 0:
+        if (int(now)) % 86400 == 0:
             database.giveBack(logger)
+            yield from asyncio.sleep(1)
             yield from planifie()
             prochaincanard = yield from getprochaincanard()
 
-        if int(now) % 60 == 0:
+        if int(now) % 60 == 0 and prochaincanard["time"] != 0:
             timetonext = prochaincanard["time"] - now
             logger.debug(
                 "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name + " - " +
                 prochaincanard["channel"].server.name)
             logger.debug("Canards en cours : " + str(canards))
 
-        if prochaincanard["time"] < now and prochaincanard["time"] is not 0:  # CANARD !
+        if prochaincanard["time"] < now and prochaincanard["time"] != 0:  # CANARD !
             yield from nouveauCanard(prochaincanard)
+            prochaincanard = yield from getprochaincanard()
+
+        if prochaincanard["time"] == 0:
             prochaincanard = yield from getprochaincanard()
 
         for canard in canards:
@@ -167,8 +197,59 @@ def on_ready():
 def on_message(message):
     if message.author == client.user:
         return
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    if not message.channel.server.id in servers:
+        logger.debug("Ajout du serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name) + " au fichier...")
+        servers[message.channel.server.id] = {"admins" : [], "channels" : []}
 
-    if int(message.channel.id) not in whitelist:
+    if message.content.startswith("!claimserver"):
+        if not message.channel.server.id in servers:
+            logger.debug("Ajout du serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name) + " au fichier...")
+            servers[message.channel.server.id] = {"admins" : [], "channels" : []}
+
+        if not "admins" in servers[message.channel.server.id] or servers[message.channel.server.id]["admins"] == [] :
+            servers[message.channel.server.id]["admins"] = [message.author.id]
+            logger.debug("Ajout de l'admin " + str(message.author.id) +  " | " + str(message.author.name) + " au fichier pour le serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name))
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Vous etes maintenent le gestionnaire du serveur !")
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il y a déjà un admin sur ce serveur...")
+        JSONsaveToDisk(servers, "channels.json")
+        return
+
+    elif message.content.startswith('!addchannel'):
+        if not message.channel.server.id in servers:
+            logger.debug("Ajout du serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name) + " au fichier...")
+            servers[message.channel.server.id] = {"admins" : [], "channels" : []}
+
+
+        if message.author.id in servers[message.channel.server.id]["admins"]:
+            if not message.channel.id in servers[message.channel.server.id]["channels"]:
+                logger.debug("Ajout de la channel " + str(message.channel.id) +  " | " + str(message.channel.name) + " au fichier...")
+                servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
+                JSONsaveToDisk(servers, "channels.json")
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel ajoutée au jeu !")
+                yield from planifie()
+
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel existe déjà dans le jeu.")
+        elif message.author.id in admins:
+            if not message.channel.id in servers[message.channel.server.id]["channels"]:
+                logger.debug("Ajout de la channel " + str(message.channel.id) +  " | " + str(message.channel.name) + " au fichier...")
+                servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
+                JSONsaveToDisk(servers, "channels.json")
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur.")
+                yield from planifie()
+
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur.")
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Vous n'etes pas l'administrateur du serveur.")
+
+        return
+
+
+
+    if message.channel.id not in servers[message.channel.server.id]["channels"]:
         return
 
     if message.content.startswith('!bang'):
@@ -219,7 +300,14 @@ def on_message(message):
                     break
 
             if canardencours:
-
+                if random.randint(1, 100) < 5:
+                    canards.remove(canardencours)
+                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
+                    yield from asyncio.sleep(1)
+                    yield from client.edit_message(tmp, str(
+                        message.author.mention) + " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]")
+                    database.addToStat(message.channel, message.author, "exp", -1)
+                    return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
                     canards.remove(canardencours)
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
@@ -386,10 +474,11 @@ def on_message(message):
                                                str(message.author.mention) + " > :x: Tu n'as pas assez d'experience pour effectuer cet achat ! !")
         elif item == 20:
             if database.getStat(message.channel, message.author, "exp") > 8:
-                yield from client.send_message(message.channel, ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de " + message.author.mention +  ". Ca lui coûte 8 exp !")
+                yield from client.send_message(message.channel,
+                                               ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de " + message.author.mention + ". Ca lui coûte 8 exp !")
                 database.addToStat(message.channel, message.author, "exp", -8)
-                dans = random.randint(0, 60*10)
-                logger.debug("Appeau lancé pour dans " + str(dans) + "sec sur " + message.channel.name + " | " + message.channel.server.name )
+                dans = random.randint(0, 60 * 10)
+                logger.debug("Appeau lancé pour dans " + str(dans) + "sec sur " + message.channel.name + " | " + message.channel.server.name)
                 yield from asyncio.sleep(dans)
                 yield from nouveauCanard({"time": int(time.time()), "channel": message.channel})
 
@@ -429,7 +518,7 @@ def on_message(message):
         else:
             try:
                 nombre = int(args_[1])
-                if nombre not in range(1, 50):
+                if nombre not in range(1, 50 + 1):
                     yield from client.send_message(message.author, str(
                         message.author.mention) + " > :mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
                     if deleteCommands:
@@ -498,21 +587,26 @@ def on_message(message):
         x.add_row(["Tirs manqués", database.getStat(message.channel, target, "tirsManques")])
         x.add_row(["Tirs sans canards", database.getStat(message.channel, target, "tirsSansCanards")])
         x.add_row(["Meilleur temps de tir", database.getStat(message.channel, target, "meilleurTemps", default=tempsAttente)])
-        x.add_row(["Balles dans le chargeur actuel", str(database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + " / " + str(database.getPlayerLevel(message.channel, target)["balles"])])
-        x.add_row(["Chargeurs restants", str(database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + " / " + str(database.getPlayerLevel(message.channel, target)["chargeurs"])])
+        x.add_row(["Balles dans le chargeur actuel", str(
+            database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + " / " + str(
+            database.getPlayerLevel(message.channel, target)["balles"])])
+        x.add_row(["Chargeurs restants", str(
+            database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + " / " + str(
+            database.getPlayerLevel(message.channel, target)["chargeurs"])])
         x.add_row(["Experience", database.getStat(message.channel, target, "exp")])
-        x.add_row(["Niveau actuel", str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"])
+        x.add_row(["Niveau actuel",
+                   str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"])
         x.add_row(["Précision des tirs", database.getPlayerLevel(message.channel, target)["precision"]])
         x.add_row(["Fiabilitée de l'arme", database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
-        yield from client.send_message(message.author, str(message.author.mention) + " > Statistiques du chasseur : \n```" + x.get_string() + "```\nhttps://api-d.com/snaps/table_de_progression.html")
-
+        yield from client.send_message(message.author, str(
+            message.author.mention) + " > Statistiques du chasseur : \n```" + x.get_string() + "```\nhttps://api-d.com/snaps/table_de_progression.html")
 
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
 
-    elif message.content.startswith("!aide") or message.content.startswith("!help"):
+    elif message.content.startswith("!aide") or message.content.startswith("!help") or message.content.startswith("!info"):
         yield from client.send_message(message.author, aideMsg)
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
@@ -542,7 +636,7 @@ def on_message(message):
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
 
-    elif message.content.startswith("!info"):
+    elif message.content.startswith("!devinfo"):
         logger.debug("INFO (" + str(message.author) + ")")
         yield from client.send_message(message.channel, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
@@ -558,14 +652,15 @@ def on_message(message):
         if int(message.author.id) in admins:
             prochaincanard = yield from getprochaincanard()
             timetonext = int(prochaincanard["time"] - time.time())
-            yield from client.send_message(message.author, "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" + prochaincanard["channel"].name + " - " +
+            yield from client.send_message(message.author,
+                                           "Prochain canard : " + str(prochaincanard["time"]) + "(dans " + str(timetonext) + " sec) sur #" +
+                                           prochaincanard["channel"].name + " - " +
                                            prochaincanard["channel"].server.name)
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
         if deleteCommands:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
-
 
 
 client.run(token)
