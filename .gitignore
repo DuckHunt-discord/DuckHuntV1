@@ -191,3 +191,4 @@ Discord-duckhunt.iml
 /config.py
 .DS_Store
 scores.db
+/channels.json
