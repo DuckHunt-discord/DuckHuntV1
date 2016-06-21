@@ -33,7 +33,6 @@ from prettytable import PrettyTable
 
 from config import *
 
-
 ## INIT ##
 logger = logging.getLogger("duckhunt")
 logger.setLevel(logging.DEBUG)
@@ -57,9 +56,11 @@ client = discord.Client()
 planification = {}  # {"channel":[time objects]}
 canards = []  # [{"channel" : channel, "time" : time.time()}]
 
+
 def JSONsaveToDisk(data, filename):
     with open(filename, 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4, ensure_ascii=False)
+
 
 def JSONloadFromDisk(filename, default="{}", error=False):
     try:
@@ -76,6 +77,7 @@ def JSONloadFromDisk(filename, default="{}", error=False):
             return data
         else:
             raise
+
 
 @asyncio.coroutine
 def planifie():
@@ -99,7 +101,7 @@ def planifie():
                     logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
                     permissions = channel.permissions_for(server.me)
                     if permissions.read_messages and permissions.send_messages:
-                        #if (channelWL and int(channel.id) in whitelist) or not channelWL:
+                        # if (channelWL and int(channel.id) in whitelist) or not channelWL:
                         if channel.id in servers[server.id]["channels"]:
                             logger.debug("   |-Ajout channel : " + channel.id)
                             templist = []
@@ -118,6 +120,7 @@ def nouveauCanard(canard):
     logger.debug("Nouveau canard : " + str(canard))
     yield from client.send_message(canard["channel"], "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK")
     canards.append(canard)
+
 
 @asyncio.coroutine
 def getprochaincanard():
@@ -199,17 +202,20 @@ def on_message(message):
         return
     servers = JSONloadFromDisk("channels.json", default="{}")
     if not message.channel.server.id in servers:
-        logger.debug("Ajout du serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name) + " au fichier...")
-        servers[message.channel.server.id] = {"admins" : [], "channels" : []}
+        logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
+        servers[message.channel.server.id] = {"admins": [], "channels": []}
+
+    # Messages pour n'importe où
 
     if message.content.startswith("!claimserver"):
         if not message.channel.server.id in servers:
-            logger.debug("Ajout du serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name) + " au fichier...")
-            servers[message.channel.server.id] = {"admins" : [], "channels" : []}
+            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
+            servers[message.channel.server.id] = {"admins": [], "channels": []}
 
-        if not "admins" in servers[message.channel.server.id] or servers[message.channel.server.id]["admins"] == [] :
+        if not "admins" in servers[message.channel.server.id] or servers[message.channel.server.id]["admins"] == []:
             servers[message.channel.server.id]["admins"] = [message.author.id]
-            logger.debug("Ajout de l'admin " + str(message.author.id) +  " | " + str(message.author.name) + " au fichier pour le serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name))
+            logger.debug("Ajout de l'admin " + str(message.author.id) + " | " + str(message.author.name) + " au fichier pour le serveur " + str(
+                message.channel.server.id) + " | " + str(message.channel.server.name))
             yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Vous etes maintenent le gestionnaire du serveur !")
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il y a déjà un admin sur ce serveur...")
@@ -218,13 +224,12 @@ def on_message(message):
 
     elif message.content.startswith('!addchannel'):
         if not message.channel.server.id in servers:
-            logger.debug("Ajout du serveur " + str(message.channel.server.id) +  " | " + str(message.channel.server.name) + " au fichier...")
-            servers[message.channel.server.id] = {"admins" : [], "channels" : []}
-
+            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
+            servers[message.channel.server.id] = {"admins": [], "channels": []}
 
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
-                logger.debug("Ajout de la channel " + str(message.channel.id) +  " | " + str(message.channel.name) + " au fichier...")
+                logger.debug("Ajout de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " au fichier...")
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
                 yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel ajoutée au jeu !")
@@ -234,24 +239,26 @@ def on_message(message):
                 yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel existe déjà dans le jeu.")
         elif message.author.id in admins:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
-                logger.debug("Ajout de la channel " + str(message.channel.id) +  " | " + str(message.channel.name) + " au fichier...")
+                logger.debug("Ajout de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " au fichier...")
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur.")
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > :robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur.")
                 yield from planifie()
 
             else:
-                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur.")
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > :x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur.")
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Vous n'etes pas l'administrateur du serveur.")
 
         return
 
-
-
     if message.channel.id not in servers[message.channel.server.id]["channels"]:
         return
 
+    # Messages en whitelist sur les channels activées
+    
     if message.content.startswith('!bang'):
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
