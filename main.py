@@ -121,6 +121,7 @@ def nouveauCanard(canard):
     yield from client.send_message(canard["channel"], "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK")
     canards.append(canard)
 
+@asyncio.coroutine
 def deleteMessage(message):
     if deleteCommands:
         if message.channel.permissions_for(message.server.me).manage_messages:
@@ -399,7 +400,7 @@ def on_message(message):
                                                                 default=database.getPlayerLevel(message.channel, message.author)[
                                                                     "chargeurs"])) + "/" + str(
                                                database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!shop"):
         logger.debug("> SHOP (" + str(message.author) + ")")
@@ -407,7 +408,7 @@ def on_message(message):
         if len(args_) == 1:
             yield from client.send_message(message.author, str(
                 message.author.mention) + " > :mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
-            deleteMessage(message)
+            yield from deleteMessage(message)
             return
         else:
             try:
@@ -415,7 +416,7 @@ def on_message(message):
             except ValueError:
                 yield from client.send_message(message.author, str(
                     message.author.mention) + " > :mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
-                deleteMessage(message)
+                yield from deleteMessage(message)
                 return
 
         if item == 1:
@@ -453,7 +454,7 @@ def on_message(message):
             if len(args_) <= 2:
                 yield from client.send_message(message.author, str(
                     message.author.mention) + " > C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p")
-                deleteMessage(message)
+                yield from deleteMessage(message)
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[2])
@@ -461,7 +462,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
                     yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne : " + args_[2])
-                    deleteMessage(message)
+                    yield from deleteMessage(message)
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 14:
@@ -505,7 +506,7 @@ def on_message(message):
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > :x: Objet non trouvé :'(")
 
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "/_^<" in message.content:
         yield from client.send_message(message.channel, str(
@@ -523,13 +524,13 @@ def on_message(message):
                 if nombre not in range(1, 50 + 1):
                     yield from client.send_message(message.author, str(
                         message.author.mention) + " > :mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
-                    deleteMessage(message)
+                    yield from deleteMessage(message)
                     return
 
             except ValueError:
                 yield from client.send_message(message.author, str(
                     message.author.mention) + " > :mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`")
-                deleteMessage(message)
+                yield from deleteMessage(message)
                 return
         x = PrettyTable()
 
@@ -547,7 +548,7 @@ def on_message(message):
                                        ":cocktail: Meilleurs scores pour #" + message.channel.name + " : :cocktail:\n```" + x.get_string(end=nombre,
                                                                                                                                          sortby="Position") + "```")
 
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith('!ping'):
 
@@ -555,7 +556,7 @@ def on_message(message):
         tmp = yield from client.send_message(message.channel, 'BOUM')
         yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!duckstat"):
         logger.debug("> DUCKSTATS (" + str(message.author) + ")")
@@ -570,7 +571,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
-                    deleteMessage(message)
+                    yield from deleteMessage(message)
                     return
         x = PrettyTable()
 
@@ -594,12 +595,11 @@ def on_message(message):
         yield from client.send_message(message.author, str(
             message.author.mention) + " > Statistiques du chasseur : \n```" + x.get_string() + "```\nhttps://api-d.com/snaps/table_de_progression.html")
 
-        deleteMessage(message)
-
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!aide") or message.content.startswith("!help") or message.content.startswith("!info"):
         yield from client.send_message(message.author, aideMsg)
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!giveback"):
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
@@ -610,7 +610,7 @@ def on_message(message):
             yield from client.send_message(message.author, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!coin"):
         logger.debug("> COIN (" + str(message.author) + ")")
@@ -619,7 +619,7 @@ def on_message(message):
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!devinfo"):
         logger.debug("INFO (" + str(message.author) + ")")
@@ -627,7 +627,7 @@ def on_message(message):
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
         yield from client.send_message(message.channel,
                                        ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
-        deleteMessage(message)
+        yield from deleteMessage(message)
 
     elif message.content.startswith("!nextduck"):
         logger.debug("> NEXTDUCK (" + str(message.author) + ")")
@@ -641,7 +641,67 @@ def on_message(message):
                                            prochaincanard["channel"].server.name)
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
-        deleteMessage(message)
+        yield from deleteMessage(message)
+
+    elif message.content.startswith('!delchannel'):
+        if not message.channel.server.id in servers:
+            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
+            servers[message.channel.server.id] = {"admins": [], "channels": []}
+
+        if message.author.id in servers[message.channel.server.id]["admins"]:
+            if message.channel.id in servers[message.channel.server.id]["channels"]:
+                logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
+                servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
+                JSONsaveToDisk(servers, "channels.json")
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés...")
+                yield from planifie()
+
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel n'existe pas dans le jeu.")
+        elif message.author.id in admins:
+            if message.channel.id in servers[message.channel.server.id]["channels"]:
+                logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
+                servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
+                JSONsaveToDisk(servers, "channels.json")
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur")
+                yield from planifie()
+
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur")
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Vous n'etes pas l'administrateur du serveur.")
+
+        return
+
+    elif message.content.startswith("!addadmin"):
+        if not message.channel.server.id in servers:
+            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
+            servers[message.channel.server.id] = {"admins": [], "channels": []}
+
+        args_ = message.content.split(" ")
+        if len(args_) == 1:
+            target = message.author
+        else:
+            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
+            target = message.channel.server.get_member_named(args_[1])
+            if target is None:
+                target = message.channel.server.get_member(args_[1])
+                if target is None:
+                    yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
+                    yield from deleteMessage(message)
+                    return
+        if not "admins" in servers[message.channel.server.id]:
+            servers[message.channel.server.id]["admins"] = []
+
+        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+            servers[message.channel.server.id]["admins"].append(target.id)
+            logger.debug("Ajout de l'admin " + str(target.id) + " | " + str(target.name) + " au fichier pour le serveur " + str(
+                message.channel.server.id) + " | " + str(message.channel.server.name))
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: " + target.name + " est maintenent un gestionnaire du serveur !")
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
+        JSONsaveToDisk(servers, "channels.json")
+        return
 
 
 client.run(token)
