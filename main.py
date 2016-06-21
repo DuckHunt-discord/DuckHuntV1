@@ -121,7 +121,13 @@ def nouveauCanard(canard):
     yield from client.send_message(canard["channel"], "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK")
     canards.append(canard)
 
-
+def deleteMessage(message):
+    if deleteCommands:
+        if message.channel.permissions_for(message.server.me).manage_messages:
+            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
+            yield from client.delete_message(message)
+        else:
+            logger.debug("Supression du message échouée [permission denied] : " + message.author.name + " | " + message.content)
 @asyncio.coroutine
 def getprochaincanard():
     now = time.time()
@@ -393,9 +399,7 @@ def on_message(message):
                                                                 default=database.getPlayerLevel(message.channel, message.author)[
                                                                     "chargeurs"])) + "/" + str(
                                                database.getPlayerLevel(message.channel, message.author)["chargeurs"]))
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("!shop"):
         logger.debug("> SHOP (" + str(message.author) + ")")
@@ -403,9 +407,7 @@ def on_message(message):
         if len(args_) == 1:
             yield from client.send_message(message.author, str(
                 message.author.mention) + " > :mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`")
-            if deleteCommands:
-                logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                yield from client.delete_message(message)
+            deleteMessage(message)
             return
         else:
             try:
@@ -413,9 +415,7 @@ def on_message(message):
             except ValueError:
                 yield from client.send_message(message.author, str(
                     message.author.mention) + " > :mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`")
-                if deleteCommands:
-                    logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                    yield from client.delete_message(message)
+                deleteMessage(message)
                 return
 
         if item == 1:
@@ -453,9 +453,7 @@ def on_message(message):
             if len(args_) <= 2:
                 yield from client.send_message(message.author, str(
                     message.author.mention) + " > C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p")
-                if deleteCommands:
-                    logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                    yield from client.delete_message(message)
+                deleteMessage(message)
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[2])
@@ -463,9 +461,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
                     yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne : " + args_[2])
-                    if deleteCommands:
-                        logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                        yield from client.delete_message(message)
+                    deleteMessage(message)
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 14:
@@ -509,9 +505,7 @@ def on_message(message):
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > :x: Objet non trouvé :'(")
 
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "/_^<" in message.content:
         yield from client.send_message(message.channel, str(
@@ -529,17 +523,13 @@ def on_message(message):
                 if nombre not in range(1, 50 + 1):
                     yield from client.send_message(message.author, str(
                         message.author.mention) + " > :mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
-                    if deleteCommands:
-                        logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                        yield from client.delete_message(message)
+                    deleteMessage(message)
                     return
 
             except ValueError:
                 yield from client.send_message(message.author, str(
                     message.author.mention) + " > :mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`")
-                if deleteCommands:
-                    logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                    yield from client.delete_message(message)
+                deleteMessage(message)
                 return
         x = PrettyTable()
 
@@ -557,9 +547,7 @@ def on_message(message):
                                        ":cocktail: Meilleurs scores pour #" + message.channel.name + " : :cocktail:\n```" + x.get_string(end=nombre,
                                                                                                                                          sortby="Position") + "```")
 
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith('!ping'):
 
@@ -567,9 +555,7 @@ def on_message(message):
         tmp = yield from client.send_message(message.channel, 'BOUM')
         yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, '... Oups ! Pardon, pong !')
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("!duckstat"):
         logger.debug("> DUCKSTATS (" + str(message.author) + ")")
@@ -584,9 +570,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
-                    if deleteCommands:
-                        logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-                        yield from client.delete_message(message)
+                    deleteMessage(message)
                     return
         x = PrettyTable()
 
@@ -610,15 +594,12 @@ def on_message(message):
         yield from client.send_message(message.author, str(
             message.author.mention) + " > Statistiques du chasseur : \n```" + x.get_string() + "```\nhttps://api-d.com/snaps/table_de_progression.html")
 
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
+
 
     elif message.content.startswith("!aide") or message.content.startswith("!help") or message.content.startswith("!info"):
         yield from client.send_message(message.author, aideMsg)
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("!giveback"):
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
@@ -629,9 +610,7 @@ def on_message(message):
             yield from client.send_message(message.author, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("!coin"):
         logger.debug("> COIN (" + str(message.author) + ")")
@@ -640,9 +619,7 @@ def on_message(message):
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("!devinfo"):
         logger.debug("INFO (" + str(message.author) + ")")
@@ -650,9 +627,7 @@ def on_message(message):
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
         yield from client.send_message(message.channel,
                                        ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
     elif message.content.startswith("!nextduck"):
         logger.debug("> NEXTDUCK (" + str(message.author) + ")")
@@ -666,9 +641,7 @@ def on_message(message):
                                            prochaincanard["channel"].server.name)
         else:
             yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
-        if deleteCommands:
-            logger.debug("Supression du message : " + message.author.name + " | " + message.content)
-            yield from client.delete_message(message)
+        deleteMessage(message)
 
 
 client.run(token)
