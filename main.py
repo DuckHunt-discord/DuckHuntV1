@@ -204,6 +204,7 @@ def on_message(message):
     if not message.channel.server.id in servers:
         logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
         servers[message.channel.server.id] = {"admins": [], "channels": []}
+        JSONsaveToDisk(servers, "channels.json")
 
     # Messages pour n'importe où
 
@@ -258,7 +259,7 @@ def on_message(message):
         return
 
     # Messages en whitelist sur les channels activées
-    
+
     if message.content.startswith('!bang'):
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
