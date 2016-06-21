@@ -607,7 +607,7 @@ def on_message(message):
     elif message.content.startswith("!giveback"):
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
 
-        if int(message.author.id) in admins:
+        if message.author.id in admins:
             yield from client.send_message(message.author, str(message.author.mention) + " > En cours...")
             database.giveBack(logger)
             yield from client.send_message(message.author, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
@@ -618,7 +618,7 @@ def on_message(message):
     elif message.content.startswith("!coin"):
         logger.debug("> COIN (" + str(message.author) + ")")
 
-        if int(message.author.id) in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
