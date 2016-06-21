@@ -710,5 +710,29 @@ def on_message(message):
         JSONsaveToDisk(servers, "channels.json")
         return
 
+@client.async_event
+def on_channel_delete(channel):
+    logger.info("Channel supprimée... " + channel.id + " | " + channel.name)
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    if channel.id in servers[channel.server.id]["channels"]:
+        for canard in canards:
+            if canard in channel:
+                logger.Debug("Canard supprimé : " + str(canard))
+                canards.remove(canard)
+        servers[channel.server.id]["channels"].remove(channel.id)
+        JSONsaveToDisk(servers, "channels.json")
+
+@client.async_event
+def on_server_remove(server):
+    logger.info("Serveur supprimé... " + server.id + " | " + server.name)
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    if server.id in servers:
+        for canard in canards:
+            if canard in server.channels:
+                logger.Debug("Canard supprimé : " + str(canard))
+                canards.remove(canard)
+        servers.pop(server.id)
+        JSONsaveToDisk(servers, "channels.json")
+
 
 client.run(token)
