@@ -121,6 +121,7 @@ def nouveauCanard(canard):
     yield from client.send_message(canard["channel"], "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK")
     canards.append(canard)
 
+
 @asyncio.coroutine
 def deleteMessage(message):
     if deleteCommands:
@@ -129,6 +130,8 @@ def deleteMessage(message):
             yield from client.delete_message(message)
         else:
             logger.debug("Supression du message échouée [permission denied] : " + message.author.name + " | " + message.content)
+
+
 @asyncio.coroutine
 def getprochaincanard():
     now = time.time()
@@ -653,7 +656,8 @@ def on_message(message):
                 logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
                 servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés...")
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > :robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés...")
                 yield from planifie()
 
             else:
@@ -663,11 +667,13 @@ def on_message(message):
                 logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
                 servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur")
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > :robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur")
                 yield from planifie()
 
             else:
-                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur")
+                yield from client.send_message(message.channel, str(
+                    message.author.mention) + " > :x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur")
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Vous n'etes pas l'administrateur du serveur.")
 
@@ -697,7 +703,8 @@ def on_message(message):
             servers[message.channel.server.id]["admins"].append(target.id)
             logger.debug("Ajout de l'admin " + str(target.id) + " | " + str(target.name) + " au fichier pour le serveur " + str(
                 message.channel.server.id) + " | " + str(message.channel.server.name))
-            yield from client.send_message(message.channel, str(message.author.mention) + " > :robot: " + target.name + " est maintenent un gestionnaire du serveur !")
+            yield from client.send_message(message.channel,
+                                           str(message.author.mention) + " > :robot: " + target.name + " est maintenent un gestionnaire du serveur !")
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
         JSONsaveToDisk(servers, "channels.json")
