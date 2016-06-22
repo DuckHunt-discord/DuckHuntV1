@@ -211,6 +211,9 @@ def on_message(message):
     if message.author == client.user:
         return
     servers = JSONloadFromDisk("channels.json", default="{}")
+    if message.channel.is_private:
+        client.send_message(message.author, ":x: Merci de communiquer avec moi dans les channels ou je suis actif.")
+        return 
     if not message.channel.server.id in servers:
         logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
         servers[message.channel.server.id] = {"admins": [], "channels": []}
