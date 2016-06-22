@@ -748,9 +748,12 @@ def on_message(message):
             else:
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
                 if args_[2].lower == "true":
+                    logger.debug("Valeur passée > bool (True)")
                     args_[2] = True
                 elif args_[2].lower == "false":
+                    logger.debug("Valeur passée > bool (False)")
                     args_[2] = False
+
                 yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]) + " ( type : " + str(type(args_[2])) + ")")
 
         else:
@@ -765,7 +768,7 @@ def on_channel_delete(channel):
     servers = JSONloadFromDisk("channels.json", default="{}")
     if channel.id in servers[channel.server.id]["channels"]:
         for canard in canards:
-            if canard in channel:
+            if channel in canard["channel"]:
                 logger.Debug("Canard supprimé : " + str(canard))
                 canards.remove(canard)
         servers[channel.server.id]["channels"].remove(channel.id)
@@ -777,9 +780,10 @@ def on_server_remove(server):
     servers = JSONloadFromDisk("channels.json", default="{}")
     if server.id in servers:
         for canard in canards:
-            if canard in server.channels:
-                logger.Debug("Canard supprimé : " + str(canard))
-                canards.remove(canard)
+            for channel in server.channels:
+                if channel in canard["channel"]:
+                    logger.Debug("Canard supprimé : " + str(canard))
+                    canards.remove(canard)
         servers.pop(server.id)
         JSONsaveToDisk(servers, "channels.json")
 
