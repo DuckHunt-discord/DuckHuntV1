@@ -213,7 +213,7 @@ def on_message(message):
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
         client.send_message(message.author, ":x: Merci de communiquer avec moi dans les channels ou je suis actif.")
-        return 
+        return
     if not message.channel.server.id in servers:
         logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
         servers[message.channel.server.id] = {"admins": [], "channels": []}
@@ -371,6 +371,7 @@ def on_message(message):
             yield from client.send_message(message.channel, str(message.author.mention) + " > Tu décoinces ton arme.")
             database.setStat(message.channel, message.author, "enrayee", False)
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) > 0:
+                yield from deleteMessage(message)
                 return
 
         if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) <= 0:
