@@ -248,7 +248,7 @@ def on_message(message):
     # Messages pour n'importe où
 
     if message.content.startswith("!claimserver"):
-
+        logger.debug("> CLAIMSERVER (" + str(message.author) + ")")
         if not servers[message.channel.server.id]["admins"]:
             servers[message.channel.server.id]["admins"] = [message.author.id]
             logger.debug("Ajout de l'admin " + str(message.author.id) + " | " + str(message.author.name) + " au fichier pour le serveur " + str(
@@ -260,7 +260,7 @@ def on_message(message):
         return
 
     elif message.content.startswith('!addchannel'):
-
+        logger.debug("> ADDCHANNEL (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
                 logger.debug("Ajout de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " au fichier...")
@@ -649,7 +649,7 @@ def on_message(message):
         yield from deleteMessage(message)
 
     elif message.content.startswith("!devinfo"):
-        logger.debug("INFO (" + str(message.author) + ")")
+        logger.debug("DEVINFO (" + str(message.author) + ")")
         yield from client.send_message(message.channel, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
         yield from client.send_message(message.channel,
@@ -671,7 +671,7 @@ def on_message(message):
         yield from deleteMessage(message)
 
     elif message.content.startswith('!delchannel'):
-
+        logger.debug("> DELCHANNEL (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
                 logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
@@ -701,7 +701,7 @@ def on_message(message):
         return
 
     elif message.content.startswith("!addadmin"):
-
+        logger.debug("> ADDADMIN (" + str(message.author) + ")")
 
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -728,8 +728,7 @@ def on_message(message):
         return
 
     elif message.content.startswith("!set"):
-
-
+        logger.debug("> SET (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1 or len(args_) > 3:
             yield from client.send_message(message.channel, ":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>")
