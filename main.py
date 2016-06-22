@@ -247,7 +247,7 @@ def on_message(message):
     if message.author == client.user:
         return
 
-    if database.getStat(message.channel.id, message.author, "banni", default=False):
+    if database.getStat(message.channel, message.author, "banni", default=False):
         return
 
     servers = JSONloadFromDisk("channels.json", default="{}")
@@ -810,7 +810,7 @@ def on_message(message):
                         yield from deleteMessage(message)
                         return
 
-            if not database.getStat(message.channel.id, target.id, "banni", default=False):
+            if not database.getStat(message.channel, target, "banni", default=False):
                 if not target.id in servers[message.channel.server.id]["admins"] or target.id in admins:
                     database.setStat(message.channel, target, "banni", True)
                 else:
@@ -838,7 +838,7 @@ def on_message(message):
                         yield from deleteMessage(message)
                         return
 
-            if database.getStat(message.channel.id, target.id, "banni", default=False):
+            if database.getStat(message.channel, target, "banni", default=False):
                 database.setStat(message.channel, target, "banni", False)
             else:
                 yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est pas banni, lui ^^")
