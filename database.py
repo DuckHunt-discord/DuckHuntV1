@@ -56,6 +56,7 @@ def getStat(channel, player, stat, default=0):
 
 def topScores(channel):
     table = getChannelTable(channel)
+
     return sorted(table.all(), key=lambda k: k['exp'], reverse=True)  # Retourne l'ensemble des joueurs dans une liste par exp
 
 

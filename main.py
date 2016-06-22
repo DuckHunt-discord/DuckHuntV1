@@ -247,9 +247,6 @@ def on_message(message):
     if message.author == client.user:
         return
 
-    if database.getStat(message.channel, message.author, "banni", default=False):
-        return
-
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
         client.send_message(message.author, ":x: Merci de communiquer avec moi dans les channels ou je suis actif.")
@@ -304,6 +301,11 @@ def on_message(message):
     if message.channel.id not in servers[message.channel.server.id]["channels"]:
         return
 
+    #TODO : Fix table.all in topscores
+    database.getStat(message.channel, message.author, "exp")
+
+    if database.getStat(message.channel, message.author, "banni", default=False):
+        return
     # Messages en whitelist sur les channels activées
 
     if message.content.startswith('!bang'):
@@ -846,6 +848,7 @@ def on_message(message):
                 yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est pas banni, lui ^^")
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
+
 
 @client.async_event
 def on_channel_delete(channel):
