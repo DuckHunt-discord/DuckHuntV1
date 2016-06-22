@@ -78,6 +78,27 @@ def JSONloadFromDisk(filename, default="{}", error=False):
         else:
             raise
 
+@asyncio.coroutine
+def newserver(server):
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    logger.debug("Ajout du serveur " + str(server.id) + " | " + str(server.name) + " au fichier...")
+    servers[server.id] = {}
+    JSONsaveToDisk(servers, "channels.json")
+    updateJSON()
+
+@asyncio.coroutine
+def updateJSON():
+    logger.debug("Verfification du fichier channels.json")
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    for server in servers:
+        if not "admins" in server:
+            servers[server]["admins"] = []
+        if not "channels" in server:
+            servers[server]["channels"] = []
+        if not "settings" in server:
+            servers[server]["settings"] = {}
+    JSONsaveToDisk(servers, "channels.json")
+
 
 @asyncio.coroutine
 def planifie():
@@ -124,7 +145,8 @@ def nouveauCanard(canard):
 
 @asyncio.coroutine
 def deleteMessage(message):
-    if deleteCommands:
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    if servers[message.channel.server.id]["settings"].get("deleteCommands", defaultSettings["deleteCommands"]):
         if message.channel.permissions_for(message.server.me).manage_messages:
             logger.debug("Supression du message : " + message.author.name + " | " + message.content)
             yield from client.delete_message(message)
@@ -199,6 +221,7 @@ def mainloop():
 @client.async_event
 def on_ready():
     logger.info("Connecté comme " + str(client.user.name) + " | " + str(client.user.id))
+    yield from updateJSON()
     logger.info("Creation de la planification")
     yield from planifie()
     logger.info("Lancers de canards planifiés")
@@ -215,16 +238,13 @@ def on_message(message):
         client.send_message(message.author, ":x: Merci de communiquer avec moi dans les channels ou je suis actif.")
         return
     if not message.channel.server.id in servers:
-        logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
-        servers[message.channel.server.id] = {"admins": [], "channels": []}
-        JSONsaveToDisk(servers, "channels.json")
+        yield from newserver(message.channel.server)
+
 
     # Messages pour n'importe où
 
     if message.content.startswith("!claimserver"):
-        if not message.channel.server.id in servers:
-            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
-            servers[message.channel.server.id] = {"admins": [], "channels": []}
+        yield from newserver(message.channel.server)
 
         if not "admins" in servers[message.channel.server.id] or servers[message.channel.server.id]["admins"] == []:
             servers[message.channel.server.id]["admins"] = [message.author.id]
@@ -238,8 +258,7 @@ def on_message(message):
 
     elif message.content.startswith('!addchannel'):
         if not message.channel.server.id in servers:
-            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
-            servers[message.channel.server.id] = {"admins": [], "channels": []}
+            yield from newserver(message.channel.server)
 
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
@@ -652,8 +671,7 @@ def on_message(message):
 
     elif message.content.startswith('!delchannel'):
         if not message.channel.server.id in servers:
-            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
-            servers[message.channel.server.id] = {"admins": [], "channels": []}
+            yield from newserver(message.channel.server)
 
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
@@ -685,8 +703,7 @@ def on_message(message):
 
     elif message.content.startswith("!addadmin"):
         if not message.channel.server.id in servers:
-            logger.debug("Ajout du serveur " + str(message.channel.server.id) + " | " + str(message.channel.server.name) + " au fichier...")
-            servers[message.channel.server.id] = {"admins": [], "channels": []}
+            yield from newserver(message.channel.server)
 
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -700,8 +717,6 @@ def on_message(message):
                     yield from client.send_message(message.author, str(message.author.mention) + " > Je ne reconnais pas cette personne :x")
                     yield from deleteMessage(message)
                     return
-        if not "admins" in servers[message.channel.server.id]:
-            servers[message.channel.server.id]["admins"] = []
 
         if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
             servers[message.channel.server.id]["admins"].append(target.id)
@@ -713,6 +728,35 @@ def on_message(message):
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
         JSONsaveToDisk(servers, "channels.json")
         return
+
+    elif message.content.startswith("!set"):
+        if not message.channel.server.id in servers:
+            yield from newserver(message.channel.server)
+
+        args_ = message.content.split(" ")
+        if len(args_) == 1 or len(args_) > 3:
+            yield from client.send_message(message.channel, ":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>")
+            yield from deleteMessage(message)
+            return
+
+        if not args_[1] in defaultSettings:
+            yield from client.send_message(message.channel, ":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>")
+            yield from deleteMessage(message)
+            return
+
+        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+            if len(args_) == 2:
+                servers[message.server.id]["settings"].pop([args_[1]])
+                yield from client.send_message(message.channel, ":ok: Valeur réinitialisée a la valeur par défaut !")
+            else:
+                servers[message.server.id]["settings"][args_[1]] = args_[2]
+                yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]))
+
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
+        JSONsaveToDisk(servers, "channels.json")
+        return
+
 
 @client.async_event
 def on_channel_delete(channel):
