@@ -742,7 +742,7 @@ def on_message(message):
 
         if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
             if len(args_) == 2:
-                servers[message.server.id]["settings"].pop([args_[1]])
+                servers[message.server.id]["settings"].pop(args_[1])
                 yield from client.send_message(message.channel, ":ok: Valeur réinitialisée a la valeur par défaut !")
             else:
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
