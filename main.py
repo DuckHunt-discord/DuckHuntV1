@@ -132,7 +132,7 @@ def planifie():
                         if channel.id in servers[server.id]["channels"]:
                             logger.debug("   |-Ajout channel : " + channel.id)
                             templist = []
-                            for id in range(1, canardsJours + 1):
+                            for id in range(1, servers[server.id]["settings"].get("canardsJours", defaultSettings["canardsJours"]) + 1):
                                 templist.append(int(thisDay + random.randint(0, 86400)))
                             planification_[channel] = sorted(templist)
 
@@ -747,14 +747,13 @@ def on_message(message):
                 servers[message.server.id]["settings"].pop(args_[1])
                 yield from client.send_message(message.channel, ":ok: Valeur réinitialisée a la valeur par défaut !")
             else:
-                servers[message.server.id]["settings"][args_[1]] = args_[2]
                 if args_[2].lower() == "true":
                     logger.debug("Valeur passée > bool (True)")
                     args_[2] = True
                 elif args_[2].lower() == "false":
                     logger.debug("Valeur passée > bool (False)")
                     args_[2] = False
-
+                servers[message.server.id]["settings"][args_[1]] = args_[2]
                 yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]) + " ( type : " + str(type(args_[2])) + ")")
 
         else:
