@@ -813,6 +813,7 @@ def on_message(message):
             if not database.getStat(message.channel, target, "banni", default=False):
                 if not target.id in servers[message.channel.server.id]["admins"] or target.id in admins:
                     database.setStat(message.channel, target, "banni", True)
+                    yield from client.send_message(message.channel, str(message.author.mention) + " > :ok: Ce joueur est maintenent banni du bot !")
                 else:
                     yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est admin ce mec, c'est mort !")
             else:
@@ -840,6 +841,7 @@ def on_message(message):
 
             if database.getStat(message.channel, target, "banni", default=False):
                 database.setStat(message.channel, target, "banni", False)
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :ok: Ce joueur est maintenent dé-banni du bot !")
             else:
                 yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est pas banni, lui ^^")
         else:
