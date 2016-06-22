@@ -84,18 +84,22 @@ def newserver(server):
     logger.debug("Ajout du serveur " + str(server.id) + " | " + str(server.name) + " au fichier...")
     servers[server.id] = {}
     JSONsaveToDisk(servers, "channels.json")
-    updateJSON()
+    yield from updateJSON()
 
 @asyncio.coroutine
 def updateJSON():
     logger.debug("Verfification du fichier channels.json")
     servers = JSONloadFromDisk("channels.json", default="{}")
+    logger.debug("Version parsée de servers : " + str(servers))
     for server in servers:
-        if not "admins" in server:
+        if not "admins" in servers[server]:
+            logger.debug("Le parametre admins n'existait pas dans le serveur " + str(server) + ", creation...")
             servers[server]["admins"] = []
-        if not "channels" in server:
+        if not "channels" in servers[server]:
+            logger.debug("Le parametre channels n'existait pas dans le serveur " + str(server) + ", creation...")
             servers[server]["channels"] = []
-        if not "settings" in server:
+        if not "settings" in servers[server]:
+            logger.debug("Le parametre settings n'existait pas dans le serveur " + str(server) + ", creation...")
             servers[server]["settings"] = {}
     JSONsaveToDisk(servers, "channels.json")
 
