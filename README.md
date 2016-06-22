@@ -44,3 +44,7 @@ Deux moyens :
 # J'ai besoin d'aide, que faire ?
 
 Ouvrez une issue ! 
+
+# Des badges ?
+
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/44fdd1f721e5479881d3b4a98be2654a/badge.svg)](https://www.quantifiedcode.com/app/project/44fdd1f721e5479881d3b4a98be2654a)
