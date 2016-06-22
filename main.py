@@ -246,6 +246,10 @@ def on_ready():
 def on_message(message):
     if message.author == client.user:
         return
+
+    if database.getStat(message.channel.id, message.author, "banni", default=False):
+        return
+
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
         client.send_message(message.author, ":x: Merci de communiquer avec moi dans les channels ou je suis actif.")
@@ -766,15 +770,80 @@ def on_message(message):
 
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
                 yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]) + " ( type : " + str(type(args_[2])) + ")")
-
+            JSONsaveToDisk(servers, "channels.json")
             if args_[1] == "canardsJours":
                 yield from planifie()
 
+
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
-        JSONsaveToDisk(servers, "channels.json")
+
         return
 
+    elif message.content.startswith("!duckplanning"):
+        logger.debug("> DUCKPLANNING (" + str(message.author) + ")")
+        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+            message_ = ":hammer: TimeDelta en minutes pour les canards sur le chan\n```"
+            for timestamp in planification[message.channel]:
+                message_ += str(int((time.time() - timestamp)/60)) + "\n"
+            message_ += "```"
+            yield from client.send_message(message.channel, str(message.author.mention) + " > " + message_)
+
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
+
+    elif message.content.startswith("!dearm"):
+        logger.debug("> DEARM (" + str(message.author) + ")")
+        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+            args_ = message.content.split(" ")
+
+            if len(args_) == 1:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Joueur non spécifié")
+                return
+            else:
+                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
+                target = message.channel.server.get_member_named(args_[1])
+                if target is None:
+                    target = message.channel.server.get_member(args_[1])
+                    if target is None:
+                        yield from client.send_message(message.author, str(message.author.mention) + " > :x: Je ne reconnais pas cette personne :x")
+                        yield from deleteMessage(message)
+                        return
+
+            if not database.getStat(message.channel.id, target.id, "banni", default=False):
+                if not target.id in servers[message.channel.server.id]["admins"] or target.id in admins:
+                    database.setStat(message.channel, target, "banni", True)
+                else:
+                    yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est admin ce mec, c'est mort !")
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est déja banni, lui ^^")
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
+
+    elif message.content.startswith("!rearm"):
+        logger.debug("> rearm (" + str(message.author) + ")")
+        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+            args_ = message.content.split(" ")
+
+            if len(args_) == 1:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Joueur non spécifié")
+                return
+            else:
+                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
+                target = message.channel.server.get_member_named(args_[1])
+                if target is None:
+                    target = message.channel.server.get_member(args_[1])
+                    if target is None:
+                        yield from client.send_message(message.author, str(message.author.mention) + " > :x: Je ne reconnais pas cette personne :x")
+                        yield from deleteMessage(message)
+                        return
+
+            if database.getStat(message.channel.id, target.id, "banni", default=False):
+                database.setStat(message.channel, target, "banni", False)
+            else:
+                yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Il est pas banni, lui ^^")
+        else:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
 
 @client.async_event
 def on_channel_delete(channel):
