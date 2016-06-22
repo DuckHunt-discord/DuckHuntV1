@@ -78,6 +78,7 @@ def JSONloadFromDisk(filename, default="{}", error=False):
         else:
             raise
 
+
 @asyncio.coroutine
 def newserver(server):
     servers = JSONloadFromDisk("channels.json", default="{}")
@@ -85,6 +86,7 @@ def newserver(server):
     servers[server.id] = {}
     JSONsaveToDisk(servers, "channels.json")
     yield from updateJSON()
+
 
 @asyncio.coroutine
 def updateJSON():
@@ -565,7 +567,7 @@ def on_message(message):
         i = 0
         for joueur in database.topScores(message.channel):
             i += 1
-            if (joueur["canardsTues"] is None) or (joueur["canardsTues"] == 0) or ("canardTues" in joueur == False) :
+            if (joueur["canardsTues"] is None) or (joueur["canardsTues"] == 0) or ("canardTues" in joueur == False):
                 joueur["canardsTues"] = "AUCUN !"
             if joueur["exp"] is None:
                 joueur["exp"] = 0
@@ -772,6 +774,7 @@ def on_channel_delete(channel):
                 canards.remove(canard)
         servers[channel.server.id]["channels"].remove(channel.id)
         JSONsaveToDisk(servers, "channels.json")
+
 
 @client.async_event
 def on_server_remove(server):
