@@ -78,6 +78,13 @@ def JSONloadFromDisk(filename, default="{}", error=False):
         else:
             raise
 
+@asyncio.coroutine
+def representsInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 @asyncio.coroutine
 def newserver(server):
@@ -130,7 +137,7 @@ def planifie():
                     if permissions.read_messages and permissions.send_messages:
                         # if (channelWL and int(channel.id) in whitelist) or not channelWL:
                         if channel.id in servers[server.id]["channels"]:
-                            logger.debug("   |-Ajout channel : " + channel.id)
+                            logger.debug("   |-Ajout channel : " + channel.id + " (" + str(servers[server.id]["settings"].get("canardsJours", defaultSettings["canardsJours"])) + " c/j)")
                             templist = []
                             for id in range(1, servers[server.id]["settings"].get("canardsJours", defaultSettings["canardsJours"]) + 1):
                                 templist.append(int(thisDay + random.randint(0, 86400)))
@@ -753,8 +760,15 @@ def on_message(message):
                 elif args_[2].lower() == "false":
                     logger.debug("Valeur passée > bool (False)")
                     args_[2] = False
+                elif representsInt(args_[2]):
+                    logger.debug("Valeur passée > int")
+                    args_[2] = int(args_[2])
+
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
                 yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]) + " ( type : " + str(type(args_[2])) + ")")
+
+            if args_[1] == "canardsJours":
+                yield from planifie()
 
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
