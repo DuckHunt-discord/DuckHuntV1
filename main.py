@@ -746,10 +746,10 @@ def on_message(message):
                 yield from client.send_message(message.channel, ":ok: Valeur réinitialisée a la valeur par défaut !")
             else:
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
-                if args_[2].lower == "true":
+                if args_[2].lower() == "true":
                     logger.debug("Valeur passée > bool (True)")
                     args_[2] = True
-                elif args_[2].lower == "false":
+                elif args_[2].lower() == "false":
                     logger.debug("Valeur passée > bool (False)")
                     args_[2] = False
 
