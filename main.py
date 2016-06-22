@@ -117,7 +117,7 @@ def planifie():
     servers = JSONloadFromDisk("channels.json", default="{}")
 
     for server in client.servers:
-        logger.debug("Serveur " + str(server))
+        logger.debug("Serveur " + str(server) + " (" + str(server.id) + ")")
         if not server.id in servers:
             logger.debug(" |- Serveur inexistant dans channels.json")
         else:
@@ -243,14 +243,13 @@ def on_message(message):
         return
     if not message.channel.server.id in servers:
         yield from newserver(message.channel.server)
-
+        servers = JSONloadFromDisk("channels.json", default="{}")
 
     # Messages pour n'importe où
 
     if message.content.startswith("!claimserver"):
-        yield from newserver(message.channel.server)
 
-        if not "admins" in servers[message.channel.server.id] or servers[message.channel.server.id]["admins"] == []:
+        if not servers[message.channel.server.id]["admins"]:
             servers[message.channel.server.id]["admins"] = [message.author.id]
             logger.debug("Ajout de l'admin " + str(message.author.id) + " | " + str(message.author.name) + " au fichier pour le serveur " + str(
                 message.channel.server.id) + " | " + str(message.channel.server.name))
@@ -261,8 +260,6 @@ def on_message(message):
         return
 
     elif message.content.startswith('!addchannel'):
-        if not message.channel.server.id in servers:
-            yield from newserver(message.channel.server)
 
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
@@ -568,7 +565,7 @@ def on_message(message):
         i = 0
         for joueur in database.topScores(message.channel):
             i += 1
-            if joueur["canardsTues"] is None:
+            if (joueur["canardsTues"] is None) or (joueur["canardsTues"] == 0) or ("canardTues" in joueur == False) :
                 joueur["canardsTues"] = "AUCUN !"
             if joueur["exp"] is None:
                 joueur["exp"] = 0
@@ -674,8 +671,6 @@ def on_message(message):
         yield from deleteMessage(message)
 
     elif message.content.startswith('!delchannel'):
-        if not message.channel.server.id in servers:
-            yield from newserver(message.channel.server)
 
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
@@ -706,8 +701,7 @@ def on_message(message):
         return
 
     elif message.content.startswith("!addadmin"):
-        if not message.channel.server.id in servers:
-            yield from newserver(message.channel.server)
+
 
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -734,8 +728,7 @@ def on_message(message):
         return
 
     elif message.content.startswith("!set"):
-        if not message.channel.server.id in servers:
-            yield from newserver(message.channel.server)
+
 
         args_ = message.content.split(" ")
         if len(args_) == 1 or len(args_) > 3:
@@ -754,7 +747,11 @@ def on_message(message):
                 yield from client.send_message(message.channel, ":ok: Valeur réinitialisée a la valeur par défaut !")
             else:
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
-                yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]))
+                if args_[2].lower == "true":
+                    args_[2] = True
+                elif args_[2].lower == "false":
+                    args_[2] = False
+                yield from client.send_message(message.channel, ":ok: Valeur modifiée à " + str(args_[2]) + " ( type : " + str(type(args_[2])) + ")")
 
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Oops, vous n'etes pas administrateur du serveur...")
