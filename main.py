@@ -49,7 +49,7 @@ else:
 logger.addHandler(steam_handler)
 steam_handler.setFormatter(formatter)
 logger.debug("Logger Initialisé")
-t = gettext.translation('default', localedir='language', languages=["en"])#, fallback=True)
+t = gettext.translation('default', localedir='language', languages=[lang])#, fallback=True)
 _ = t.gettext
 logger.debug("Suppport de la langue implémenté")
 logger.info(_("Initialisation du programme, merci de patienter..."))
@@ -84,7 +84,7 @@ def JSONloadFromDisk(filename, default="{}", error=False):
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
     servers = JSONloadFromDisk("channels.json", default="{}")
-    if servers[message.server.id]["settings"].get("pmMostMessages", defaultSettings["pmMostMessages"]) or forcePv:
+    if servers[message.server.id]["settings"].get("pmMostMessages", defaultSettings["pmMostMessages"]) or forcePv == True:
         yield from client.send_message(message.author, toSend)
     else:
         yield from client.send_message(message.channel, str(message.author.mention) + " > " + toSend)
@@ -505,7 +505,7 @@ def on_message(message):
 
             if database.getStat(message.channel, message.author, "exp") > 14:
                 if database.getStat(message.channel, target, "sabotee", "-") == "-":
-                    yield from messageUser(message, _(":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !").format(**{"target" : target.name}),forcePv=True)
+                    yield from messageUser(message, _(":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !").format(**{"target" : target.name}), forcePv=True)
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
                 else:

@@ -3,11 +3,9 @@
 
 token = "Enter a bot token here"
 admins = [138751484517941259]
+lang = "fr"
+defaultSettings = {"deleteCommands" : True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente" : 11 * 60, "lagOnBang" : 1, "expParCanard" : 10}
 
-canardsJours = 99
-channelWL = False
-whitelist = [136797998217822208, 184672042770104321, 187961300704428033]  # Ids des channels sur lequel le bot est actif
-tempsAttente = 5 * 60
 levels = [{"niveau": 0, "expMin": -999, "nom": "danger public", "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 1},
           {"niveau": 1, "expMin": -4, "nom": "touriste", "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 2},
           {"niveau": 2, "expMin": 20, "nom": "noob", "precision": 56, "fiabilitee": 86, "balles": 6, "chargeurs": 2},
@@ -49,56 +47,7 @@ levels = [{"niveau": 0, "expMin": -999, "nom": "danger public", "precision": 55,
           {"niveau": 38, "expMin": 7400, "nom": "génocideur de canards", "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 39, "expMin": 7790, "nom": "chômeur pour cause d'extinction de l'espèce", "precision": 97, "fiabilitee": 99, "balles": 1, "chargeurs": 5}]
 
-deleteCommands = True
-
-aideMsg = """Aide pour DuckHunt :
-```Le but du jeu est de tuer les canards dès que vous les voyez ! C'est un peu un fps, mais pour discord :°)
-
-Les commandes disponibles sont les suivantes :
-
-Commandes joueur:
-!bang\t\tPour (tenter) de tuer le canard qui est apparu. Ne pas tirer quand il n'y a pas de canards, sinon...
-!reload\t\tRecharge ou décoince votre arme
-!duckstats\t\tAffiche les statistiques DuckHunt
-!shop [N° ITEM] <argument>\t\tPermet d'acher des items à l'aide de points d'experience.
-!top <Nombre de joueurs maxi>\t\tAffiche les meilleurs scores
-!aide\t\tAffiche l'aide
-
-Liste des items dans le shop:
-
-N°1\t\tAjoute une balle a votre arme (7 exp)
-N°2\t\tAjoute un chargeur à votre réserve (13 exp)
-N°17\t\tSabote l'arme de <argument> (14 exp)
-N°20\t\tAppeau : attire un canard dans les 10 prochaines minutes. (8 exp)
-N°22\t\tDétecteur de canards : vous avertit lorsque le prochain canard apparait sur le channel (5 exp)
-N°23\t\tInvoque un canard mécanique (faux canard), 75 secondes aprés la commande sur le chan (50 exp)
-
-
-Commandes admin serveur:
-!claimserver\t\tVous définit comme administrateur du serveur
-!addchannel\t\tAjoute la channel courante a la liste des channels ou le bot est actif
-!coin\t\tFait apparaitre un canard
-!info\t\tAffiche des informations sur le channel en cours
-!set\t\tChange les préférances du bot pour le serveur
-
-Commandes admins globaux:
-!giveback\t\tDonne aux joueurs leurs armes et des chargeurs, comme à minuit !
-!nextduck\t\tEnvoie par MP le temps avant l'apparaition et la channel du prochain canard
-```
-Comment inviter le bot sur mon serveur:
-
-Allez sur ce lien : https://discordapp.com/oauth2/authorize?&client_id=187636051135823872&scope=bot&permissions=-1
-Puis sélctionnez les permissions suivantes :
-- Changer de pseudo
-- Lire les messages
-- Envoyer des messages
-- Gerer les messages
-- Intégrer des liens
-- Mentionner @everyone
-- Se connecter
-- Envoyer des messages TTS
-
-Pour le support du bot, rejoignez notre discord > https://discord.gg/2BksEkV, ou envoyez une issue sur github > https://github.com/DuckHunt-discord/DuckHunt-Discord/issues """
+aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide"
 inutilite = ["un canard en peluche.", "un canard en plastique pour le bain.", "un canard vibrant.", "un tas de plumes.", "un chewing-gum mâchouillé.",
              "un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards).", "une vieille chaussure.", "un truc à ressort.",
              "une bouse de vache.", "une crotte de chien.", "un permis de chasse expiré.", "une douille.", "un mégot.", "un préservatif usagé.",
