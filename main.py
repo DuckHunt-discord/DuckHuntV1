@@ -49,9 +49,8 @@ else:
 logger.addHandler(steam_handler)
 steam_handler.setFormatter(formatter)
 logger.debug("Logger Initialisé")
-import gettext
-t = gettext.translation('default', './locale')
-_ = t.lgettext
+t = gettext.translation('default', localedir='language', languages=["en"])#, fallback=True)
+_ = t.gettext
 logger.debug("Suppport de la langue implémenté")
 logger.info(_("Initialisation du programme, merci de patienter..."))
 logger.debug("Version : " + str(sys.version))

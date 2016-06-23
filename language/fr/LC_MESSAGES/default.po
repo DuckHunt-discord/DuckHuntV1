@@ -1,0 +1,361 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: POEditor.com\n"
+"Project-Id-Version: duckhunt\n"
+"Language: fr\n"
+
+#: ./main.py:56
+msgid "Initialisation du programme, merci de patienter..."
+msgstr "Initialisation du programme, merci de patienter..."
+
+#: ./main.py:114
+msgid "Ajout du serveur {server_id} | {server_name} au fichier..."
+msgstr "Ajout du serveur {server_id} | {server_name} au fichier..."
+
+#: ./main.py:184
+msgid "Il y a un canard sur #{channel}"
+msgstr "Il y a un canard sur #{channel}"
+
+#: ./main.py:191
+msgid "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK"
+msgstr "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK"
+
+#: ./main.py:261
+msgid "Le canard s'échappe.     ·°'\\`'°-.,¸¸.·°'\\`"
+msgstr "Le canard s'échappe.     ·°'\\`'°-.,¸¸.·°'\\`"
+
+#: ./main.py:284 ./main.py:915
+msgid ":x: Merci de communiquer avec moi dans les channels ou je suis actif."
+msgstr ":x: Merci de communiquer avec moi dans les channels ou je suis actif."
+
+#: ./main.py:297
+msgid ":robot: Vous etes maintenent le gestionnaire du serveur !"
+msgstr ":robot: Vous etes maintenent le gestionnaire du serveur !"
+
+#: ./main.py:299
+msgid ":x: Il y a déjà un admin sur ce serveur..."
+msgstr ":x: Il y a déjà un admin sur ce serveur..."
+
+#: ./main.py:310
+msgid ":robot: Channel ajoutée au jeu !"
+msgstr ":robot: Channel ajoutée au jeu !"
+
+#: ./main.py:314
+msgid ":x: Cette channel existe déjà dans le jeu."
+msgstr ":x: Cette channel existe déjà dans le jeu."
+
+#: ./main.py:320
+msgid ":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur."
+msgstr ":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur."
+
+#: ./main.py:324
+msgid ":x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur."
+msgstr ":x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur."
+
+#: ./main.py:326 ./main.py:700
+msgid ":x: Vous n'etes pas l'administrateur du serveur."
+msgstr ":x: Vous n'etes pas l'administrateur du serveur."
+
+#: ./main.py:341
+msgid "Vous n'etes pas armé"
+msgstr "Vous n'etes pas armé"
+
+#: ./main.py:345
+msgid "Votre arme est enrayée, il faut la recharger pour la décoincer."
+msgstr "Votre arme est enrayée, il faut la recharger pour la décoincer."
+
+#: ./main.py:350
+msgid "Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague."
+msgstr "Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague."
+
+#: ./main.py:356
+msgid "**CHARGEUR VIDE** | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+msgstr "**CHARGEUR VIDE** | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+
+#: ./main.py:365
+msgid "Ton arme s'est enrayée, recharge la pour la décoincer."
+msgstr "Ton arme s'est enrayée, recharge la pour la décoincer."
+
+#: ./main.py:380 ./main.py:388 ./main.py:403
+msgid " > BANG"
+msgstr " > BANG"
+
+#: ./main.py:392
+msgid " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \\_X<   *COUAC*   [{exp} xp]"
+msgstr " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \\_X<   *COUAC*   [{exp} xp]"
+
+#: ./main.py:397
+msgid "En fouillant les buissons autour du canard, tu trouves {inutilitee}"
+msgstr "En fouillant les buissons autour du canard, tu trouves {inutilitee}"
+
+#: ./main.py:409 ./main.py:413
+msgid "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]"
+msgstr "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]"
+
+#: ./main.py:420
+msgid "Tu décoinces ton arme."
+msgstr "Tu décoinces ton arme."
+
+#: ./main.py:431
+msgid "Tu recharges ton arme. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+msgstr "Tu recharges ton arme. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+
+#: ./main.py:436
+msgid "Tu es à court de munitions. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+msgstr "Tu es à court de munitions. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+
+#: ./main.py:442
+msgid "Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+msgstr "Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}"
+
+#: ./main.py:453
+msgid ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`"
+msgstr ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`"
+
+#: ./main.py:461
+msgid ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`"
+msgstr ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`"
+
+#: ./main.py:469
+msgid ":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience"
+msgstr ":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience"
+
+#: ./main.py:473 ./main.py:487 ./main.py:516 ./main.py:527 ./main.py:540
+#: ./main.py:550
+msgid ":x: Tu n'as pas assez d'experience pour effectuer cet achat !"
+msgstr ":x: Tu n'as pas assez d'experience pour effectuer cet achat !"
+
+#: ./main.py:476
+msgid ":champagne: Ton chargeur est déjà plein !"
+msgstr ":champagne: Ton chargeur est déjà plein !"
+
+#: ./main.py:483
+msgid ":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience"
+msgstr ":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience"
+
+#: ./main.py:490
+msgid ":champagne: Ta réserve de chargeurs est déjà pleine !"
+msgstr ":champagne: Ta réserve de chargeurs est déjà pleine !"
+
+#: ./main.py:495
+msgid "C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p"
+msgstr "C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p"
+
+#: ./main.py:503
+msgid "Je ne reconnais pas cette personne : {target}"
+msgstr "Je ne reconnais pas cette personne : {target}"
+
+#: ./main.py:509
+msgid ":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !"
+msgstr ":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !"
+
+#: ./main.py:513
+msgid ":ok: L'arme de {target} est déjà sabotée!"
+msgstr ":ok: L'arme de {target} est déjà sabotée!"
+
+#: ./main.py:519
+msgid ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de {mention}. Ca lui coûte 8 exp !"
+msgstr ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de {mention}. Ca lui coûte 8 exp !"
+
+#: ./main.py:533
+msgid ":money_with_wings: Vous serez averti lors du prochain canard sur #{channel_name}"
+msgstr ":money_with_wings: Vous serez averti lors du prochain canard sur #{channel_name}"
+
+#: ./main.py:548
+msgid "-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*"
+msgstr "-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*"
+
+#: ./main.py:553
+msgid ":x: Objet non trouvé :'("
+msgstr ":x: Objet non trouvé :'("
+
+#: ./main.py:558
+msgid "Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]"
+msgstr "Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]"
+
+#: ./main.py:570
+msgid ":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20"
+msgstr ":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20"
+
+#: ./main.py:575
+msgid ":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`"
+msgstr ":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`"
+
+#: ./main.py:580
+msgid "Canards Tués"
+msgstr "Canards Tués"
+
+#: ./main.py:580
+msgid "Experience"
+msgstr "Experience"
+
+#: ./main.py:580
+msgid "Pseudo"
+msgstr "Pseudo"
+
+#: ./main.py:580 ./main.py:591
+msgid "Position"
+msgstr "Position"
+
+#: ./main.py:591
+msgid ":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n"
+"```{table}```"
+msgstr ":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n"
+"```{table}```"
+
+#: ./main.py:598
+msgid "BOUM"
+msgstr "BOUM"
+
+#: ./main.py:600
+msgid "... Oups ! Pardon, pong !"
+msgstr "... Oups ! Pardon, pong !"
+
+#: ./main.py:615 ./main.py:716
+msgid "Je ne reconnais pas cette personne :x"
+msgstr "Je ne reconnais pas cette personne :x"
+
+#: ./main.py:620
+msgid "Statistique"
+msgstr "Statistique"
+
+#: ./main.py:620
+msgid "Valeur"
+msgstr "Valeur"
+
+#: ./main.py:637
+msgid "Statistiques du chasseur : \n"
+"```{table}```\n"
+"https://api-d.com/snaps/table_de_progression.html"
+msgstr "Statistiques du chasseur : \n"
+"```{table}```\n"
+"https://api-d.com/snaps/table_de_progression.html"
+
+#: ./main.py:649
+msgid "En cours..."
+msgstr "En cours..."
+
+#: ./main.py:651
+msgid ":ok: Terminé. Voir les logs sur la console ! "
+msgstr ":ok: Terminé. Voir les logs sur la console ! "
+
+#: ./main.py:653 ./main.py:662
+msgid ":x: Oupas (Permission Denied)"
+msgstr ":x: Oupas (Permission Denied)"
+
+#: ./main.py:671
+msgid "Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}"
+msgstr "Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}"
+
+#: ./main.py:674
+msgid "Oupas (Permission Denied)"
+msgstr "Oupas (Permission Denied)"
+
+#: ./main.py:684
+msgid ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés..."
+msgstr ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés..."
+
+#: ./main.py:688
+msgid ":x: Cette channel n'existe pas dans le jeu."
+msgstr ":x: Cette channel n'existe pas dans le jeu."
+
+#: ./main.py:694
+msgid ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur"
+msgstr ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur"
+
+#: ./main.py:698
+msgid ":x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur"
+msgstr ":x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur"
+
+#: ./main.py:723
+msgid ":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}"
+msgstr ":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}"
+
+#: ./main.py:725 ./main.py:781 ./main.py:795 ./main.py:824 ./main.py:850
+#: ./main.py:879
+msgid ":x: Oops, vous n'etes pas administrateur du serveur..."
+msgstr ":x: Oops, vous n'etes pas administrateur du serveur..."
+
+#: ./main.py:733
+msgid ":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>"
+msgstr ":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>"
+
+#: ./main.py:736
+msgid "Parametre"
+msgstr "Parametre"
+
+#: ./main.py:736
+msgid "Valeur actuelle"
+msgstr "Valeur actuelle"
+
+#: ./main.py:736
+msgid "Valeur par défaut"
+msgstr "Valeur par défaut"
+
+#: ./main.py:740
+msgid "Liste des paramétres disponibles : \n"
+"```{table}```"
+msgstr "Liste des paramétres disponibles : \n"
+"```{table}```"
+
+#: ./main.py:745
+msgid ":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>"
+msgstr ":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>"
+
+#: ./main.py:752
+msgid ":ok: Valeur réinitialisée a la valeur par défaut !"
+msgstr ":ok: Valeur réinitialisée a la valeur par défaut !"
+
+#: ./main.py:773
+msgid ":ok: Valeur modifiée à {value} (type: {type})"
+msgstr ":ok: Valeur modifiée à {value} (type: {type})"
+
+#: ./main.py:791
+msgid ":hammer: TimeDelta en minutes pour les canards sur le chan\n"
+"```{table}```"
+msgstr ":hammer: TimeDelta en minutes pour les canards sur le chan\n"
+"```{table}```"
+
+#: ./main.py:803 ./main.py:832
+msgid ":x: Joueur non spécifié"
+msgstr ":x: Joueur non spécifié"
+
+#: ./main.py:811 ./main.py:840 ./main.py:866
+msgid ":x: Je ne reconnais pas cette personne :x"
+msgstr ":x: Je ne reconnais pas cette personne :x"
+
+#: ./main.py:818
+msgid ":ok: Ce joueur est maintenent banni du bot !"
+msgstr ":ok: Ce joueur est maintenent banni du bot !"
+
+#: ./main.py:820
+msgid ":x: Il est admin ce mec, c'est mort !"
+msgstr ":x: Il est admin ce mec, c'est mort !"
+
+#: ./main.py:822
+msgid ":x: Il est déja banni, lui ^^"
+msgstr ":x: Il est déja banni, lui ^^"
+
+#: ./main.py:846
+msgid ":ok: Ce joueur est maintenent dé-banni du bot !"
+msgstr ":ok: Ce joueur est maintenent dé-banni du bot !"
+
+#: ./main.py:848
+msgid ":x: Il est pas banni, lui ^^"
+msgstr ":x: Il est pas banni, lui ^^"
+
+#: ./main.py:870
+msgid "Erreur de syntaxe : !giveexp <joueur> <exp>"
+msgstr "Erreur de syntaxe : !giveexp <joueur> <exp>"
+
+#: ./main.py:876
+msgid ":ok:, il a maintenent {newexp} points d'experience !"
+msgstr ":ok:, il a maintenent {newexp} points d'experience !"
+
+#: ./main.py:924
+msgid "Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]"
+msgstr "Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]"
+
