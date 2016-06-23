@@ -120,7 +120,7 @@ def planifie():
     planification_ = {}
 
     logger.debug("Time now : " + str(time.time()))
-    yield from asyncio.sleep(2)
+    yield from asyncio.sleep(1)
     now = time.time()
     thisDay = now - (now % 86400)
     servers = JSONloadFromDisk("channels.json", default="{}")
@@ -301,7 +301,7 @@ def on_message(message):
     if message.channel.id not in servers[message.channel.server.id]["channels"]:
         return
 
-    #TODO : Fix table.all in topscores
+    #TODO : Fix exp not saved
     database.getStat(message.channel, message.author, "exp")
 
     if database.getStat(message.channel, message.author, "banni", default=False):
@@ -646,18 +646,18 @@ def on_message(message):
     elif message.content.startswith("!giveback"):
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
 
-        if message.author.id in admins:
+        if int(message.author.id) in admins:
             yield from client.send_message(message.author, str(message.author.mention) + " > En cours...")
             database.giveBack(logger)
-            yield from client.send_message(message.author, str(message.author.mention) + " > Terminé. Voir les logs sur la console ! ")
+            yield from client.send_message(message.author, str(message.author.mention) + " > :ok: Terminé. Voir les logs sur la console ! ")
         else:
-            yield from client.send_message(message.author, str(message.author.mention) + " > Oupas (Permission Denied)")
+            yield from client.send_message(message.author, str(message.author.mention) + " > :x: Oupas (Permission Denied)")
         yield from deleteMessage(message)
 
     elif message.content.startswith("!coin"):
         logger.debug("> COIN (" + str(message.author) + ")")
 
-        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
             yield from client.send_message(message.channel, str(message.author.mention) + " > Oupas (Permission Denied)")
@@ -698,7 +698,7 @@ def on_message(message):
 
             else:
                 yield from client.send_message(message.channel, str(message.author.mention) + " > :x: Cette channel n'existe pas dans le jeu.")
-        elif message.author.id in admins:
+        elif int(message.author.id) in admins:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
                 logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
                 servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
@@ -731,7 +731,7 @@ def on_message(message):
                     yield from deleteMessage(message)
                     return
 
-        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             servers[message.channel.server.id]["admins"].append(target.id)
             logger.debug("Ajout de l'admin " + str(target.id) + " | " + str(target.name) + " au fichier pour le serveur " + str(
                 message.channel.server.id) + " | " + str(message.channel.server.name))
@@ -755,7 +755,7 @@ def on_message(message):
             yield from deleteMessage(message)
             return
 
-        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if len(args_) == 2:
                 servers[message.server.id]["settings"].pop(args_[1])
                 yield from client.send_message(message.channel, ":ok: Valeur réinitialisée a la valeur par défaut !")
@@ -784,7 +784,7 @@ def on_message(message):
 
     elif message.content.startswith("!duckplanning"):
         logger.debug("> DUCKPLANNING (" + str(message.author) + ")")
-        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             message_ = ":hammer: TimeDelta en minutes pour les canards sur le chan\n```"
             for timestamp in planification[message.channel]:
                 message_ += str(int((time.time() - timestamp)/60)) + "\n"
@@ -796,7 +796,7 @@ def on_message(message):
 
     elif message.content.startswith("!dearm"):
         logger.debug("> DEARM (" + str(message.author) + ")")
-        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
 
             if len(args_) == 1:
@@ -813,7 +813,7 @@ def on_message(message):
                         return
 
             if not database.getStat(message.channel, target, "banni", default=False):
-                if not target.id in servers[message.channel.server.id]["admins"] or target.id in admins:
+                if not target.id in servers[message.channel.server.id]["admins"] or int(target.id) in admins:
                     database.setStat(message.channel, target, "banni", True)
                     yield from client.send_message(message.channel, str(message.author.mention) + " > :ok: Ce joueur est maintenent banni du bot !")
                 else:
@@ -825,7 +825,7 @@ def on_message(message):
 
     elif message.content.startswith("!rearm"):
         logger.debug("> rearm (" + str(message.author) + ")")
-        if message.author.id in servers[message.channel.server.id]["admins"] or message.author.id in admins:
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
 
             if len(args_) == 1:

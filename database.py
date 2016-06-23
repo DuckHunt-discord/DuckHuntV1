@@ -36,7 +36,7 @@ def addToStat(channel, player, stat, value):
 
 
 def setStat(channel, player, stat, value):
-    dict_ = {"name": player.name, "id_": player.id, stat: value}
+    dict_ = {"name": player.name, "id_": player.id,  stat: value}
     updatePlayerInfo(channel, dict_)
 
 
@@ -56,8 +56,13 @@ def getStat(channel, player, stat, default=0):
 
 def topScores(channel):
     table = getChannelTable(channel)
-
-    return sorted(table.all(), key=lambda k: k['exp'], reverse=True)  # Retourne l'ensemble des joueurs dans une liste par exp
+    def defaultInt(s):
+        try:
+            int(s)
+            return s
+        except ValueError:
+            return 0
+    return sorted(table.all(), key=lambda k: defaultInt(k), reverse=True)  # Retourne l'ensemble des joueurs dans une liste par exp
 
 
 def giveBack(logger):
@@ -66,6 +71,8 @@ def giveBack(logger):
         logger.debug("|- " + str(table))
         table_ = db.load_table(table_name=table)
         for player in table_.all():
+            if not "exp" in player or not player["exp"]:
+                player["exp"] = 0
             logger.debug("   |- " + player["name"])
             table_.upsert({"id_": player["id_"], "chargeurs": getPlayerLevelWithExp(player["exp"])["chargeurs"], "confisque": False}, ['id_'])
 
@@ -95,4 +102,5 @@ def getPlayerLevelWithExp(exp):
         lvexp = config.levels[numero]["expMin"]
         level = config.levels[numero]
         numero += 1
+
     return level
