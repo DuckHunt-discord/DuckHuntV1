@@ -70,6 +70,7 @@ N°1\t\tAjoute une balle a votre arme (7 exp)
 N°2\t\tAjoute un chargeur à votre réserve (13 exp)
 N°17\t\tSabote l'arme de <argument> (14 exp)
 N°20\t\tAppeau : attire un canard dans les 10 prochaines minutes. (8 exp)
+N°22\t\tDétecteur de canards : vous avertit lorsque le prochain canard apparait sur le channel (5 exp)
 N°23\t\tInvoque un canard mécanique (faux canard), 75 secondes aprés la commande sur le chan (50 exp)
 
 
@@ -78,11 +79,12 @@ Commandes admin serveur:
 !addchannel\t\tAjoute la channel courante a la liste des channels ou le bot est actif
 !coin\t\tFait apparaitre un canard
 !info\t\tAffiche des informations sur le channel en cours
+!set\t\tChange les préférances du bot pour le serveur
 
 Commandes admins globaux:
 !giveback\t\tDonne aux joueurs leurs armes et des chargeurs, comme à minuit !
 !nextduck\t\tEnvoie par MP le temps avant l'apparaition et la channel du prochain canard
-``
+```
 Comment inviter le bot sur mon serveur:
 
 Allez sur ce lien : https://discordapp.com/oauth2/authorize?&client_id=187636051135823872&scope=bot&permissions=-1
@@ -96,8 +98,7 @@ Puis sélctionnez les permissions suivantes :
 - Se connecter
 - Envoyer des messages TTS
 
-Pour le support du bot, rejoignez notre discord > https://discord.gg/2BksEkV"""
-
+Pour le support du bot, rejoignez notre discord > https://discord.gg/2BksEkV, ou envoyez une issue sur github > https://github.com/DuckHunt-discord/DuckHunt-Discord/issues """
 inutilite = ["un canard en peluche.", "un canard en plastique pour le bain.", "un canard vibrant.", "un tas de plumes.", "un chewing-gum mâchouillé.",
              "un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards).", "une vieille chaussure.", "un truc à ressort.",
              "une bouse de vache.", "une crotte de chien.", "un permis de chasse expiré.", "une douille.", "un mégot.", "un préservatif usagé.",

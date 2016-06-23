@@ -27,7 +27,6 @@ import asyncio
 import random
 import time
 import json
-
 import database
 from prettytable import PrettyTable
 
@@ -633,7 +632,7 @@ def on_message(message):
         x.add_row(["Précision des tirs", database.getPlayerLevel(message.channel, target)["precision"]])
         x.add_row(["Fiabilitée de l'arme", database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
-        yield from messageUser(message, "Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html".format(**{"table": x.get_string(())}))
+        yield from messageUser(message, "Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html".format(**{"table": x.get_string()}))
 
         yield from deleteMessage(message)
 
