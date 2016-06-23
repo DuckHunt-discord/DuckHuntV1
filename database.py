@@ -62,7 +62,10 @@ def topScores(channel):
             return s
         except ValueError:
             return 0
-    return sorted(table.all(), key=lambda k: defaultInt(k), reverse=True)  # Retourne l'ensemble des joueurs dans une liste par exp
+
+        except TypeError:
+            return 0
+    return sorted(table.all(), key=lambda k: defaultInt(k["exp"]), reverse=True)  # Retourne l'ensemble des joueurs dans une liste par exp
 
 
 def giveBack(logger):
