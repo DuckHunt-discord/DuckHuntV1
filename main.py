@@ -667,9 +667,8 @@ def on_message(message):
         if int(message.author.id) in admins:
             prochaincanard = yield from getprochaincanard()
             timetonext = int(prochaincanard["time"] - time.time())
-            yield from client.send_message(message.author,
-                                           logger.debug("Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}".format(**{"server": prochaincanard["channel"].server.name, "channel" : prochaincanard["channel"].name, "timetonext": timetonext, "time": prochaincanard["time"]})))
-
+            yield from client.send_message(message.author, "Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}".format(**{"server": prochaincanard["channel"].server.name, "channel" : prochaincanard["channel"].name, "timetonext": timetonext, "time": prochaincanard["time"]}))
+            deleteMessage(message)
         else:
             yield from messageUser(message, "Oupas (Permission Denied)")
         yield from deleteMessage(message)
@@ -766,11 +765,15 @@ def on_message(message):
                         logger.debug("Valeur passée > float")
                         args_[2] = float(args_[2])
 
+                if args_[1] == "canardsJours":
+                    if args_[2]>250:
+                        args_[2] = 250
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
                 yield from messageUser(message, ":ok: Valeur modifiée à {value} (type: {type})".format(**{"value" : args_[2], "type": str(type(args_[2]))}))
             JSONsaveToDisk(servers, "channels.json")
             if args_[1] == "canardsJours":
                 yield from planifie()
+
 
 
         else:
