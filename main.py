@@ -97,6 +97,14 @@ def representsInt(s):
         return False
 
 @asyncio.coroutine
+def representsFloat(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+@asyncio.coroutine
 def newserver(server):
     servers = JSONloadFromDisk("channels.json", default="{}")
     logger.debug("Ajout du serveur " + str(server.id) + " | " + str(server.name) + " au fichier...")
@@ -378,7 +386,7 @@ def on_message(message):
                     if random.randint(1, 100) < 5:
                         canards.remove(canardencours)
                         tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
-                        yield from asyncio.sleep(1)
+                        yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
                         yield from client.edit_message(tmp, str(
                             message.author.mention) + " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]")
                         database.addToStat(message.channel, message.author, "exp", -1)
@@ -386,31 +394,31 @@ def on_message(message):
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
                     canards.remove(canardencours)
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
-                    yield from asyncio.sleep(1)
+                    yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
                     database.addToStat(message.channel, message.author, "canardsTues", 1)
-                    database.addToStat(message.channel, message.author, "exp", 10)
+                    database.addToStat(message.channel, message.author, "exp", servers[message.server.id]["settings"].get("expParCanard", defaultSettings["expParCanard"]))
                     yield from client.edit_message(tmp, str(message.author.mention) + " > :skull_crossbones: **BOUM**\tTu l'as eu en " + str(
                         int(now - canardencours["time"])) + " secondes, ce qui te fait un total de " + str(
                         database.getStat(message.channel, message.author, "canardsTues")) + " canards sur #" + str(
-                        message.channel) + ".     \_X<   *COUAC*   [10 xp]")
+                        message.channel) + ".     \_X<   *COUAC*   ["+ str(servers[message.server.id]["settings"].get("expParCanard", defaultSettings["expParCanard"])) + " xp]")
                     if database.getStat(message.channel, message.author, "meilleurTemps", default=servers[message.server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])) > int(now - canardencours["time"]):
                         database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
                     if servers[message.server.id]["settings"].get("findObjects", defaultSettings["findObjects"]):
                         if random.randint(0, 100) < 25:
                             yield from client.send_message(message.channel, str(
-                                message.author.mention) + " > En fouillant les buissons autour du canard, tu trouves " + random.choice(inutilite))
+                                message.author.mention) + "En fouillant les buissons autour du canard, tu trouves " + random.choice(inutilite))
 
 
 
 
                 else:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + " > BANG")
-                    yield from asyncio.sleep(1)
+                    yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
                     yield from client.edit_message(tmp, str(message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
-                yield from messageUser(message, " > Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
+                yield from messageUser(message, "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]")
                 database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
                 database.addToStat(message.channel, message.author, "exp", -2)
         else:
@@ -568,7 +576,7 @@ def on_message(message):
 
         yield from deleteMessage(message)
 
-    elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "/_^<" in message.content:
+    elif message.content.startswith("-,,.-") or "QUAACK"  in message.content or "QUAAACK" in message.content or "/_^<" in message.content:
         yield from messageUser(message, " Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]")
         database.addToStat(message.channel, message.author, "exp", -1)
 
@@ -782,9 +790,15 @@ def on_message(message):
                 elif args_[2].lower() == "false":
                     logger.debug("Valeur passée > bool (False)")
                     args_[2] = False
-                elif representsInt(args_[2]):
-                    logger.debug("Valeur passée > int")
-                    args_[2] = int(args_[2])
+
+                elif representsFloat(args_[2]):
+                    if float(args_[2]).is_integer():
+                        logger.debug("Valeur passée > int")
+                        args_[2] = int(args_[2])
+                    else:
+                        logger.debug("Valeur passée > float")
+                        args_[2] = float(args_[2])
+
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
                 yield from messageUser(message, ":ok: Valeur modifiée à " + str(args_[2]) + " ( type : " + str(type(args_[2])) + ")")
             JSONsaveToDisk(servers, "channels.json")
@@ -908,7 +922,7 @@ def on_message_edit(old, new):
 
     if new.channel.id not in servers[new.channel.server.id]["channels"]:
         return
-    if new.content.startswith("-,,.-") or "QUAACK" in new.content or "/_^<" in new.content:
+    if new.content.startswith("-,,.-") or "QUAACK" in new.content or "/_^<" in new.content or "QUAAACK" in new.content:
         yield from messageUser(new, " Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]")
         database.addToStat(new.channel, new.author, "exp", -5)
 
