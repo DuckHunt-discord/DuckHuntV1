@@ -276,7 +276,7 @@ def on_message(message):
                 message.channel.server.id) + " | " + str(message.channel.server.name))
             yield from messageUser(message, ":robot: Vous etes maintenent le gestionnaire du serveur !")
         else:
-            yield from messageUser(message, "> :x: Il y a déjà un admin sur ce serveur...")
+            yield from messageUser(message, ":x: Il y a déjà un admin sur ce serveur...")
         JSONsaveToDisk(servers, "channels.json")
         return
 
@@ -339,7 +339,7 @@ def on_message(message):
             return
 
         if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) <= 0:
-            yield from messageUser(message, "> **CHARGEUR VIDE** | Munitions dans l'arme : " + str(
+            yield from messageUser(message, "**CHARGEUR VIDE** | Munitions dans l'arme : " + str(
                 database.getStat(message.channel, message.author, "balles",
                                  default=database.getPlayerLevel(message.channel, message.author)["balles"])) + "/" + str(
                 database.getPlayerLevel(message.channel, message.author)["balles"]) + " | Chargeurs restants : " + str(
@@ -351,7 +351,7 @@ def on_message(message):
             if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["fiabilitee"]:
                 database.addToStat(message.channel, message.author, "balles", -1)
             else:
-                yield from messageUser(message, "> Ton arme s'est enrayée, recharge la pour la décoincer.")
+                yield from messageUser(message, "Ton arme s'est enrayée, recharge la pour la décoincer.")
                 database.setStat(message.channel, message.author, "enrayee", True)
                 return
 
@@ -408,6 +408,7 @@ def on_message(message):
             database.addToStat(message.channel, message.author, "exp", -2)
 
     elif message.content.startswith("!reload"):
+        logger.debug("> RELOAD (" + str(message.author) + ")")
         if database.getStat(message.channel, message.author, "enrayee", default=False):
             yield from messageUser(message, " > Tu décoinces ton arme.")
             database.setStat(message.channel, message.author, "enrayee", False)
@@ -655,7 +656,7 @@ def on_message(message):
         yield from deleteMessage(message)
 
     elif message.content.startswith("!devinfo"):
-        logger.debug("DEVINFO (" + str(message.author) + ")")
+        logger.debug("> DEVINFO (" + str(message.author) + ")")
         yield from messageUser(message, ":robot: Channel object " + str(
             message.channel) + " ID : " + message.channel.id + " | NAME : " + message.channel.name)
         yield from messageUser(message, ":robot: Author  object " + str(message.author) + " ID : " + message.author.id + " | NAME : " + message.author.name)
@@ -785,7 +786,7 @@ def on_message(message):
             yield from deleteMessage(message)
 
         else:
-            yield from messageUser(message, " > :x: Oops, vous n'etes pas administrateur du serveur...")
+            yield from messageUser(message, ":x: Oops, vous n'etes pas administrateur du serveur...")
 
     elif message.content.startswith("!dearm"):
         logger.debug("> DEARM (" + str(message.author) + ")")
@@ -793,7 +794,7 @@ def on_message(message):
             args_ = message.content.split(" ")
 
             if len(args_) == 1:
-                yield from messageUser(message, " > :x: Joueur non spécifié")
+                yield from messageUser(message, ":x: Joueur non spécifié")
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
