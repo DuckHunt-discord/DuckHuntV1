@@ -120,16 +120,16 @@ def updateJSON():
     logger.debug("Version parsée de servers : " + str(servers))
     for server in servers:
         if not "admins" in servers[server]:
-            logger.debug("Le parametre admins n'existait pas dans le serveur {server}, creation...").format(**{"server": server})
+            logger.debug("Le parametre admins n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["admins"] = []
         if not "channels" in servers[server]:
-            logger.debug("Le parametre channels n'existait pas dans le serveur {server}, creation...").format(**{"server": server})
+            logger.debug("Le parametre channels n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["channels"] = []
         if not "settings" in servers[server]:
-            logger.debug("Le parametre settings n'existait pas dans le serveur {server}, creation...").format(**{"server": server})
+            logger.debug("Le parametre settings n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["settings"] = {}
         if not "detecteur" in servers[server]:
-            logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...").format(**{"server": server})
+            logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["detecteur"] = {}
 
     JSONsaveToDisk(servers, "channels.json")
@@ -159,7 +159,7 @@ def planifie():
                     if permissions.read_messages and permissions.send_messages:
                         # if (channelWL and int(channel.id) in whitelist) or not channelWL:
                         if channel.id in servers[server.id]["channels"]:
-                            logger.debug("   |-Ajout channel : {id} ({canardsjours} c/j)").format(**{"id": channel.id, "canardsjours": str(servers[server.id]["settings"].get("canardsJours", defaultSettings["canardsJours"]))})
+                            logger.debug("   |-Ajout channel : {id} ({canardsjours} c/j)".format(**{"id": channel.id, "canardsjours": str(servers[server.id]["settings"].get("canardsJours", defaultSettings["canardsJours"]))}))
                             templist = []
                             for id in range(1, servers[server.id]["settings"].get("canardsJours", defaultSettings["canardsJours"]) + 1):
                                 templist.append(int(thisDay + random.randint(0, 86400)))
@@ -253,7 +253,7 @@ def mainloop():
 
         for canard in canards:
             if int(canard["time"] + servers[canard["channel"].server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])) < int(now):  # Canard qui se barre
-                logger.debug("Le canard de {time} est resté trop longtemps, il s'échappe. (il est {now}, et il aurait du rester jusqu'a {shouldwaitto}).").format(**{"time" : canard["time"], "now": now, "shouldwaitto": str(int(canard["time"] + servers[canard["channel"].server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])))})
+                logger.debug("Le canard de {time} est resté trop longtemps, il s'échappe. (il est {now}, et il aurait du rester jusqu'a {shouldwaitto}).".format(**{"time" : canard["time"], "now": now, "shouldwaitto": str(int(canard["time"] + servers[canard["channel"].server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])))}))
                 yield from client.send_message(canard["channel"], "Le canard s'échappe.     ·°'\`'°-.,¸¸.·°'\`")
                 canards.remove(canard)
         yield from asyncio.sleep(1)
@@ -565,8 +565,8 @@ def on_message(message):
         else:
             try:
                 nombre = int(args_[1])
-                if nombre not in range(1, 50 + 1):
-                    yield from messageUser(message, ":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 50")
+                if nombre not in range(1, 20 + 1):
+                    yield from messageUser(message, ":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20")
                     yield from deleteMessage(message)
                     return
 
