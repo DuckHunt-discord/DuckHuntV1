@@ -2,7 +2,7 @@
 # !/usr/bin/env python3.5
 
 token = "Enter a bot token here"
-admins = ["138751484517941259"]
+admins = [138751484517941259]
 
 canardsJours = 99
 channelWL = False
