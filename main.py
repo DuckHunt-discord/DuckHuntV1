@@ -397,8 +397,7 @@ def on_message(message):
                         canards.remove(canardencours)
                         tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                         yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
-                        yield from client.edit_message(tmp, str(
-                            message.author.mention) + _(" > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language))
+                        yield from client.edit_message(tmp, str(message.author.mention) + _(" > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language))
                         database.addToStat(message.channel, message.author, "exp", -1)
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
@@ -560,7 +559,7 @@ def on_message(message):
 
         elif item == 23:
             if database.getStat(message.channel, message.author, "exp") > 50:
-                yield from messageUser(message, ":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !")
+                yield from messageUser(message, _(":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !", language), forcePv=True)
                 database.addToStat(message.channel, message.author, "exp", -50)
                 yield from asyncio.sleep(75)
                 yield from client.send_message(message.channel, _("-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*", language))
