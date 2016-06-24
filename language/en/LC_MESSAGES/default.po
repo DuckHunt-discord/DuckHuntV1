@@ -40,7 +40,7 @@ msgstr ":x: Please contact me in channels where I am enabled."
 
 #: main.py:297
 msgid ":robot: Vous etes maintenent le gestionnaire du serveur !"
-msgstr ": Robot: You are now Server Manager!"
+msgstr ":robot: You are now Server Manager!"
 
 #: main.py:299
 msgid ":x: Il y a déjà un admin sur ce serveur..."
