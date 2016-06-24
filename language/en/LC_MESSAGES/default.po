@@ -336,11 +336,11 @@ msgstr "There is a duck on #{channel}"
 
 #: main.py:209
 msgid "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK"
-msgstr "-, _, .- ' `' ° -, _, .- '`' ° /_^< QUAACK"
+msgstr "-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK"
 
 #: main.py:279
 msgid "Le canard s'échappe.     ·°'\\`'°-.,¸¸.·°'\\`"
-msgstr "The duck escapes. · ° '\\ `' ° -., ¸¸ · ° '\\`."
+msgstr "The duck escapes. ·°'\\`'°-.,¸¸.·°'\\`"
 
 #: main.py:302
 msgid ":x: Merci de communiquer avec moi dans les channels ou je suis actif."
@@ -420,8 +420,8 @@ msgid ""
 "fait un total de {total} canards sur #{channel}.     \\_X<   *COUAC*   "
 "[{exp} xp]"
 msgstr ""
-"> :skull_crossbones ** BOOM ** You got it in {time} seconds, makes you a "
-"total of {total} ducks on #{channel}. \\ _ X <* COUAC * [{exp} xp]"
+"> :skull_crossbones: ** BOOM ** You got it in {time} seconds, makes you a "
+"total of {total} ducks on #{channel}. \\_X< * COUAC * [{exp} xp]"
 
 #: main.py:415
 #, python-brace-format
