@@ -636,7 +636,7 @@ msgstr "ducks killed"
 
 #: main.py:640
 msgid "Tirs manqués"
-msgstr ""
+msgstr "missed shots"
 
 #: main.py:641
 msgid "Tirs sans canards"
@@ -644,11 +644,11 @@ msgstr "shots without duck"
 
 #: main.py:642
 msgid "Meilleur temps de tir"
-msgstr ""
+msgstr "Best time for shooting"
 
 #: main.py:643
 msgid "Balles dans le chargeur actuel"
-msgstr ""
+msgstr "Bullets in the current charger"
 
 #: main.py:646
 msgid "Chargeurs restants"
@@ -660,11 +660,11 @@ msgstr "Current level"
 
 #: main.py:652
 msgid "Précision des tirs"
-msgstr ""
+msgstr "Shooting Accuracy"
 
 #: main.py:653
 msgid "Fiabilitée de l'arme"
-msgstr ""
+msgstr "Weapon accuracy"
 
 #: main.py:655
 #, python-brace-format

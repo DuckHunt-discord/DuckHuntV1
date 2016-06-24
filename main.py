@@ -648,7 +648,7 @@ def on_message(message):
             database.getPlayerLevel(message.channel, target)["chargeurs"])])
         x.add_row([_("Experience", language), database.getStat(message.channel, target, "exp")])
         x.add_row([_("Niveau actuel", language),
-                   str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"])
+                   str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + _(database.getPlayerLevel(message.channel, target)["nom"], language) + ")"])
         x.add_row([_("Précision des tirs", language), database.getPlayerLevel(message.channel, target)["precision"]])
         x.add_row([_("Fiabilitée de l'arme", language), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
