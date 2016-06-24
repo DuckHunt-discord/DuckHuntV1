@@ -49,8 +49,29 @@ else:
 logger.addHandler(steam_handler)
 steam_handler.setFormatter(formatter)
 logger.debug("Logger Initialisé")
-t = gettext.translation('default', localedir='language', languages=[lang])#, fallback=True)
-_ = t.gettext
+
+
+# t = gettext.translation('default', localedir='language', languages=[lang])#, fallback=True)
+# _ = t.gettext
+
+class Domain: # gettext config | http://stackoverflow.com/a/38004947/3738545
+    def __init__(self, domain):
+        self._domain = domain
+        self._translations = {}
+
+    def _get_translation(self, language):
+        try:
+            return self._translations[language]
+        except KeyError:
+            # The fact that `fallback=True` is not the default is a serious design flaw.
+            rv = self._translations[language] = gettext.translation(self._domain, languages=[language], localedir="language", fallback=True)
+            return rv
+
+    def get(self, msg, language=lang):
+        #logger.debug("Language > " + str(language))
+        return self._get_translation(language).gettext(msg)
+
+_ = Domain("default").get
 logger.debug("Suppport de la langue implémenté")
 logger.info(_("Initialisation du programme, merci de patienter..."))
 logger.debug("Version : " + str(sys.version))
@@ -91,7 +112,6 @@ def messageUser(message, toSend, forcePv=False):
 
 
 
-@asyncio.coroutine
 def representsInt(s):
     try:
         int(s)
@@ -99,7 +119,6 @@ def representsInt(s):
     except ValueError:
         return False
 
-@asyncio.coroutine
 def representsFloat(s):
     try:
         float(s)
@@ -180,14 +199,14 @@ def nouveauCanard(canard):
     if servers[canard["channel"].server.id]["detecteur"].get(canard["channel"].id, False):
         for playerid in servers[canard["channel"].server.id]["detecteur"][canard["channel"].id]:
             player = discord.utils.get(canard["channel"].server.members, id=playerid)
-            yield from client.send_message(player, _("Il y a un canard sur #{channel}").format(**{"channel": canard["channel"].name}))
+            yield from client.send_message(player, _("Il y a un canard sur #{channel}", language=servers[canard["channel"].server.id]["settings"].get("lang", defaultSettings["lang"])).format(**{"channel": canard["channel"].name}))
 
         servers[canard["channel"].server.id]["detecteur"].pop(canard["channel"].id)
         JSONsaveToDisk(servers, "channels.json")
 
     logger.debug("Nouveau canard : " + str(canard))
 
-    yield from client.send_message(canard["channel"], _("-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK"))
+    yield from client.send_message(canard["channel"], _("-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK", language=servers[canard["channel"].server.id]["settings"].get("lang", defaultSettings["lang"])))
     canards.append(canard)
 
 
@@ -257,7 +276,7 @@ def mainloop():
         for canard in canards:
             if int(canard["time"] + servers[canard["channel"].server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])) < int(now):  # Canard qui se barre
                 logger.debug("Le canard de {time} est resté trop longtemps, il s'échappe. (il est {now}, et il aurait du rester jusqu'a {shouldwaitto}).".format(**{"time" : canard["time"], "now": now, "shouldwaitto": str(int(canard["time"] + servers[canard["channel"].server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])))}))
-                yield from client.send_message(canard["channel"], _("Le canard s'échappe.     ·°'\`'°-.,¸¸.·°'\`"))
+                yield from client.send_message(canard["channel"], _("Le canard s'échappe.     ·°'\`'°-.,¸¸.·°'\`", language=servers[canard["channel"].server.id]["settings"].get("lang", defaultSettings["lang"])))
                 canards.remove(canard)
         yield from asyncio.sleep(1)
 
@@ -280,22 +299,22 @@ def on_message(message):
 
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
-        client.send_message(message.author, _(":x: Merci de communiquer avec moi dans les channels ou je suis actif."))
+        client.send_message(message.author, _(":x: Merci de communiquer avec moi dans les channels ou je suis actif.")) # No server so no translation here :x
         return
     if not message.channel.server.id in servers:
         yield from newserver(message.channel.server)
         servers = JSONloadFromDisk("channels.json", default="{}")
 
     # Messages pour n'importe où
-
+    language = servers[message.channel.server.id]["settings"].get("lang", defaultSettings["lang"])
     if message.content.startswith("!claimserver"):
         logger.debug("> CLAIMSERVER (" + str(message.author) + ")")
         if not servers[message.channel.server.id]["admins"]:
             servers[message.channel.server.id]["admins"] = [message.author.id]
             logger.debug("Ajout de l'admin {admin_name} | {admin_id} au fichier de configuration pour le serveur {server_name} | {server_id}.".format(**{"admin_name": message.author.name, "admin_id": message.author.id, "server_name": message.channel.server.name, "server_id": message.channel.server.id }))
-            yield from messageUser(message, _(":robot: Vous etes maintenent le gestionnaire du serveur !"))
+            yield from messageUser(message, _(":robot: Vous etes maintenent le gestionnaire du serveur !", language))
         else:
-            yield from messageUser(message, _(":x: Il y a déjà un admin sur ce serveur..."))
+            yield from messageUser(message, _(":x: Il y a déjà un admin sur ce serveur...", language))
         JSONsaveToDisk(servers, "channels.json")
         return
 
@@ -306,23 +325,23 @@ def on_message(message):
                 logger.debug("Ajout de la channel {name} | {id} au fichier...".format(**{"id" : message.channel.id, "name" : message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from messageUser(message, _(":robot: Channel ajoutée au jeu !"))
+                yield from messageUser(message, _(":robot: Channel ajoutée au jeu !", language))
                 yield from planifie()
 
             else:
-                yield from messageUser(message, _(":x: Cette channel existe déjà dans le jeu."))
+                yield from messageUser(message, _(":x: Cette channel existe déjà dans le jeu.", language))
         elif message.author.id in admins:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
                 logger.debug("Ajout de la channel {name} | {id} au fichier...".format(**{"id" : message.channel.id, "name" : message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from messageUser(message, _(":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur."))
+                yield from messageUser(message, _(":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur.", language))
                 yield from planifie()
 
             else:
-                yield from messageUser(message, _(":x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur."))
+                yield from messageUser(message, _(":x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur.", language))
         else:
-            yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur."))
+            yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
 
         return
 
@@ -337,22 +356,22 @@ def on_message(message):
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
         if database.getStat(message.channel, message.author, "confisque", default=False):
-            yield from messageUser(message, _("Vous n'etes pas armé"))
+            yield from messageUser(message, _("Vous n'etes pas armé", language))
             return
 
         if database.getStat(message.channel, message.author, "enrayee", default=False):
-            yield from messageUser(message, _("Votre arme est enrayée, il faut la recharger pour la décoincer."))
+            yield from messageUser(message, _("Votre arme est enrayée, il faut la recharger pour la décoincer.", language))
             return
         if database.getStat(message.channel, message.author, "sabotee", default="-") is not "-":
             logger.debug("Arme sabotée par : " + database.getStat(message.channel, message.author, "sabotee", default="-"))
 
-            yield from messageUser(message, _("Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague.").format(**{"assaillant": database.getStat(message.channel,message.author,"sabotee",default="-")}))
+            yield from messageUser(message, _("Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague.", language).format(**{"assaillant": database.getStat(message.channel,message.author,"sabotee",default="-")}))
             database.setStat(message.channel, message.author, "enrayee", True)
             database.setStat(message.channel, message.author, "sabotee", "-")
             return
 
         if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) <= 0:
-            yield from messageUser(message, _("**CHARGEUR VIDE** | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}").format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
+            yield from messageUser(message, _("**CHARGEUR VIDE** | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}", language).format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
                                                                                                                                                                                                "balles_max": database.getPlayerLevel(message.channel, message.author)["balles"],
                                                                                                                                                                                                "chargeurs_actuels": database.getStat(message.channel, message.author, "chargeurs",default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]),
                                                                                                                                                                                                "chargeurs_max": database.getPlayerLevel(message.channel, message.author)["chargeurs"]}))
@@ -361,7 +380,7 @@ def on_message(message):
             if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["fiabilitee"]:
                 database.addToStat(message.channel, message.author, "balles", -1)
             else:
-                yield from messageUser(message, _("Ton arme s'est enrayée, recharge la pour la décoincer."))
+                yield from messageUser(message, _("Ton arme s'est enrayée, recharge la pour la décoincer.", language))
                 database.setStat(message.channel, message.author, "enrayee", True)
                 return
 
@@ -376,47 +395,47 @@ def on_message(message):
                 if servers[message.server.id]["settings"].get("duckLeaves", defaultSettings["duckLeaves"]):
                     if random.randint(1, 100) < 5:
                         canards.remove(canardencours)
-                        tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG"))
+                        tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                         yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
                         yield from client.edit_message(tmp, str(
-                            message.author.mention) + " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]")
+                            message.author.mention) + " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language)
                         database.addToStat(message.channel, message.author, "exp", -1)
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
                     canards.remove(canardencours)
-                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG"))
+                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                     yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
                     database.addToStat(message.channel, message.author, "canardsTues", 1)
                     database.addToStat(message.channel, message.author, "exp", servers[message.server.id]["settings"].get("expParCanard", defaultSettings["expParCanard"]))
-                    yield from client.edit_message(tmp, str(message.author.mention) + _(" > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]").format(**{"time": int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"), "channel": message.channel, "exp": servers[message.server.id]["settings"].get("expParCanard", defaultSettings["expParCanard"])}))
+                    yield from client.edit_message(tmp, str(message.author.mention) + _(" > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]", language).format(**{"time": int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"), "channel": message.channel, "exp": servers[message.server.id]["settings"].get("expParCanard", defaultSettings["expParCanard"])}))
                     if database.getStat(message.channel, message.author, "meilleurTemps", default=servers[message.server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"])) > int(now - canardencours["time"]):
                         database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
                     if servers[message.server.id]["settings"].get("findObjects", defaultSettings["findObjects"]):
                         if random.randint(0, 100) < 25:
-                            yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}").format(**{"inutilitee" :random.choice(inutilite)}))
+                            yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(**{"inutilitee" :random.choice(inutilite)}))
 
 
 
 
                 else:
-                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG"))
+                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                     yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
-                    yield from client.edit_message(tmp, str(message.author.mention) + " > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]")
+                    yield from client.edit_message(tmp, str(message.author.mention) + _(" > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]", language))
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
-                yield from messageUser(message, _("Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]"))
+                yield from messageUser(message, _("Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]", language))
                 database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
                 database.addToStat(message.channel, message.author, "exp", -2)
         else:
-            yield from messageUser(message, _("Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]"))
+            yield from messageUser(message, _("Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]", language))
             database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
             database.addToStat(message.channel, message.author, "exp", -2)
 
     elif message.content.startswith("!reload"):
         logger.debug("> RELOAD (" + str(message.author) + ")")
         if database.getStat(message.channel, message.author, "enrayee", default=False):
-            yield from messageUser(message, _("Tu décoinces ton arme."))
+            yield from messageUser(message, _("Tu décoinces ton arme.", language))
             database.setStat(message.channel, message.author, "enrayee", False)
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) > 0:
                 yield from deleteMessage(message)
@@ -427,18 +446,18 @@ def on_message(message):
                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) > 0:
                 database.setStat(message.channel, message.author, "balles", database.getPlayerLevel(message.channel, message.author)["balles"])
                 database.addToStat(message.channel, message.author, "chargeurs", -1)
-                yield from messageUser(message, _("Tu recharges ton arme. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}").format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
+                yield from messageUser(message, _("Tu recharges ton arme. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}", language).format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
                                                                                                                                                                                                         "balles_max": database.getPlayerLevel(message.channel, message.author)["balles"],
                                                                                                                                                                                                         "chargeurs_actuels": database.getStat(message.channel, message.author, "chargeurs",default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]),
                                                                                                                                                                                                         "chargeurs_max": database.getPlayerLevel(message.channel, message.author)["chargeurs"]}))
             else:
-                yield from messageUser(message,_("Tu es à court de munitions. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}").format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
+                yield from messageUser(message,_("Tu es à court de munitions. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}", language).format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
                                                                                                                                                                                                              "balles_max": database.getPlayerLevel(message.channel, message.author)["balles"],
                                                                                                                                                                                                              "chargeurs_actuels": database.getStat(message.channel, message.author, "chargeurs",default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]),
                                                                                                                                                                                                              "chargeurs_max": database.getPlayerLevel(message.channel, message.author)["chargeurs"]}))
                 return
         else:
-            yield from messageUser(message,_("Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}").format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
+            yield from messageUser(message,_("Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}", language).format(**{"balles_actuelles": database.getStat(message.channel, message.author, "balles",default=database.getPlayerLevel(message.channel, message.author)["balles"]),
                                                                                                                                                                                                                      "balles_max": database.getPlayerLevel(message.channel, message.author)["balles"],
                                                                                                                                                                                                                      "chargeurs_actuels": database.getStat(message.channel, message.author, "chargeurs",default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]),
                                                                                                                                                                                                                      "chargeurs_max": database.getPlayerLevel(message.channel, message.author)["chargeurs"]}))
@@ -449,7 +468,7 @@ def on_message(message):
         logger.debug("> SHOP (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
-            yield from messageUser(message, _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`"))
+            yield from messageUser(message, _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
             yield from deleteMessage(message)
             return
         else:
@@ -457,7 +476,7 @@ def on_message(message):
                 item = int(args_[1])
             except ValueError:
                 yield from messageUser(message, str(
-                    message.author.mention) + _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`"))
+                    message.author.mention) + _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`", language))
                 yield from deleteMessage(message)
                 return
 
@@ -465,33 +484,33 @@ def on_message(message):
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) < \
                     database.getPlayerLevel(message.channel, message.author)["balles"]:
                 if database.getStat(message.channel, message.author, "exp") > 7:
-                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience"))
+                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience", language))
                     database.addToStat(message.channel, message.author, "balles", 1)
                     database.addToStat(message.channel, message.author, "exp", -7)
                 else:
-                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !"))
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
             else:
-                yield from messageUser(message, _(":champagne: Ton chargeur est déjà plein !"))
+                yield from messageUser(message, _(":champagne: Ton chargeur est déjà plein !", language))
 
         elif item == 2:
             if database.getStat(message.channel, message.author, "chargeurs",
                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) < \
                     database.getPlayerLevel(message.channel, message.author)["chargeurs"]:
                 if database.getStat(message.channel, message.author, "exp") > 13:
-                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience"))
+                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience", language))
                     database.addToStat(message.channel, message.author, "chargeurs", 1)
                     database.addToStat(message.channel, message.author, "exp", -13)
                 else:
-                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !"))
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
             else:
-                yield from messageUser(message, _(":champagne: Ta réserve de chargeurs est déjà pleine !"))
+                yield from messageUser(message, _(":champagne: Ta réserve de chargeurs est déjà pleine !", language))
 
         elif item == 17:
             if len(args_) <= 2:
                 yield from messageUser(message, str(
-                    message.author.mention) + _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p"))
+                    message.author.mention) + _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
                 yield from deleteMessage(message)
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
@@ -499,23 +518,23 @@ def on_message(message):
             if target is None:
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}").format(**{"target": args_[2]}))
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
                     yield from deleteMessage(message)
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 14:
                 if database.getStat(message.channel, target, "sabotee", "-") == "-":
-                    yield from messageUser(message, _(":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !").format(**{"target" : target.name}), forcePv=True)
+                    yield from messageUser(message, _(":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !", language).format(**{"target" : target.name}), forcePv=True)
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
                 else:
-                    yield from messageUser(message, _(":ok: L'arme de {target} est déjà sabotée!").format(**{"target": target.name}))
+                    yield from messageUser(message, _(":ok: L'arme de {target} est déjà sabotée!", language).format(**{"target": target.name}))
 
             else:
-                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !"))
+                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
         elif item == 20:
             if database.getStat(message.channel, message.author, "exp") > 8:
-                yield from messageUser(message, _(":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de {mention}. Ca lui coûte 8 exp !").format(**{"mention": message.author.mention}))
+                yield from messageUser(message, _(":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur le channel, grâce à l'appeau de {mention}. Ca lui coûte 8 exp !", language).format(**{"mention": message.author.mention}))
                 database.addToStat(message.channel, message.author, "exp", -8)
                 dans = random.randint(0, 60 * 10)
                 logger.debug("Appeau lancé pour dans {dans} secondes, sur #{channel_name} | {server_name}.".format(**{"dans": dans, "channel_name" : message.channel.name, "server_name" : message.channel.server.name}))
@@ -523,20 +542,20 @@ def on_message(message):
                 yield from nouveauCanard({"time": int(time.time()), "channel": message.channel})
 
             else:
-                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !"))
+                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
         elif item == 22:
             if database.getStat(message.channel, message.author, "exp") > 5:
 
                 servers = JSONloadFromDisk("channels.json", default="{}")
-                yield from messageUser(message, _(":money_with_wings: Vous serez averti lors du prochain canard sur #{channel_name}").format(**{"channel_name" : message.channel.name}), forcePv=True)
+                yield from messageUser(message, _(":money_with_wings: Vous serez averti lors du prochain canard sur #{channel_name}", language).format(**{"channel_name" : message.channel.name}), forcePv=True)
                 if message.channel.id in servers[message.server.id]["detecteur"]: servers[message.server.id]["detecteur"][message.channel.id].append(message.author.id)
                 else: servers[message.server.id]["detecteur"][message.channel.id] = [message.author.id]
                 JSONsaveToDisk(servers, "channels.json")
                 database.addToStat(message.channel, message.author, "exp", -5)
 
             else:
-                yield from messageUser(message,_(":x: Tu n'as pas assez d'experience pour effectuer cet achat !"))
+                yield from messageUser(message,_(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
 
         elif item == 23:
@@ -544,17 +563,17 @@ def on_message(message):
                 yield from messageUser(message, ":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !")
                 database.addToStat(message.channel, message.author, "exp", -50)
                 yield from asyncio.sleep(75)
-                yield from client.send_message(message.channel, _("-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*"))
+                yield from client.send_message(message.channel, _("-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*", language))
             else:
-                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !"))
+                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
         else:
-            yield from messageUser(message, _(":x: Objet non trouvé :'("))
+            yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
 
         yield from deleteMessage(message)
 
     elif message.content.startswith("-,,.-") or "QUAACK"  in message.content or "QUAAACK" in message.content or "/_^<" in message.content:
-        yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]"))
+        yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
 
     elif message.content.startswith("!top"):
@@ -566,17 +585,17 @@ def on_message(message):
             try:
                 nombre = int(args_[1])
                 if nombre not in range(1, 20 + 1):
-                    yield from messageUser(message, _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20"))
+                    yield from messageUser(message, _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20", language))
                     yield from deleteMessage(message)
                     return
 
             except ValueError:
-                yield from messageUser(message, _(":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`"))
+                yield from messageUser(message, _(":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`", language))
                 yield from deleteMessage(message)
                 return
         x = PrettyTable()
 
-        x._set_field_names([_("Position"), _("Pseudo"), _("Experience"), _("Canards Tués")])
+        x._set_field_names([_("Position", language), _("Pseudo", language), _("Experience", language), _("Canards Tués", language)])
         i = 0
         for joueur in database.topScores(message.channel):
             i += 1
@@ -587,16 +606,16 @@ def on_message(message):
             x.add_row([i, joueur["name"], joueur["exp"], joueur["canardsTues"]])
 
         yield from messageUser(message,
-                               _(":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n```{table}```").format(**{"channel_name": message.channel.name, "table": x.get_string(end=nombre,sortby=_("Position"))}) ,forcePv = True)
+                               _(":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n```{table}```", language).format(**{"channel_name": message.channel.name, "table": x.get_string(end=nombre,sortby=_("Position", language))}) ,forcePv = True)
 
         yield from deleteMessage(message)
 
     elif message.content.startswith('!ping'):
 
         logger.debug("> PING (" + str(message.author) + ")")
-        tmp = yield from client.send_message(message.channel, _('BOUM'))
+        tmp = yield from client.send_message(message.channel, _('BOUM', language))
         yield from asyncio.sleep(4)
-        yield from client.edit_message(tmp, _('... Oups ! Pardon, pong !'))
+        yield from client.edit_message(tmp, _('... Oups ! Pardon, pong !', language))
         yield from deleteMessage(message)
 
     elif message.content.startswith("!duckstat"):
@@ -611,12 +630,12 @@ def on_message(message):
             if target is None:
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x"))
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
                     yield from deleteMessage(message)
                     return
         x = PrettyTable()
 
-        x._set_field_names([_("Statistique"), _("Valeur")])
+        x._set_field_names([_("Statistique", language), _("Valeur", language)])
         x.add_row(["Canards tués", database.getStat(message.channel, target, "canardsTues")])
         x.add_row(["Tirs manqués", database.getStat(message.channel, target, "tirsManques")])
         x.add_row(["Tirs sans canards", database.getStat(message.channel, target, "tirsSansCanards")])
@@ -633,7 +652,7 @@ def on_message(message):
         x.add_row(["Précision des tirs", database.getPlayerLevel(message.channel, target)["precision"]])
         x.add_row(["Fiabilitée de l'arme", database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
-        yield from messageUser(message, _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html").format(**{"table": x.get_string()}))
+        yield from messageUser(message, _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(**{"table": x.get_string()}))
 
         yield from deleteMessage(message)
 
@@ -645,11 +664,11 @@ def on_message(message):
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
 
         if int(message.author.id) in admins:
-            yield from messageUser(message, _("En cours..."))
+            yield from messageUser(message, _("En cours...", language))
             database.giveBack(logger)
-            yield from messageUser(message, _(":ok: Terminé. Voir les logs sur la console ! "))
+            yield from messageUser(message, _(":ok: Terminé. Voir les logs sur la console ! ", language))
         else:
-            yield from messageUser(message, _(":x: Oupas (Permission Denied)"))
+            yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
         yield from deleteMessage(message)
 
     elif message.content.startswith("!coin"):
@@ -658,7 +677,7 @@ def on_message(message):
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
-            yield from messageUser(message, _(":x: Oupas (Permission Denied)"))
+            yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
         yield from deleteMessage(message)
 
     elif message.content.startswith("!nextduck"):
@@ -667,10 +686,10 @@ def on_message(message):
         if int(message.author.id) in admins:
             prochaincanard = yield from getprochaincanard()
             timetonext = int(prochaincanard["time"] - time.time())
-            yield from client.send_message(message.author, _("Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}").format(**{"server": prochaincanard["channel"].server.name, "channel" : prochaincanard["channel"].name, "timetonext": timetonext, "time": prochaincanard["time"]}))
+            yield from client.send_message(message.author, _("Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}", language).format(**{"server": prochaincanard["channel"].server.name, "channel" : prochaincanard["channel"].name, "timetonext": timetonext, "time": prochaincanard["time"]}))
             deleteMessage(message)
         else:
-            yield from messageUser(message, _("Oupas (Permission Denied)"))
+            yield from messageUser(message, _("Oupas (Permission Denied)", language))
         yield from deleteMessage(message)
 
     elif message.content.startswith('!delchannel'):
@@ -680,23 +699,23 @@ def on_message(message):
                 logger.debug("Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
                 servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from messageUser(message, _(":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés..."))
+                yield from messageUser(message, _(":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés...", language))
                 yield from planifie()
 
             else:
-                yield from messageUser(message, _(":x: Cette channel n'existe pas dans le jeu."))
+                yield from messageUser(message, _(":x: Cette channel n'existe pas dans le jeu.", language))
         elif int(message.author.id) in admins:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
                 logger.debug("Supression de la channel {channel_id} | {channel_name} du fichier...".format(**{"channel_id": message.channel.id, "channel_name" : message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
-                yield from messageUser(message, _(":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur"))
+                yield from messageUser(message, _(":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur", language))
                 yield from planifie()
 
             else:
-                yield from messageUser(message, _(":x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur"))
+                yield from messageUser(message, _(":x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur", language))
         else:
-            yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur."))
+            yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
 
         return
 
@@ -712,16 +731,16 @@ def on_message(message):
             if target is None:
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x"))
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
                     yield from deleteMessage(message)
                     return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             servers[message.channel.server.id]["admins"].append(target.id)
             logger.debug("Ajout de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(**{"admin_id": target.id, "admin_name": target.name, "server_id" : message.channel.server.id, "server_name": message.channel.server.name}))
-            yield from messageUser(message, _(":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}").format(**{"admin_id": target.id, "admin_name": target.name, "server_id" : message.channel.server.id, "server_name": message.channel.server.name}))
+            yield from messageUser(message, _(":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}", language).format(**{"admin_id": target.id, "admin_name": target.name, "server_id" : message.channel.server.id, "server_name": message.channel.server.name}))
         else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur..."))
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
         JSONsaveToDisk(servers, "channels.json")
         return
 
@@ -729,26 +748,26 @@ def on_message(message):
         logger.debug("> SET (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1 or len(args_) > 3:
-            yield from messageUser(message, _(":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>"))
+            yield from messageUser(message, _(":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>", language))
             x = PrettyTable()
 
-            x._set_field_names([_("Parametre"), _("Valeur actuelle"), _("Valeur par défaut")])
+            x._set_field_names([_("Parametre", language), _("Valeur actuelle", language), _("Valeur par défaut", language)])
             for param in defaultSettings.keys():
                 x.add_row([param, servers[message.server.id]["settings"].get(param, defaultSettings[param]), defaultSettings[param]])
 
-            yield from messageUser(message, _("Liste des paramétres disponibles : \n```{table}```").format(**{"table": x.get_string(sortby="Parametre")}))
+            yield from messageUser(message, _("Liste des paramétres disponibles : \n```{table}```", language).format(**{"table": x.get_string(sortby="Parametre")}))
             yield from deleteMessage(message)
             return
 
         if not args_[1] in defaultSettings:
-            yield from messageUser(message, _(":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>"))
+            yield from messageUser(message, _(":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>", language))
             yield from deleteMessage(message)
             return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if len(args_) == 2:
                 servers[message.server.id]["settings"].pop(args_[1])
-                yield from messageUser(message, _(":ok: Valeur réinitialisée a la valeur par défaut !"))
+                yield from messageUser(message, _(":ok: Valeur réinitialisée a la valeur par défaut !", language))
             else:
                 if args_[2].lower() == "true":
                     logger.debug("Valeur passée > bool (True)")
@@ -765,19 +784,27 @@ def on_message(message):
                         logger.debug("Valeur passée > float")
                         args_[2] = float(args_[2])
 
+                else:
+                    logger.debug("Valeur passée > str")
+                    args_[2] = str(args_[2])
+
                 if args_[1] == "canardsJours":
                     if args_[2]>250:
                         args_[2] = 250
+
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
-                yield from messageUser(message, _(":ok: Valeur modifiée à {value} (type: {type})").format(**{"value" : args_[2], "type": str(type(args_[2]))}))
+
             JSONsaveToDisk(servers, "channels.json")
+
+            yield from messageUser(message, _(":ok: Valeur modifiée à {value} (type: {type})", language).format(**{"value" : args_[2], "type": str(type(args_[2]))}))
+
             if args_[1] == "canardsJours":
                 yield from planifie()
 
 
 
         else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur..."))
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
         return
 
@@ -787,11 +814,11 @@ def on_message(message):
             table = ""
             for timestamp in planification[message.channel]:
                 table += str(int((time.time() - timestamp)/60)) + "\n"
-            yield from client.send_message(message.author, _(":hammer: TimeDelta en minutes pour les canards sur le chan\n```{table}```").format(**{"table": table}))
+            yield from client.send_message(message.author, _(":hammer: TimeDelta en minutes pour les canards sur le chan\n```{table}```", language).format(**{"table": table}))
             yield from deleteMessage(message)
 
         else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur..."))
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith("!dearm"):
         logger.debug("> DEARM (" + str(message.author) + ")")
@@ -799,7 +826,7 @@ def on_message(message):
             args_ = message.content.split(" ")
 
             if len(args_) == 1:
-                yield from messageUser(message, _(":x: Joueur non spécifié"))
+                yield from messageUser(message, _(":x: Joueur non spécifié", language))
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
@@ -807,20 +834,20 @@ def on_message(message):
                 if target is None:
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x"))
+                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
                         yield from deleteMessage(message)
                         return
 
             if not database.getStat(message.channel, target, "banni", default=False):
                 if not target.id in servers[message.channel.server.id]["admins"] or int(target.id) in admins:
                     database.setStat(message.channel, target, "banni", True)
-                    yield from messageUser(message, _(":ok: Ce joueur est maintenent banni du bot !"))
+                    yield from messageUser(message, _(":ok: Ce joueur est maintenent banni du bot !", language))
                 else:
-                    yield from messageUser(message, _(":x: Il est admin ce mec, c'est mort !"))
+                    yield from messageUser(message, _(":x: Il est admin ce mec, c'est mort !", language))
             else:
-                yield from messageUser(message, _(":x: Il est déja banni, lui ^^"))
+                yield from messageUser(message, _(":x: Il est déja banni, lui ^^", language))
         else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur..."))
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith("!rearm"):
         logger.debug("> rearm (" + str(message.author) + ")")
@@ -828,7 +855,7 @@ def on_message(message):
             args_ = message.content.split(" ")
 
             if len(args_) == 1:
-                yield from messageUser(message, _(":x: Joueur non spécifié"))
+                yield from messageUser(message, _(":x: Joueur non spécifié", language))
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
@@ -836,17 +863,17 @@ def on_message(message):
                 if target is None:
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x"))
+                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
                         yield from deleteMessage(message)
                         return
 
             if database.getStat(message.channel, target, "banni", default=False):
                 database.setStat(message.channel, target, "banni", False)
-                yield from messageUser(message, _(":ok: Ce joueur est maintenent dé-banni du bot !"))
+                yield from messageUser(message, _(":ok: Ce joueur est maintenent dé-banni du bot !", language))
             else:
-                yield from messageUser(message, _(":x: Il est pas banni, lui ^^"))
+                yield from messageUser(message, _(":x: Il est pas banni, lui ^^", language))
         else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur..."))
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith("!giveexp"):
         logger.debug("> GIVEEXP (" + str(message.author) + ")")
@@ -854,7 +881,7 @@ def on_message(message):
             args_ = message.content.split(" ")
 
             if len(args_) < 3:
-                messageUser(message, "Erreur de syntaxe : !giveexp <joueur> <exp>")
+                messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
@@ -862,24 +889,24 @@ def on_message(message):
                 if target is None:
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x"))
+                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
                         yield from deleteMessage(message)
                         return
             if not representsInt(args_[2]):
-                yield from messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>"))
+                yield from messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
                 return
             else:
                 args_[2] = int(args_[2])
 
                 database.addToStat(message.channel, target, "exp", args_[2])
-                yield from messageUser(message, _(":ok:, il a maintenent {newexp} points d'experience !").format(**{"newexp": database.getStat(message.channel, target, "exp")}))
+                yield from messageUser(message, _(":ok:, il a maintenent {newexp} points d'experience !", language).format(**{"newexp": database.getStat(message.channel, target, "exp")}))
 
         else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur..."))
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
 @client.async_event
 def on_channel_delete(channel):
-    logger.info("Channel supprimée... {channel_id} | {channel_name}".format(**{"channel_id" : channel.id, "channel_name" : channel.name}))
+    logger.info(_("Channel supprimée... {channel_id} | {channel_name}").format(**{"channel_id" : channel.id, "channel_name" : channel.name}))
     servers = JSONloadFromDisk("channels.json", default="{}")
     if channel.id in servers[channel.server.id]["channels"]:
         for canard in canards:
@@ -892,7 +919,7 @@ def on_channel_delete(channel):
 
 @client.async_event
 def on_server_remove(server):
-    logger.info("Serveur supprimé... {server_id} | {server_name}".format(**{"server_id" : server.id, "server_name" : server.name}))
+    logger.info(_("Serveur supprimé... {server_id} | {server_name}").format(**{"server_id" : server.id, "server_name" : server.name}))
     servers = JSONloadFromDisk("channels.json", default="{}")
     if server.id in servers:
         for canard in canards:
@@ -911,7 +938,6 @@ def on_message_edit(old, new):
 
     servers = JSONloadFromDisk("channels.json", default="{}")
     if new.channel.is_private:
-        client.send_message(new.author, _(":x: Merci de communiquer avec moi dans les channels ou je suis actif."))
         return
     if not new.channel.server.id in servers:
         yield from newserver(new.channel.server)
@@ -919,8 +945,11 @@ def on_message_edit(old, new):
 
     if new.channel.id not in servers[new.channel.server.id]["channels"]:
         return
+
+    language = servers[new.channel.server.id]["settings"].get("lang", defaultSettings["lang"])
+
     if new.content.startswith("-,,.-") or "QUAACK" in new.content or "/_^<" in new.content or "QUAAACK" in new.content:
-        yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]"))
+        yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
         database.addToStat(new.channel, new.author, "exp", -5)
 
 client.run(token)
