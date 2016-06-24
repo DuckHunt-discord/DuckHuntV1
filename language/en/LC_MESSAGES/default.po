@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-06-24 13:19+0200\n"
+"POT-Creation-Date: 2016-06-24 18:00+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -413,6 +413,14 @@ msgstr "Your gun jammed, reload to unstuck."
 msgid " > BANG"
 msgstr " > BANG"
 
+#: main.py:401
+msgid ""
+" > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH "
+"BRAVO ! [raté : -1 xp]"
+msgstr ""
+" > **FLAPP**\tFrightened by so much noise, the duck fled. ! CONGRATS ! "
+"[missed : -1 xp]"
+
 #: main.py:410
 #, python-brace-format
 msgid ""
@@ -420,8 +428,8 @@ msgid ""
 "fait un total de {total} canards sur #{channel}.     \\_X<   *COUAC*   "
 "[{exp} xp]"
 msgstr ""
-"> :skull_crossbones: ** BOOM ** You got it in {time} seconds, makes you a "
-"total of {total} ducks on #{channel}. \\_X< * COUAC * [{exp} xp]"
+"> :skull_crossbones: **BOOM** You got it in {time} seconds, makes you a "
+"total of {total} ducks on #{channel}. \\_X< *COUAC* [{exp} xp]"
 
 #: main.py:415
 #, python-brace-format
