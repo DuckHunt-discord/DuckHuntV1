@@ -562,7 +562,7 @@ def on_message(message):
                 yield from messageUser(message, _(":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !", language), forcePv=True)
                 database.addToStat(message.channel, message.author, "exp", -50)
                 yield from asyncio.sleep(75)
-                yield from client.send_message(message.channel, _("-,_,.-'`'°-,_,.-'`'° %__%   *KZZZZZ*", language))
+                yield from client.send_message(message.channel, _("-,_,.-'`'°-,_,.-'`'° %__%   *COUAAK*", language))
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
