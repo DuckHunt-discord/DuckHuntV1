@@ -636,21 +636,21 @@ def on_message(message):
         x = PrettyTable()
 
         x._set_field_names([_("Statistique", language), _("Valeur", language)])
-        x.add_row([_("Canards tués"), database.getStat(message.channel, target, "canardsTues")])
-        x.add_row([_("Tirs manqués"), database.getStat(message.channel, target, "tirsManques")])
-        x.add_row([_("Tirs sans canards"), database.getStat(message.channel, target, "tirsSansCanards")])
-        x.add_row([_("Meilleur temps de tir"), database.getStat(message.channel, target, "meilleurTemps", default=servers[message.server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"]))])
-        x.add_row([_("Balles dans le chargeur actuel"), str(
+        x.add_row([_("Canards tués", language), database.getStat(message.channel, target, "canardsTues")])
+        x.add_row([_("Tirs manqués", language), database.getStat(message.channel, target, "tirsManques")])
+        x.add_row([_("Tirs sans canards", language), database.getStat(message.channel, target, "tirsSansCanards")])
+        x.add_row([_("Meilleur temps de tir", language), database.getStat(message.channel, target, "meilleurTemps", default=servers[message.server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"]))])
+        x.add_row([_("Balles dans le chargeur actuel", language), str(
             database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + " / " + str(
             database.getPlayerLevel(message.channel, target)["balles"])])
-        x.add_row([_("Chargeurs restants"), str(
+        x.add_row([_("Chargeurs restants", language), str(
             database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + " / " + str(
             database.getPlayerLevel(message.channel, target)["chargeurs"])])
-        x.add_row([_("Experience"), database.getStat(message.channel, target, "exp")])
-        x.add_row([_("Niveau actuel"),
+        x.add_row([_("Experience", language), database.getStat(message.channel, target, "exp")])
+        x.add_row([_("Niveau actuel", language),
                    str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"])
-        x.add_row([_("Précision des tirs"), database.getPlayerLevel(message.channel, target)["precision"]])
-        x.add_row([_("Fiabilitée de l'arme"), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
+        x.add_row([_("Précision des tirs", language), database.getPlayerLevel(message.channel, target)["precision"]])
+        x.add_row([_("Fiabilitée de l'arme", language), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
         yield from messageUser(message, _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(**{"table": x.get_string()}))
 
