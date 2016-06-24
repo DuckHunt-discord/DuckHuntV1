@@ -465,6 +465,13 @@ def on_message(message):
                 else:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                     yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
+                    if random.randint(1, 100) > database.getPlayerLevel(message.channel, message.author)["precision"] + 2:
+                        yield from client.edit_message(tmp, str(message.author.mention) + _(" > **BANG**\tTu à raté le canard... Et tu à tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]", language).format(**{"player": random.choice(list(message.server.members)).mention}))
+                        database.addToStat(message.channel, message.author, "tirsManques", 1)
+                        database.addToStat(message.channel, message.author, "chasseursTues", 1)
+                        database.addToStat(message.channel, message.author, "exp", -3)
+                        database.setStat(message.channel, message.author, "confisque", True)
+                        return
                     yield from client.edit_message(tmp, str(message.author.mention) + _(" > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]", language))
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
@@ -483,6 +490,10 @@ def on_message(message):
 
     elif message.content.startswith("!reload"):
         logger.debug("> RELOAD (" + str(message.author) + ")")
+        if database.getStat(message.channel, message.author, "confisque", default=False):
+            yield from messageUser(message, _("Vous n'etes pas armé", language))
+            yield from deleteMessage(message)
+            return
         if database.getStat(message.channel, message.author, "enrayee", default=False):
             yield from messageUser(message, _("Tu décoinces ton arme.", language))
             database.setStat(message.channel, message.author, "enrayee", False)
