@@ -465,7 +465,7 @@ def on_message(message):
                 else:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                     yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
-                    if random.randint(1, 100) > database.getPlayerLevel(message.channel, message.author)["precision"] + 2:
+                    if random.randint(40, 100) > database.getPlayerLevel(message.channel, message.author)["precision"] + 2:
                         yield from client.edit_message(tmp, str(message.author.mention) + _(" > **BANG**\tTu à raté le canard... Et tu à tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]", language).format(**{"player": random.choice(list(message.server.members)).mention}))
                         database.addToStat(message.channel, message.author, "tirsManques", 1)
                         database.addToStat(message.channel, message.author, "chasseursTues", 1)
