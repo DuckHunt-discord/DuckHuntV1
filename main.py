@@ -398,7 +398,7 @@ def on_message(message):
                         tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                         yield from asyncio.sleep(servers[message.server.id]["settings"].get("lagOnBang", defaultSettings["lagOnBang"]))
                         yield from client.edit_message(tmp, str(
-                            message.author.mention) + " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language)
+                            message.author.mention) + _(" > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language))
                         database.addToStat(message.channel, message.author, "exp", -1)
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
