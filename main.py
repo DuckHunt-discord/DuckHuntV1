@@ -588,6 +588,18 @@ def on_message(message):
             else:
                 yield from messageUser(message, _(":champagne: Ta réserve de chargeurs est déjà pleine !", language))
 
+        elif item == 5:
+            if database.getStat(message.channel, message.author, "confisque"):
+                if database.getStat(message.channel, message.author, "exp") > 40:
+                    yield from messageUser(message, _(":money_with_wings: Tu récupéres ton arme pour 40 points d'experience", language))
+                    database.setStat(message.channel, message.author, "confisque", False)
+                    database.addToStat(message.channel, message.author, "exp", -40)
+                else:
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+            else:
+                yield from messageUser(message, _(":champagne: Ton arme n'est pas confisquée!", language))
+
         elif item == 17:
             if len(args_) <= 2:
                 yield from messageUser(message, str(
