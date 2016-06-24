@@ -412,7 +412,7 @@ def on_message(message):
                         database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
                     if servers[message.server.id]["settings"].get("findObjects", defaultSettings["findObjects"]):
                         if random.randint(0, 100) < 25:
-                            yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(**{"inutilitee" :random.choice(inutilite)}))
+                            yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(**{"inutilitee" :_(random.choice(inutilite),language)}))
 
 
 
@@ -636,21 +636,21 @@ def on_message(message):
         x = PrettyTable()
 
         x._set_field_names([_("Statistique", language), _("Valeur", language)])
-        x.add_row(["Canards tués", database.getStat(message.channel, target, "canardsTues")])
-        x.add_row(["Tirs manqués", database.getStat(message.channel, target, "tirsManques")])
-        x.add_row(["Tirs sans canards", database.getStat(message.channel, target, "tirsSansCanards")])
-        x.add_row(["Meilleur temps de tir", database.getStat(message.channel, target, "meilleurTemps", default=servers[message.server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"]))])
-        x.add_row(["Balles dans le chargeur actuel", str(
+        x.add_row([_("Canards tués"), database.getStat(message.channel, target, "canardsTues")])
+        x.add_row([_("Tirs manqués"), database.getStat(message.channel, target, "tirsManques")])
+        x.add_row([_("Tirs sans canards"), database.getStat(message.channel, target, "tirsSansCanards")])
+        x.add_row([_("Meilleur temps de tir"), database.getStat(message.channel, target, "meilleurTemps", default=servers[message.server.id]["settings"].get("tempsAttente", defaultSettings["tempsAttente"]))])
+        x.add_row([_("Balles dans le chargeur actuel"), str(
             database.getStat(message.channel, target, "balles", default=database.getPlayerLevel(message.channel, target)["balles"])) + " / " + str(
             database.getPlayerLevel(message.channel, target)["balles"])])
-        x.add_row(["Chargeurs restants", str(
+        x.add_row([_("Chargeurs restants"), str(
             database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + " / " + str(
             database.getPlayerLevel(message.channel, target)["chargeurs"])])
-        x.add_row(["Experience", database.getStat(message.channel, target, "exp")])
-        x.add_row(["Niveau actuel",
+        x.add_row([_("Experience"), database.getStat(message.channel, target, "exp")])
+        x.add_row([_("Niveau actuel"),
                    str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + database.getPlayerLevel(message.channel, target)["nom"] + ")"])
-        x.add_row(["Précision des tirs", database.getPlayerLevel(message.channel, target)["precision"]])
-        x.add_row(["Fiabilitée de l'arme", database.getPlayerLevel(message.channel, target)["fiabilitee"]])
+        x.add_row([_("Précision des tirs"), database.getPlayerLevel(message.channel, target)["precision"]])
+        x.add_row([_("Fiabilitée de l'arme"), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
         yield from messageUser(message, _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(**{"table": x.get_string()}))
 
