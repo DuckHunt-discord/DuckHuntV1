@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-06-24 20:05+0200\n"
+"POT-Creation-Date: 2016-06-27 10:49+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -773,11 +773,11 @@ msgid ":x: Oops, vous n'etes pas administrateur du serveur..."
 msgstr ":x: Oops, you're not the server administrator ..."
 
 #: main.py:878
-msgid ":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>"
-msgstr ":x: Oops, wrong syntax. ! Set [parameter] <value>"
+msgid ":x: Oops, mauvaise syntaxe. !set [paramètre] <valeur>"
+msgstr ":x: Oops, wrong syntax. !set [parameter] <value>"
 
 #: main.py:881
-msgid "Parametre"
+msgid "Paramètre"
 msgstr "Parameter"
 
 #: main.py:881
@@ -791,16 +791,16 @@ msgstr "Default value"
 #: main.py:886
 #, python-brace-format
 msgid ""
-"Liste des paramétres disponibles : \n"
+"Liste des paramètres disponibles : \n"
 "```{table}```"
 msgstr ""
 "List of available parameters:\n"
 "```{table}```"
 
 #: main.py:891
-msgid ":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>"
+msgid ":x: Oops, le paramètre n'as pas été reconnu. !set [paramètre] <valeur>"
 msgstr ""
-":x: Oops, the parameter have not been recognized. ! Set [parameter] <value>"
+":x: Oops, the parameter have not been recognized. !set [parameter] <value>"
 
 #: main.py:899
 msgid ":ok: Valeur réinitialisée a la valeur par défaut !"

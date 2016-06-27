@@ -213,9 +213,11 @@ def nouveauCanard(canard):
         JSONsaveToDisk(servers, "channels.json")
 
     logger.debug("Nouveau canard : " + str(canard))
-
-    yield from client.send_message(canard["channel"], _("-,_,.-'`'°-,_,.-'`'° /_^<   QUAACK",
-                                                        language=servers[canard["channel"].server.id]["settings"].get("lang", defaultSettings["lang"])))
+    if servers[canard["channel"].server.id]["settings"].get("randomCanard", defaultSettings["randomCanard"]):
+        canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + random.choice(canards_cri)
+    else:
+        canard_str = "-,,.-'`'°-,,.-'`'° /_^<   QUAACK"
+    yield from client.send_message(canard["channel"], canard_str)
     canards.append(canard)
 
 
@@ -875,20 +877,20 @@ def on_message(message):
         logger.debug("> SET (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1 or len(args_) > 3:
-            yield from messageUser(message, _(":x: Oops, mauvaise syntaxe. !set [parametre] <valeur>", language))
+            yield from messageUser(message, _(":x: Oops, mauvaise syntaxe. !set [paramètre] <valeur>", language))
             x = PrettyTable()
 
-            x._set_field_names([_("Parametre", language), _("Valeur actuelle", language), _("Valeur par défaut", language)])
+            x._set_field_names([_("Paramètre", language), _("Valeur actuelle", language), _("Valeur par défaut", language)])
             for param in defaultSettings.keys():
                 x.add_row([param, servers[message.server.id]["settings"].get(param, defaultSettings[param]), defaultSettings[param]])
 
             yield from messageUser(message,
-                                   _("Liste des paramétres disponibles : \n```{table}```", language).format(**{"table": x.get_string(sortby="Parametre")}))
+                                   _("Liste des paramètres disponibles : \n```{table}```", language).format(**{"table": x.get_string(sortby="Paramètre")}))
             yield from deleteMessage(message)
             return
 
         if not args_[1] in defaultSettings:
-            yield from messageUser(message, _(":x: Oops, le parametre n'as pas été reconnu. !set [parametre] <valeur>", language))
+            yield from messageUser(message, _(":x: Oops, le paramètre n'as pas été reconnu. !set [paramètre] <valeur>", language))
             yield from deleteMessage(message)
             return
 
