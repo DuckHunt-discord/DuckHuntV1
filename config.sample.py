@@ -1,13 +1,31 @@
 # -*- coding:Utf-8 -*-
 # !/usr/bin/env python3.5
-def _(string): return string # Fake definition pour la traduction
+def _(string): return string  # Fake definition pour la traduction
+
 
 #### MODIFIEZ A PARTIR DE CETTE LIGNE ####
 token = "BOT TOKEN HERE"
 
-admins = [138751484517941259] # Global admins
+admins = [138751484517941259]  # Global admins
 
-
+canards_trace = ["-,_,.-'\`'°-,_,.-'\`'°", "-,..,.-'\`'°-,_,.-'\`'°", "-._..-'\`'°-,_,.-'\`'°", "-,_,.-'\`'°-,_,.-''\`"]
+canards_portrait = ["\\_O<", "\\_o<", "\\_Õ<", "\\_õ<", "\\_Ô<", "\\_ô<", "\\_Ö<", "\\_ö<", "\\_Ø<", "\\_ø<", "\\_Ò<", "\\_ò<", "\\_Ó<", "\\_ó<", "\\_0<",
+                    "\\_©<", "\\_@<", "\\_º<", "\\_°<", "\\_^<", "/_O<", "/_o<", "/_Õ<", "/_õ<", "/_Ô<", "/_ô<", "/_Ö<", "/_ö<", "/_Ø<", "/_ø<", "/_Ò<",
+                    "/_ò<", "/_Ó<", "/_ó<", "/_0<", "/_©<", "/_@<", "/_^<", "§_O<", "§_o<", "§_Õ<", "§_õ<", "§_Ô<", "§_ô<", "§_Ö<", "§_ö<", "§_Ø<", "§_ø<",
+                    "§_Ò<", "§_ò<", "§_Ó<", "§_ó<", "§_0<", "§_©<", "§_@<", "§_º<", "§_°<", "§_^<", "\\_O-", "\\_o-", "\\_Õ-", "\\_õ-", "\\_Ô-", "\\_ô-",
+                    "\\_Ö-", "\\_ö-", "\\_Ø-", "\\_ø-", "\\_Ò-", "\\_ò-", "\\_Ó-", "\\_ó-", "\\_0-", "\\_©-", "\\_@-", "\\_º-", "\\_°-", "\\_^-", "/_O-",
+                    "/_o-", "/_Õ-", "/_õ-", "/_Ô-", "/_ô-", "/_Ö-", "/_ö-", "/_Ø-", "/_ø-", "/_Ò-", "/_ò-", "/_Ó-", "/_ó-", "/_0-", "/_©-", "/_@-", "/_^-",
+                    "§_O-", "§_o-", "§_Õ-", "§_õ-", "§_Ô-", "§_ô-", "§_Ö-", "§_ö-", "§_Ø-", "§_ø-", "§_Ò-", "§_ò-", "§_Ó-", "§_ó-", "§_0-", "§_©-", "§_@-",
+                    "§_^-", "\\_O\{", "\\_o\{", "\\_Õ\{", "\\_õ\{", "\\_Ô\{", "\\_ô\{", "\\_Ö\{", "\\_ö\{", "\\_Ø\{", "\\_ø\{", "\\_Ò\{", "\\_ò\{",
+                    "\\_Ó\{", "\\_ó\{", "\\_0\{", "\\_©\{", "\\_@\{", "\\_º\{", "\\_°\{", "\\_^\{", "/_O\{", "/_o\{", "/_Õ\{", "/_õ\{", "/_Ô\{", "/_ô\{",
+                    "/_Ö\{", "/_ö\{", "/_Ø\{", "/_ø\{", "/_Ò\{", "/_ò\{", "/_Ó\{", "/_ó\{", "/_0\{", "/_©\{", "/_@\{", "/_^\{", "§_O\{", "§_o\{", "§_Õ\{",
+                    "§_õ\{", "§_Ô\{", "§_ô\{", "§_Ö\{", "§_ö\{", "§_Ø\{", "§_ø\{", "§_Ò\{", "§_ò\{", "§_Ó\{", "§_ó\{", "§_0\{", "§_©\{", "§_@\{", "§_º\{",
+                    "§_°\{", "§_^\{"]
+canards_cri = ["COIN", "COIN", "COIN", "COIN", "COIN", "KWAK", "KWAK", "KWAAK", "KWAAK", "KWAAAK", "KWAAAK", "COUAK", "COUAK", "COUAAK", "COUAAK",
+               "COUAAAK", "COUAAAK", "QUAK", "QUAK", "QUAAK", "QUAAK", "QUAAAK", "QUAAAK", "QUACK", "QUACK", "QUAACK", "QUAACK", "QUAAACK", "QUAAACK",
+               "COUAC", "COUAC", "COUAAC", "COUAAC", "COUAAAC", "COUAAAC", "COUACK", "COUACK", "COUAACK", "COUAACK", "COUAAACK", "COUAAACK", "QWACK",
+               "QWACK", "QWAACK", "QWAACK", "QWAAACK", "QWAAACK", "ARK", "ARK", "AARK", "AARK", "AAARK", "AAARK", "CUI ?", "PIOU ?", "*sifflote*",
+               "Hello world", "c'est ici pour le casting ?", "pourvu que personne ne me remarque...", "http://tinyurl.com/2qc9pl"]
 
 levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 1},
           {"niveau": 1, "expMin": -4, "nom": _("touriste"), "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 2},
@@ -48,18 +66,25 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           {"niveau": 36, "expMin": 6650, "nom": _("annihilateur de canards"), "precision": 95, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 37, "expMin": 7020, "nom": _("serial duck killer"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 38, "expMin": 7400, "nom": _("génocideur de canards"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau"   : 39, "expMin": 7790, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1,
-           "chargeurs": 5
-           }]
-lang = "fr" # Language specified here is for console messages, everything that is not sent to a server
-defaultSettings = {"deleteCommands" : True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente" : 11 * 60, "lagOnBang" : 1, "expParCanard" : 10, "lang": "fr"}
+          {
+              "niveau"   : 39, "expMin": 7790, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1,
+              "chargeurs": 5
+          }]
+lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
+defaultSettings = {
+    "deleteCommands": True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
+    "expParCanard"  : 10, "lang": "fr", "randomCanard": True
+}
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide"
-inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain."), _("un canard vibrant."), _("un tas de plumes."), _("un chewing-gum mâchouillé."),
+inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain."), _("un canard vibrant."), _("un tas de plumes."),
+             _("un chewing-gum mâchouillé."),
              _("un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards)."), _("une vieille chaussure."), _("un truc à ressort."),
-             _("une bouse de vache."), _("une crotte de chien."), _("un permis de chasse expiré."), _("une douille."), _("un mégot."), _("un préservatif usagé."),
+             _("une bouse de vache."), _("une crotte de chien."), _("un permis de chasse expiré."), _("une douille."), _("un mégot."),
+             _("un préservatif usagé."),
              _("une lunette de visée cassée."), _("un détecteur infrarouge cassé."), _("un silencieux tordu."), _("une boîte vide de munitions AP."),
-             _("une boîte vide de munitions explosives."), _("un trèfle à 4 feuilles auquel il en manque une."), _("un appeau cassé."), _("un miroir cassé."),
+             _("une boîte vide de munitions explosives."), _("un trèfle à 4 feuilles auquel il en manque une."), _("un appeau cassé."),
+             _("un miroir cassé."),
              _("un canard mécanique rouillé."), _("une paire de lunettes de soleil sans ses verres."), _("le béret de Donald."),
              _("une pastille de menthe à moitié fondue."), _("une boîte de nettoyant Abraxo."), _("un fusil avec le bout du canon en fleur."),
              _("un vieux couteau de chasse."), _("un vieil enregistrement vidéo : http://tinyurl.com/zbejktu"),
