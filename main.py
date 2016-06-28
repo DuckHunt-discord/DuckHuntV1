@@ -1059,7 +1059,7 @@ def on_server_remove(server):
     if server.id in servers:
         for canard in canards:
             for channel in server.channels:
-                if channel in canard["channel"]:
+                if channel == canard["channel"]:
                     logger.Debug("Canard supprimé : " + str(canard))
                     canards.remove(canard)
         servers.pop(server.id)
