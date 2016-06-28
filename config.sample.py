@@ -36,7 +36,7 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           {"niveau": 6, "expMin": 200, "nom": _("détesteur de canards"), "precision": 60, "fiabilitee": 90, "balles": 4, "chargeurs": 3},
           {"niveau": 7, "expMin": 270, "nom": _("emmerdeur de canards"), "precision": 65, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
           {"niveau": 8, "expMin": 350, "nom": _("déplumeur de canards"), "precision": 67, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
-          {"niveau": 9, "expMin": 440, "nom": _("chasseur"), "precision": 55, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
+          {"niveau": 9, "expMin": 440, "nom": _("chasseur"), "precision": 69, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
           {"niveau": 10, "expMin": 540, "nom": _("retourneur de canards"), "precision": 71, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
           {"niveau": 11, "expMin": 650, "nom": _("assommeur de canards"), "precision": 73, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
           {"niveau": 12, "expMin": 770, "nom": _("mâchouilleur de canards"), "precision": 73, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
