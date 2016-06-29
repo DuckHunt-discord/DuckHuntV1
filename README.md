@@ -4,58 +4,10 @@ Un super bot pour discord. idée du jeu par MenzAgitat, porté selon son idée (
 # Qu'est-ce que c'est ?
 Le but du jeu est de tuer les canards dès que vous les voyez ! C'est un peu un fps, mais pour discord :°)
 
-# Quelles sont les commandes ?
+# Ou est l'aide du bot ?
+Elle se trouve ici : 
 
-Les commandes disponibles sont les suivantes :
-
-## Commandes joueur:
-!bang    Pour (tenter) de tuer le canard qui est apparu. Ne pas tirer quand il n'y a pas de canards, sinon...
-
-!reload    Recharge ou décoince votre arme
-
-!duckstats    Affiche les statistiques DuckHunt
-
-!shop [N° ITEM] <argument>    Permet d'acher des items à l'aide de points d'experience.
-
-!top <Nombre de joueurs maxi>    Affiche les meilleurs scores
-
-!aide    Affiche l'aide
-
-
-
-Liste des items dans le shop:
-
-
-N°1    Ajoute une balle a votre arme (7 exp)
-
-N°2    Ajoute un chargeur à votre réserve (13 exp)
-
-N°17    Sabote l'arme de <argument> (14 exp)
-
-N°20    Appeau : attire un canard dans les 10 prochaines minutes. (8 exp)
-
-N°23    Invoque un canard mécanique (faux canard), 75 secondes aprés la commande sur le chan (50 exp)
-
-
-
-
-## Commandes admin serveur:
-
-!claimserver    Vous définit comme administrateur du serveur
-
-!addchannel    Ajoute la channel courante a la liste des channels ou le bot est actif
-
-!info    Affiche des informations sur le channel en cours
-
-
-## Commandes admins globaux:
-
-!giveback    Donne aux joueurs leurs armes et des chargeurs, comme à minuit !
-
-!coin    Fait apparaitre un canard
-
-!nextduck    Envoie par MP le temps avant l'apparaition et la channel du prochain canard
-
+https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide
 
 # Comment avoir le bot sur son serveur ?
 
