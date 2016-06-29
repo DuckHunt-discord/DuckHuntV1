@@ -623,8 +623,12 @@ def on_message(message):
                                                       language).format(**{"target": target.name}), forcePv=True)
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
+                    yield from deleteMessage(message)
+                    return
                 else:
-                    yield from messageUser(message, _(":ok: L'arme de {target} est déjà sabotée!", language).format(**{"target": target.name}))
+                    yield from messageUser(message, _(":ok: L'arme de {target} est déjà sabotée!", language).format(**{"target": target.name}), forcePv=True)
+                    yield from deleteMessage(message)
+                    return
 
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
