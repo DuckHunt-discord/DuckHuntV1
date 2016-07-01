@@ -334,6 +334,7 @@ def on_message(message):
 
     # Messages pour n'importe où
     language = servers[message.channel.server.id]["settings"].get("lang", defaultSettings["lang"])
+
     if message.content.startswith("!claimserver"):
         logger.debug("> CLAIMSERVER (" + str(message.author) + ")")
         if not servers[message.channel.server.id]["admins"]:
@@ -384,6 +385,7 @@ def on_message(message):
     # Messages en whitelist sur les channels activées
 
     if message.content.startswith('!bang'):
+        yield from deleteMessage(message)
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
         if database.getStat(message.channel, message.author, "confisque", default=False):
@@ -491,16 +493,17 @@ def on_message(message):
             database.addToStat(message.channel, message.author, "exp", -2)
 
     elif message.content.startswith("!reload"):
+        yield from deleteMessage(message)
         logger.debug("> RELOAD (" + str(message.author) + ")")
         if database.getStat(message.channel, message.author, "confisque", default=False):
             yield from messageUser(message, _("Vous n'etes pas armé", language))
-            yield from deleteMessage(message)
+            
             return
         if database.getStat(message.channel, message.author, "enrayee", default=False):
             yield from messageUser(message, _("Tu décoinces ton arme.", language))
             database.setStat(message.channel, message.author, "enrayee", False)
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) > 0:
-                yield from deleteMessage(message)
+                
                 return
 
         if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) <= 0:
@@ -542,15 +545,16 @@ def on_message(message):
                 "chargeurs_max"    : database.getPlayerLevel(message.channel, message.author)["chargeurs"]
                 }))
             return
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith("!shop"):
+        yield from deleteMessage(message)
         logger.debug("> SHOP (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
             yield from messageUser(message,
                                    _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
-            yield from deleteMessage(message)
+            
             return
         else:
             try:
@@ -560,7 +564,7 @@ def on_message(message):
                     message.author.mention) + _(
                     ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`",
                     language))
-                yield from deleteMessage(message)
+                
                 return
 
         if item == 1:
@@ -605,7 +609,7 @@ def on_message(message):
         elif item == 17:
             if len(args_) <= 2:
                 yield from messageUser(message,  _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
-                yield from deleteMessage(message)
+                
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[2])
@@ -613,7 +617,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
-                    yield from deleteMessage(message)
+                    
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 14:
@@ -622,11 +626,11 @@ def on_message(message):
                                                       language).format(**{"target": target.name}), forcePv=True)
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
-                    yield from deleteMessage(message)
+                    
                     return
                 else:
                     yield from messageUser(message, _(":ok: L'arme de {target} est déjà sabotée!", language).format(**{"target": target.name}), forcePv=True)
-                    yield from deleteMessage(message)
+                    
                     return
 
             else:
@@ -677,13 +681,14 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
 
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "QUAAACK" in message.content or "/_^<" in message.content:
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
 
     elif message.content.startswith("!top"):
+        yield from deleteMessage(message)
         logger.debug("> TOPSCORES (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -694,14 +699,14 @@ def on_message(message):
                 if nombre not in range(1, 20 + 1):
                     yield from messageUser(message,
                                            _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20", language))
-                    yield from deleteMessage(message)
+                    
                     return
 
             except ValueError:
                 yield from messageUser(message, _(
                     ":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`",
                     language))
-                yield from deleteMessage(message)
+                
                 return
         x = PrettyTable()
 
@@ -720,17 +725,18 @@ def on_message(message):
                                    **{"channel_name": message.channel.name, "table": x.get_string(end=nombre, sortby=_("Position", language))}),
                                forcePv=True)
 
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith('!ping'):
-
+        yield from deleteMessage(message)
         logger.debug("> PING (" + str(message.author) + ")")
         tmp = yield from client.send_message(message.channel, _('BOUM', language))
         yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, _('... Oups ! Pardon, pong !', language))
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith("!duckstat"):
+        yield from deleteMessage(message)
         logger.debug("> DUCKSTATS (" + str(message.author) + ")")
 
         args_ = message.content.split(" ")
@@ -743,7 +749,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    yield from deleteMessage(message)
+                    
                     return
         x = PrettyTable()
 
@@ -772,13 +778,15 @@ def on_message(message):
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
                                    **{"table": x.get_string()}))
 
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith("!aide") or message.content.startswith("!help") or message.content.startswith("!info"):
-        yield from messageUser(message, aideMsg, forcePv=True)
         yield from deleteMessage(message)
+        yield from messageUser(message, aideMsg, forcePv=True)
+        
 
     elif message.content.startswith("!giveback"):
+        yield from deleteMessage(message)
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
 
         if int(message.author.id) in admins:
@@ -787,18 +795,20 @@ def on_message(message):
             yield from messageUser(message, _(":ok: Terminé. Voir les logs sur la console ! ", language))
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith("!coin"):
+        yield from deleteMessage(message)
         logger.debug("> COIN (" + str(message.author) + ")")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith("!nextduck"):
+        yield from deleteMessage(message)
         logger.debug("> NEXTDUCK (" + str(message.author) + ")")
 
         if int(message.author.id) in admins:
@@ -812,9 +822,10 @@ def on_message(message):
             deleteMessage(message)
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
-        yield from deleteMessage(message)
+        
 
     elif message.content.startswith('!delchannel'):
+
         logger.debug("> DELCHANNEL (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
@@ -858,7 +869,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    yield from deleteMessage(message)
+                    
                     return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -889,12 +900,12 @@ def on_message(message):
 
             yield from messageUser(message,
                                    _("Liste des paramètres disponibles : \n```{table}```", language).format(**{"table": x.get_string(sortby="Paramètre")}))
-            yield from deleteMessage(message)
+            
             return
 
         if not args_[1] in defaultSettings:
             yield from messageUser(message, _(":x: Oops, le paramètre n'as pas été reconnu. !set [paramètre] <valeur>", language))
-            yield from deleteMessage(message)
+            
             return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -944,6 +955,7 @@ def on_message(message):
         return
 
     elif message.content.startswith("!duckplanning"):
+        yield from deleteMessage(message)
         logger.debug("> DUCKPLANNING (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             table = ""
@@ -951,7 +963,7 @@ def on_message(message):
                 table += str(int((time.time() - timestamp) / 60)) + "\n"
             yield from client.send_message(message.author, _(":hammer: TimeDelta en minutes pour les canards sur le chan\n```{table}```", language).format(
                 **{"table": table}))
-            yield from deleteMessage(message)
+            
 
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
@@ -971,7 +983,7 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        yield from deleteMessage(message)
+                        
                         return
 
             if not database.getStat(message.channel, target, "banni", default=False):
@@ -1000,7 +1012,7 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        yield from deleteMessage(message)
+                        
                         return
 
             if database.getStat(message.channel, target, "banni", default=False):
@@ -1026,7 +1038,7 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        yield from deleteMessage(message)
+                        
                         return
             if not representsInt(args_[2]):
                 yield from messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
