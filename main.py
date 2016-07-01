@@ -604,8 +604,7 @@ def on_message(message):
 
         elif item == 17:
             if len(args_) <= 2:
-                yield from messageUser(message, str(
-                    message.author.mention) + _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
+                yield from messageUser(message,  _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
                 yield from deleteMessage(message)
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
@@ -671,7 +670,7 @@ def on_message(message):
                     language), forcePv=True)
                 database.addToStat(message.channel, message.author, "exp", -50)
                 yield from asyncio.sleep(75)
-                yield from client.send_message(message.channel, _("-,_,.-'`'°-,_,.-'`'° %__%   *COUAAK*", language))
+                yield from client.send_message(message.channel, _("-_-'`'°-_-.-'`'° %__%   *BZAACK*", language))
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
@@ -1093,3 +1092,4 @@ def on_message_edit(old, new):
 
 
 client.run(token)
+
