@@ -1043,9 +1043,9 @@ def on_message(message):
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if message.channel.permissions_for(message.server.me).manage_messages:
                 deleted = yield from client.purge_from(message.channel, limit=500)
-                yield from messageUser(message, _("{deleted} message(s) supprimés").format(**{"deleted": len(deleted)}))
+                yield from messageUser(message, _("{deleted} message(s) supprimés", language).format(**{"deleted": len(deleted)}))
             else:
-                yield from messageUser(message, _("0 message(s) supprimés : permission refusée"))
+                yield from messageUser(message, _("0 message(s) supprimés : permission refusée", language))
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
