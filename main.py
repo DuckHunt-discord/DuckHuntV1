@@ -274,11 +274,9 @@ def mainloop():
     prochaincanard = yield from getprochaincanard()
     while not exit_:
         now = time.time()
-        servers = JSONloadFromDisk("channels.json", default="{}")
 
         if (int(now)) % 86400 == 0:
             database.giveBack(logger)
-            yield from asyncio.sleep(1)
             yield from planifie()
             prochaincanard = yield from getprochaincanard()
 
@@ -696,14 +694,12 @@ def on_message(message):
             try:
                 nombre = int(args_[1])
                 if nombre not in range(1, 20 + 1):
-                    yield from messageUser(message,
-                                           _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20", language))
+                    yield from messageUser(message, _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20", language))
                     
                     return
 
             except ValueError:
-                yield from messageUser(message, _(
-                    ":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`",
+                yield from messageUser(message, _(":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`",
                     language))
                 
                 return
