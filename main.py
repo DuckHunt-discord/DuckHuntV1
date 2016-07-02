@@ -344,7 +344,7 @@ def on_message(message):
                 "admin_name": message.author.name, "admin_id": message.author.id, "server_name": message.channel.server.name,
                 "server_id" : message.channel.server.id
                 }))
-            yield from messageUser(message, _(":robot: Vous etes maintenent le gestionnaire du serveur !", language))
+            yield from messageUser(message, _(":robot: Vous etes maintenant le gestionnaire du serveur !", language))
         else:
             yield from messageUser(message, _(":x: Il y a déjà un admin sur ce serveur...", language))
         JSONsaveToDisk(servers, "channels.json")
@@ -618,7 +618,7 @@ def on_message(message):
 
             if database.getStat(message.channel, message.author, "exp") > 14:
                 if database.getStat(message.channel, target, "sabotee", "-") == "-":
-                    yield from messageUser(message, _(":ok: Tu sabote l'arme de {target}! Elle est maintenent enrayée... Mais il ne le sais pas !",
+                    yield from messageUser(message, _(":ok: Tu sabote l'arme de {target}! Elle est maintenant enrayée... Mais il ne le sais pas !",
                                                       language).format(**{"target": target.name}), forcePv=True)
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
@@ -970,7 +970,7 @@ def on_message(message):
             if not database.getStat(message.channel, target, "banni", default=False):
                 if target.id not in servers[message.channel.server.id]["admins"] and int(target.id) not in admins:
                     database.setStat(message.channel, target, "banni", True)
-                    yield from messageUser(message, _(":ok: Ce joueur est maintenent banni du bot !", language))
+                    yield from messageUser(message, _(":ok: Ce joueur est maintenant banni du bot !", language))
                 else:
                     yield from messageUser(message, _(":x: Il est admin ce mec, c'est mort !", language))
             else:
@@ -998,7 +998,7 @@ def on_message(message):
 
             if database.getStat(message.channel, target, "banni", default=False):
                 database.setStat(message.channel, target, "banni", False)
-                yield from messageUser(message, _(":ok: Ce joueur est maintenent dé-banni du bot !", language))
+                yield from messageUser(message, _(":ok: Ce joueur est maintenant dé-banni du bot !", language))
             else:
                 yield from messageUser(message, _(":x: Il est pas banni, lui ^^", language))
         else:
@@ -1028,7 +1028,7 @@ def on_message(message):
                 args_[2] = int(args_[2])
 
                 database.addToStat(message.channel, target, "exp", args_[2])
-                yield from messageUser(message, _(":ok:, il a maintenent {newexp} points d'experience !", language).format(
+                yield from messageUser(message, _(":ok:, il a maintenant {newexp} points d'experience !", language).format(
                     **{"newexp": database.getStat(message.channel, target, "exp")}))
 
         else:
