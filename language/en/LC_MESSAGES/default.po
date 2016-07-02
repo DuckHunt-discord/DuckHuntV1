@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-07-02 18:06+0200\n"
+"POT-Creation-Date: 2016-07-02 18:09+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -48,8 +48,8 @@ msgstr "The duck does not have time for that. ·°'\\`'°-.,¸¸.·°'\\`."
 msgid "Le canard est parti.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck is gone. ·°'\\`'°-.,¸¸.·°'\\`."
 
-#: config.py:34 config.sample.py:35
-msgid "Le canard de dissipe dans l'espace-temps.  ·°'\\`'°-.,¸¸.·°'\\`"
+#: config.py:34
+msgid "Le canard se dissipe dans l'espace-temps.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "Duck dissipates in space-time. ·°'\\`'°-.,¸¸.·°'\\`."
 
 #: config.py:35 config.sample.py:36
@@ -359,6 +359,10 @@ msgstr "bushes."
 #: config.py:98 config.sample.py:101
 msgid "100 balles et un mars."
 msgstr "10 bucks."
+
+#: config.sample.py:35
+msgid "Le canard de dissipe dans l'espace-temps.  ·°'\\`'°-.,¸¸.·°'\\`"
+msgstr "Duck dissipates in space-time. ·°'\\`'°-.,¸¸.·°'\\`."
 
 #: main.py:77
 msgid "Initialisation du programme, merci de patienter..."
