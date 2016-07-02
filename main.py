@@ -195,7 +195,7 @@ def planifie():
                                 "id": channel.id, "canardsjours": getPref(server, "canardsJours")
                                 }))
                             templist = []
-                            for id in range(1, getPref(server, "canardsJours") + 1):
+                            for id_ in range(1, getPref(server, "canardsJours") + 1):
                                 templist.append(int(thisDay + random.randint(0, 86400)))
                             planification_[channel] = sorted(templist)
 
@@ -462,9 +462,6 @@ def on_message(message):
                         if random.randint(0, 100) < 25:
                             yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(
                                 **{"inutilitee": _(random.choice(inutilite), language)}))
-
-
-
 
                 else:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
