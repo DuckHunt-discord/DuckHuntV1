@@ -107,6 +107,10 @@ def JSONloadFromDisk(filename, default="{}", error=False):
         else:
             raise
 
+def allCanardsGo():
+    for canard in canards:
+        yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+
 
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
@@ -544,7 +548,6 @@ def on_message(message):
                 }))
             return
         
-
     elif message.content.startswith("!shop"):
         yield from deleteMessage(message)
         logger.debug("> SHOP (" + str(message.author) + ")")
@@ -679,8 +682,6 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
 
-        
-
     elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "QUAAACK" in message.content or "/_^<" in message.content:
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
@@ -723,15 +724,12 @@ def on_message(message):
                                    **{"channel_name": message.channel.name, "table": x.get_string(end=nombre, sortby=_("Position", language))}),
                                forcePv=True)
 
-        
-
     elif message.content.startswith('!ping'):
         yield from deleteMessage(message)
         logger.debug("> PING (" + str(message.author) + ")")
         tmp = yield from client.send_message(message.channel, _('BOUM', language))
         yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, _('... Oups ! Pardon, pong !', language))
-        
 
     elif message.content.startswith("!duckstat"):
         yield from deleteMessage(message)
@@ -774,12 +772,9 @@ def on_message(message):
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
                                    **{"table": x.get_string()}))
 
-        
-
     elif message.content.startswith("!aide") or message.content.startswith("!help") or message.content.startswith("!info"):
         yield from deleteMessage(message)
         yield from messageUser(message, aideMsg, forcePv=True)
-        
 
     elif message.content.startswith("!giveback"):
         yield from deleteMessage(message)
@@ -791,7 +786,6 @@ def on_message(message):
             yield from messageUser(message, _(":ok: Terminé. Voir les logs sur la console ! ", language))
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
-        
 
     elif message.content.startswith("!coin"):
         yield from deleteMessage(message)
@@ -801,7 +795,6 @@ def on_message(message):
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
-        
 
     elif message.content.startswith("!nextduck"):
         yield from deleteMessage(message)
@@ -818,7 +811,6 @@ def on_message(message):
             deleteMessage(message)
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
-        
 
     elif message.content.startswith('!delchannel'):
 
@@ -1110,5 +1102,14 @@ def on_message_edit(old, new):
         database.addToStat(new.channel, new.author, "exp", -5)
 
 
-client.run(token)
 
+try:
+    client.loop.run_until_complete(client.start(token))
+except KeyboardInterrupt:
+    logger.warn(_("Arret demandé"))
+    client.loop.run_until_complete(allCanardsGo())
+
+    client.loop.run_until_complete(client.logout())
+    # cancel all tasks lingering
+finally:
+    client.loop.close()
