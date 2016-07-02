@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-07-02 18:10+0200\n"
+"POT-Creation-Date: 2016-07-02 18:17+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -32,335 +32,339 @@ msgstr "This is where the root of the matter lies."
 msgid "pourvu que personne ne me remarque..."
 msgstr "provided that no one notices me ..."
 
-#: config.py:30 config.sample.py:31
+#: config.py:29
+msgid "Canard un jour, canard de bain"
+msgstr "Bath duck... For the bath."
+
+#: config.py:31 config.sample.py:31
 msgid "Le canard prend la fuite.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck escapes. ·°'\\`'°-.,¸¸.·°'\\`"
 
-#: config.py:31 config.sample.py:32
+#: config.py:32 config.sample.py:32
 msgid "Le canard va voir ailleurs.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck will look elsewhere.  ·°'\\`'°-.,¸¸.·°'\\`."
 
-#: config.py:32 config.sample.py:33
+#: config.py:33 config.sample.py:33
 msgid "Le canard n'a pas le temps pour ça.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck does not have time for that. ·°'\\`'°-.,¸¸.·°'\\`."
 
-#: config.py:33 config.sample.py:34
+#: config.py:34 config.sample.py:34
 msgid "Le canard est parti.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck is gone. ·°'\\`'°-.,¸¸.·°'\\`."
 
-#: config.py:34
+#: config.py:35
 msgid "Le canard se dissipe dans l'espace-temps.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "Duck dissipates in space-time. ·°'\\`'°-.,¸¸.·°'\\`."
 
-#: config.py:35 config.sample.py:36
+#: config.py:36 config.sample.py:36
 msgid "Le canard en a ras le bol d'être ignoré et fuit.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck fed up being ignored and fled. ·°'\\`'°-.,¸¸.·°'\\`"
 
-#: config.py:36
+#: config.py:37
 msgid "Le canard ne veut pas etre canardé.  ·°'\\`'°-.,¸¸.·°'\\`"
 msgstr "The duck don't want to be sniped. · ° '\\ `' ° -., ¸¸ · ° '\\`."
 
-#: config.py:38 config.sample.py:38
+#: config.py:39 config.sample.py:38
 msgid "danger public"
 msgstr "public danger"
 
-#: config.py:39 config.sample.py:39
+#: config.py:40 config.sample.py:39
 msgid "touriste"
 msgstr "Tourist"
 
-#: config.py:40 config.sample.py:40
+#: config.py:41 config.sample.py:40
 msgid "noob"
 msgstr "Newbie"
 
-#: config.py:41 config.sample.py:41
+#: config.py:42 config.sample.py:41
 msgid "stagiaire"
 msgstr "trainee"
 
-#: config.py:42 config.sample.py:42
+#: config.py:43 config.sample.py:42
 msgid "rateur de canards"
 msgstr "duck misser"
 
-#: config.py:43 config.sample.py:43
+#: config.py:44 config.sample.py:43
 msgid "membre du Comité Contre les Canards"
 msgstr "member of the Committee Against Ducks"
 
-#: config.py:44 config.sample.py:44
+#: config.py:45 config.sample.py:44
 msgid "détesteur de canards"
 msgstr "duck hater"
 
-#: config.py:45 config.sample.py:45
+#: config.py:46 config.sample.py:45
 msgid "emmerdeur de canards"
 msgstr "duck pest"
 
-#: config.py:46 config.sample.py:46
+#: config.py:47 config.sample.py:46
 msgid "déplumeur de canards"
 msgstr "duck hassler"
 
-#: config.py:47 config.sample.py:47
+#: config.py:48 config.sample.py:47
 msgid "chasseur"
 msgstr "Hunter"
 
-#: config.py:48 config.sample.py:48
+#: config.py:49 config.sample.py:48
 msgid "retourneur de canards"
 msgstr "inside out duck turner"
 
-#: config.py:49 config.sample.py:49
+#: config.py:50 config.sample.py:49
 msgid "assommeur de canards"
 msgstr "duck clobber"
 
-#: config.py:50 config.sample.py:50
+#: config.py:51 config.sample.py:50
 msgid "mâchouilleur de canards"
 msgstr "duck chewer"
 
-#: config.py:51 config.sample.py:51
+#: config.py:52 config.sample.py:51
 msgid "bouffeur de canards"
 msgstr "duck eater"
 
-#: config.py:52 config.sample.py:52
+#: config.py:53 config.sample.py:52
 msgid "aplatisseur de canards"
 msgstr "duck flattener"
 
-#: config.py:53 config.sample.py:53
+#: config.py:54 config.sample.py:53
 msgid "démonteur de canards"
 msgstr "duck disassembler"
 
-#: config.py:54 config.sample.py:54
+#: config.py:55 config.sample.py:54
 msgid "démolisseur de canards"
 msgstr "duck demolisher"
 
-#: config.py:55 config.sample.py:55
+#: config.py:56 config.sample.py:55
 msgid "tueur de canards"
 msgstr "duck killer"
 
-#: config.py:56 config.sample.py:56
+#: config.py:57 config.sample.py:56
 msgid "écorcheur de canards"
 msgstr "duck skinner"
 
-#: config.py:57 config.sample.py:57
+#: config.py:58 config.sample.py:57
 msgid "prédateur"
 msgstr "predator"
 
-#: config.py:58 config.sample.py:58
+#: config.py:59 config.sample.py:58
 msgid "découpeur de canards"
 msgstr "duck chopper"
 
-#: config.py:59 config.sample.py:59
+#: config.py:60 config.sample.py:59
 msgid "décortiqueur de canards"
 msgstr "duck decorticator"
 
-#: config.py:60 config.sample.py:60
+#: config.py:61 config.sample.py:60
 msgid "fraggeur de canards"
 msgstr "duck fragger"
 
-#: config.py:61 config.sample.py:61
+#: config.py:62 config.sample.py:61
 msgid "éclateur de canards"
 msgstr "duck shatterer"
 
-#: config.py:62 config.sample.py:62
+#: config.py:63 config.sample.py:62
 msgid "défonceur de canards"
 msgstr "duck smasher"
 
-#: config.py:63 config.sample.py:63
+#: config.py:64 config.sample.py:63
 msgid "bousilleur de canards"
 msgstr "duck breaker"
 
-#: config.py:64 config.sample.py:64
+#: config.py:65 config.sample.py:64
 msgid "poutreur de canards"
 msgstr "duck wrecker"
 
-#: config.py:65 config.sample.py:65
+#: config.py:66 config.sample.py:65
 msgid "empaleur de canards"
 msgstr "duck impaler"
 
-#: config.py:66 config.sample.py:66
+#: config.py:67 config.sample.py:66
 msgid "éventreur de canards"
 msgstr "duck eviscerator"
 
-#: config.py:67 config.sample.py:67
+#: config.py:68 config.sample.py:67
 msgid "terreur des canards"
 msgstr "ducks terror"
 
-#: config.py:68 config.sample.py:68
+#: config.py:69 config.sample.py:68
 msgid "exploseur de canards"
 msgstr "duck exploder"
 
-#: config.py:69 config.sample.py:69
+#: config.py:70 config.sample.py:69
 msgid "destructeur de canards"
 msgstr "duck blaster"
 
-#: config.py:70 config.sample.py:70
+#: config.py:71 config.sample.py:70
 msgid "pulvérisateur de canards"
 msgstr "duck destructor"
 
-#: config.py:71 config.sample.py:71
+#: config.py:72 config.sample.py:71
 msgid "démolécularisateur de canards"
 msgstr "duck pulverizer"
 
-#: config.py:72 config.sample.py:72
+#: config.py:73 config.sample.py:72
 msgid "désintégrateur de canards"
 msgstr "duck disintegrator"
 
-#: config.py:73 config.sample.py:73
+#: config.py:74 config.sample.py:73
 msgid "atomiseur de canards"
 msgstr "duck atomizer"
 
-#: config.py:74 config.sample.py:74
+#: config.py:75 config.sample.py:74
 msgid "annihilateur de canards"
 msgstr "duck annihilator"
 
-#: config.py:75 config.sample.py:75
+#: config.py:76 config.sample.py:75
 msgid "serial duck killer"
 msgstr "serial duck killer"
 
-#: config.py:76 config.sample.py:76
+#: config.py:77 config.sample.py:76
 msgid "génocideur de canards"
 msgstr "duck genocider"
 
-#: config.py:78 config.sample.py:78
+#: config.py:79 config.sample.py:78
 msgid "chômeur pour cause d'extinction de l'espèce"
 msgstr "unemployed due to extinction of the duck specie"
 
-#: config.py:88 config.sample.py:88
+#: config.py:89 config.sample.py:88
 msgid "un canard en peluche."
 msgstr "a stuffed duck."
 
-#: config.py:88 config.sample.py:88
+#: config.py:89 config.sample.py:88
 msgid "un canard en plastique pour le bain."
 msgstr "a rubber ducky."
 
-#: config.py:88 config.sample.py:88
+#: config.py:89 config.sample.py:88
 msgid "un canard vibrant."
 msgstr "a vibrating duck."
 
-#: config.py:88 config.sample.py:88
+#: config.py:89 config.sample.py:88
 msgid "un tas de plumes."
 msgstr "a bunch of feathers."
 
-#: config.py:89 config.sample.py:89
+#: config.py:90 config.sample.py:89
 msgid "un chewing-gum mâchouillé."
 msgstr "a chewed chewing gum."
 
-#: config.py:90 config.sample.py:90
+#: config.py:91 config.sample.py:90
 msgid "un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards)."
 msgstr "a leaflet from CACAD (Coalition Against the Comitee Against Ducks)."
 
-#: config.py:90 config.sample.py:90
+#: config.py:91 config.sample.py:90
 msgid "une vieille chaussure."
 msgstr "an old shoe."
 
-#: config.py:90 config.sample.py:90
+#: config.py:91 config.sample.py:90
 msgid "un truc à ressort."
 msgstr "a spring thingy."
 
-#: config.py:91 config.sample.py:91
+#: config.py:92 config.sample.py:91
 msgid "une bouse de vache."
 msgstr "a cow dung."
 
-#: config.py:91 config.sample.py:91
+#: config.py:92 config.sample.py:91
 msgid "une crotte de chien."
 msgstr "dog shit."
 
-#: config.py:91 config.sample.py:91
+#: config.py:92 config.sample.py:91
 msgid "un permis de chasse expiré."
 msgstr "an expired hunting license."
 
-#: config.py:91 config.sample.py:91
+#: config.py:92 config.sample.py:91
 msgid "une douille."
 msgstr "a cartridge."
 
-#: config.py:91 config.sample.py:91
+#: config.py:92 config.sample.py:91
 msgid "un mégot."
 msgstr "a butt."
 
-#: config.py:92 config.sample.py:92
+#: config.py:93 config.sample.py:92
 msgid "un préservatif usagé."
 msgstr "a used condom."
 
-#: config.py:93 config.sample.py:93
+#: config.py:94 config.sample.py:93
 msgid "une lunette de visée cassée."
 msgstr "a broken telescopic sight."
 
-#: config.py:93 config.sample.py:93
+#: config.py:94 config.sample.py:93
 msgid "un détecteur infrarouge cassé."
 msgstr "a broken infrared detector."
 
-#: config.py:93 config.sample.py:93
+#: config.py:94 config.sample.py:93
 msgid "un silencieux tordu."
 msgstr "a bent silencer."
 
-#: config.py:93 config.sample.py:93
+#: config.py:94 config.sample.py:93
 msgid "une boîte vide de munitions AP."
 msgstr "an empty box of AP ammunition."
 
-#: config.py:94 config.sample.py:94
+#: config.py:95 config.sample.py:94
 msgid "une boîte vide de munitions explosives."
 msgstr "an empty box of explosive ammo."
 
-#: config.py:94 config.sample.py:94
+#: config.py:95 config.sample.py:94
 msgid "un trèfle à 4 feuilles auquel il en manque une."
 msgstr "a four-leaf clover with only 3 left."
 
-#: config.py:94 config.sample.py:94
+#: config.py:95 config.sample.py:94
 msgid "un appeau cassé."
 msgstr "broken decoy."
 
-#: config.py:95 config.sample.py:95
+#: config.py:96 config.sample.py:95
 msgid "un miroir cassé."
 msgstr "a broken mirror."
 
-#: config.py:96 config.sample.py:96
+#: config.py:97 config.sample.py:96
 msgid "un canard mécanique rouillé."
 msgstr "a rusty mechanical duck."
 
-#: config.py:96 config.sample.py:96
+#: config.py:97 config.sample.py:96
 msgid "une paire de lunettes de soleil sans ses verres."
 msgstr "a pair of sunglasses without glasses."
 
-#: config.py:96 config.sample.py:96
+#: config.py:97 config.sample.py:96
 msgid "le béret de Donald."
 msgstr "Donald beret."
 
-#: config.py:97 config.sample.py:97
+#: config.py:98 config.sample.py:97
 msgid "une pastille de menthe à moitié fondue."
 msgstr "a half-melted peppermint."
 
-#: config.py:97 config.sample.py:97
+#: config.py:98 config.sample.py:97
 msgid "une boîte de nettoyant Abraxo."
 msgstr "a box of Abraxo, polisher for handguns"
 
-#: config.py:97 config.sample.py:97
+#: config.py:98 config.sample.py:97
 msgid "un fusil avec le bout du canon en fleur."
 msgstr "a gun with the tip in flowers"
 
-#: config.py:98 config.sample.py:98
+#: config.py:99 config.sample.py:98
 msgid "un vieux couteau de chasse."
 msgstr "an old hunting knife."
 
-#: config.py:98 config.sample.py:98
+#: config.py:99 config.sample.py:98
 msgid "un vieil enregistrement vidéo : http://tinyurl.com/zbejktu"
 msgstr "an old video recording: http://tinyurl.com/zbejktu"
 
-#: config.py:99 config.sample.py:99
+#: config.py:100 config.sample.py:99
 msgid "une vieille photo de chasse : http://tinyurl.com/hmn4r88"
 msgstr "an old hunting pic: http://tinyurl.com/hmn4r88"
 
-#: config.py:99 config.sample.py:99
+#: config.py:100 config.sample.py:99
 msgid "une vieille carte postale : http://tinyurl.com/hbnkpzr"
 msgstr "an old postcard: http://tinyurl.com/hbnkpzr"
 
-#: config.py:100 config.sample.py:100
+#: config.py:101 config.sample.py:100
 msgid "une photo de super-canard : http://tinyurl.com/hle8fjf"
 msgstr "a super duck picture: http://tinyurl.com/hle8fjf"
 
-#: config.py:100 config.sample.py:100
+#: config.py:101 config.sample.py:100
 msgid "un pin's de chasseur : http://tinyurl.com/hqy7fhq"
 msgstr "a hunter's pin: http://tinyurl.com/hqy7fhq"
 
-#: config.py:100 config.sample.py:100
+#: config.py:101 config.sample.py:100
 msgid "des buissons."
 msgstr "bushes."
 
-#: config.py:101 config.sample.py:101
+#: config.py:102 config.sample.py:101
 msgid "100 balles et un mars."
 msgstr "10 bucks."
 
