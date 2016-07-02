@@ -894,6 +894,7 @@ def on_message(message):
                 if args_[1] in servers[message.server.id]["settings"]: servers[message.server.id]["settings"].pop(args_[1])
 
                 yield from messageUser(message, _(":ok: Valeur réinitialisée a la valeur par défaut !", language))
+                JSONsaveToDisk(servers, "channels.json")
                 return
             else:
                 if args_[2].lower() == "true":
