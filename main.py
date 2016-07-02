@@ -225,7 +225,6 @@ def nouveauCanard(canard):
 
 @asyncio.coroutine
 def deleteMessage(message):
-    servers = JSONloadFromDisk("channels.json", default="{}")
     if getPref(message.server, "deleteCommands"):
         if message.channel.permissions_for(message.server.me).manage_messages:
             logger.debug("Supression du message : {author} | {content}".format(**{"author": message.author.name, "content": message.content}))
@@ -299,10 +298,10 @@ def mainloop():
                 logger.debug(
                     "Le canard de {time} est resté trop longtemps, il s'échappe. (il est {now}, et il aurait du rester jusqu'a {shouldwaitto}).".format(**{
                         "time": canard["time"], "now": now, "shouldwaitto": str(
-                            int(canard["time"] + getPref(canard["channnel"].server, "tempsAttente")))
+                            int(canard["time"] + getPref(canard["channel"].server, "tempsAttente")))
                         }))
                 yield from client.send_message(canard["channel"], _(random.choice(canards_bye),
-                                                                    language=getPref(canard["channnel"].server, "lang")))
+                                                                    language=getPref(canard["channel"].server, "lang")))
                 canards.remove(canard)
         yield from asyncio.sleep(1)
 
@@ -1054,8 +1053,11 @@ def on_message(message):
         logger.debug("> PURGE MESSAGES (" + str(message.author) + ")")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
-            deleted = yield from client.purge_from(message.channel, limit=500)
-            yield from messageUser(message, _("{deleted} message(s) supprimés").format(**{"deleted": len(deleted)}))
+            if message.channel.permissions_for(message.server.me).manage_messages:
+                deleted = yield from client.purge_from(message.channel, limit=500)
+                yield from messageUser(message, _("{deleted} message(s) supprimés").format(**{"deleted": len(deleted)}))
+            else:
+                yield from messageUser(message, _("0 message(s) supprimés : permission refusée"))
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
