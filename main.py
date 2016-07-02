@@ -894,6 +894,7 @@ def on_message(message):
                 if args_[1] in servers[message.server.id]["settings"]: servers[message.server.id]["settings"].pop(args_[1])
 
                 yield from messageUser(message, _(":ok: Valeur réinitialisée a la valeur par défaut !", language))
+                return
             else:
                 if args_[2].lower() == "true":
                     logger.debug("Valeur passée > bool (True)")
@@ -922,8 +923,7 @@ def on_message(message):
 
             JSONsaveToDisk(servers, "channels.json")
 
-            yield from messageUser(message,
-                                   _(":ok: Valeur modifiée à {value} (type: {type})", language).format(**{"value": args_[2], "type": str(type(args_[2]))}))
+            yield from messageUser(message, _(":ok: Valeur modifiée à {value} (type: {type})", language).format(**{"value": args_[2], "type": str(type(args_[2]))}))
 
             if args_[1] == "canardsJours":
                 yield from planifie()
