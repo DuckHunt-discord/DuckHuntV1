@@ -964,7 +964,7 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        
+
                         return
 
             if not database.getStat(message.channel, target, "banni", default=False):
