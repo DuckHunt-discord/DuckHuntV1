@@ -968,7 +968,7 @@ def on_message(message):
                         return
 
             if not database.getStat(message.channel, target, "banni", default=False):
-                if not target.id in servers[message.channel.server.id]["admins"] or int(target.id) not in admins:
+                if target.id not in servers[message.channel.server.id]["admins"] and int(target.id) not in admins:
                     database.setStat(message.channel, target, "banni", True)
                     yield from messageUser(message, _(":ok: Ce joueur est maintenent banni du bot !", language))
                 else:
