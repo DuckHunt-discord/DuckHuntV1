@@ -81,7 +81,7 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
 defaultSettings = {
     "deleteCommands": True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
-    "expParCanard"  : 10, "lang": "fr", "randomCanard": True
+    "expParCanard"  : 10, "lang": "fr", "randomCanard": True, "malusFauxCanards": False
 }
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide"

@@ -547,7 +547,7 @@ def on_message(message):
                 "chargeurs_max"    : database.getPlayerLevel(message.channel, message.author)["chargeurs"]
                 }))
             return
-        
+
     elif message.content.startswith("!shop"):
         yield from deleteMessage(message)
         logger.debug("> SHOP (" + str(message.author) + ")")
@@ -682,7 +682,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
 
-    elif message.content.startswith("-,,.-") or "QUAACK" in message.content or "QUAAACK" in message.content or "/_^<" in message.content:
+    elif getPref(message.server, "malusFauxCanards") and (message.content.startswith("-,,.-") or "QUAACK" in message.content or "QUAAACK" in message.content or "/_^<" in message.content):
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
 
@@ -1096,10 +1096,10 @@ def on_message_edit(old, new):
         return
 
     language = getPref(new.server, "lang")
-
-    if new.content.startswith("-,,.-") or "QUAACK" in new.content or "/_^<" in new.content or "QUAAACK" in new.content:
-        yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
-        database.addToStat(new.channel, new.author, "exp", -5)
+    if getPref(new.server, "malusFauxCanards"):
+        if new.content.startswith("-,,.-") or "QUAACK" in new.content or "/_^<" in new.content or "QUAAACK" in new.content:
+            yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
+            database.addToStat(new.channel, new.author, "exp", -5)
 
 
 
