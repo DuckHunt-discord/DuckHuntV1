@@ -462,17 +462,28 @@ def on_message(message):
                     if canardencours["isSC"]:
                         canardencours["SCvie"] -= 1
                         if canardencours["SCvie"] == 0:
+                            canards.remove(canardencours)
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
                                 language).format(**{
                                 "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
                                 "channel": message.channel, "exp": getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"])
                             }))
+                            if database.getStat(message.channel, message.author, "meilleurTemps",
+                                                default=getPref(message.server, "tempsAttente")) > int(
+                                        now - canardencours["time"]):
+                                database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
+                            if getPref(message.server, "findObjects"):
+                                if random.randint(0, 100) < 25:
+                                    yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(
+                                        **{"inutilitee": _(random.choice(inutilite), language)}))
+
                         else:
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :gun: \tLe canard a survécu ! Essaie encore.   \_O<  [vie -1]  \* SUPER-CANARD DÉTECTÉ \*"))
 
                     else:
+                        canards.remove(canardencours)
                         database.addToStat(message.channel, message.author, "canardsTues", 1)
                         database.addToStat(message.channel, message.author, "exp", getPref(message.server, "expParCanard"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
