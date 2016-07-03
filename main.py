@@ -463,12 +463,15 @@ def on_message(message):
                         if canardencours["SCvie"] == 0:
 
                             canards.remove(canardencours)
+                            database.addToStat(message.channel, message.author, "canardsTues", 1)
+                            database.addToStat(message.channel, message.author, "superCanardsTues", 1)
+                            database.addToStat(message.channel, message.author, "exp", int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"])))
                             yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
                                 language).format(**{
                                 "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
-                                "channel": message.channel, "exp": getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"])
+                                "channel": message.channel, "exp": int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"]))
                             }))
                             if database.getStat(message.channel, message.author, "meilleurTemps",
                                                 default=getPref(message.server, "tempsAttente")) > int(
