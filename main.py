@@ -109,7 +109,9 @@ def JSONloadFromDisk(filename, default="{}", error=False):
 
 def allCanardsGo():
     for canard in canards:
+        logger.debug("Départ forcé du canard " + str(canard) + " | " + str(canard["channel"].name) + str(canard["channel"].server.name))
         yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+
 
 
 @asyncio.coroutine
@@ -206,7 +208,7 @@ def planifie():
     planification = planification_  # {"channel":[time objects]}
 
 
-def nouveauCanard(canard):
+def nouveauCanard(canard, canBeSC=True):
     servers = JSONloadFromDisk("channels.json", default="{}")
     if servers[canard["channel"].server.id]["detecteur"].get(canard["channel"].id, False):
         for playerid in servers[canard["channel"].server.id]["detecteur"][canard["channel"].id]:
@@ -217,6 +219,18 @@ def nouveauCanard(canard):
 
         servers[canard["channel"].server.id]["detecteur"].pop(canard["channel"].id)
         JSONsaveToDisk(servers, "channels.json")
+
+    if canBeSC and getPref(canard["channel"].server, "SCactif"):
+        chance = random.randint(0,100)
+        if chance < getPref(canard["channel"].server, "SCchance"):
+            vie = random.randint(getPref(canard["channel"].server, "SCviemin"), getPref(canard["channel"].server, "SCviemax"))
+            canard["isSC"] = True
+            canard["SCvie"] = vie
+            canard["level"] = vie
+        else:
+            canard["isSC"] = False
+    else:
+        canard["isSC"] = True
 
     logger.debug("Nouveau canard : " + str(canard))
     if getPref(canard["channel"].server, "randomCanard"):
@@ -434,7 +448,7 @@ def on_message(message):
 
             if canardencours:
                 if getPref(message.server, "duckLeaves"):
-                    if random.randint(1, 100) < 5:
+                    if random.randint(1, 100) < getPref(message.server, "duckChanceLeave"):
                         canards.remove(canardencours)
                         tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
@@ -443,25 +457,38 @@ def on_message(message):
                         database.addToStat(message.channel, message.author, "exp", -1)
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
-                    canards.remove(canardencours)
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                     yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
-                    database.addToStat(message.channel, message.author, "canardsTues", 1)
-                    database.addToStat(message.channel, message.author, "exp", getPref(message.server, "expParCanard"))
-                    yield from client.edit_message(tmp, str(message.author.mention) + _(
-                        " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
-                        language).format(**{
-                        "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
-                        "channel": message.channel, "exp": getPref(message.server, "expParCanard")
-                        }))
-                    if database.getStat(message.channel, message.author, "meilleurTemps",
-                                        default=getPref(message.server, "tempsAttente")) > int(
-                                    now - canardencours["time"]):
-                        database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
-                    if getPref(message.server, "findObjects"):
-                        if random.randint(0, 100) < 25:
-                            yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(
-                                **{"inutilitee": _(random.choice(inutilite), language)}))
+                    if canardencours["isSC"]:
+                        canardencours["SCvie"] -= 1
+                        if canardencours["SCvie"] == 0:
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
+                                language).format(**{
+                                "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
+                                "channel": message.channel, "exp": getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"])
+                            }))
+                        else:
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                " > :gun: \tLe canard a survécu ! Essaie encore.   \_O<  [vie -1]  \* SUPER-CANARD DÉTECTÉ \*"))
+
+                    else:
+                        database.addToStat(message.channel, message.author, "canardsTues", 1)
+                        database.addToStat(message.channel, message.author, "exp", getPref(message.server, "expParCanard"))
+                        yield from client.edit_message(tmp, str(message.author.mention) + _(
+                            " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
+                            language).format(**{
+                            "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
+                            "channel": message.channel, "exp": getPref(message.server, "expParCanard")
+                            }))
+                        if database.getStat(message.channel, message.author, "meilleurTemps",
+                                            default=getPref(message.server, "tempsAttente")) > int(
+                                        now - canardencours["time"]):
+                            database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
+                        if getPref(message.server, "findObjects"):
+                            if random.randint(0, 100) < 25:
+                                yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(
+                                    **{"inutilitee": _(random.choice(inutilite), language)}))
 
                 else:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
