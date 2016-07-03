@@ -458,11 +458,12 @@ def on_message(message):
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
-                    yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                     if canardencours["isSC"]:
                         canardencours["SCvie"] -= 1
                         if canardencours["SCvie"] == 0:
+
                             canards.remove(canardencours)
+                            yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
                                 language).format(**{
@@ -479,13 +480,16 @@ def on_message(message):
                                         **{"inutilitee": _(random.choice(inutilite), language)}))
 
                         else:
+                            yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :gun: \tLe canard a survécu ! Essaie encore.   \_O<  [vie -1]  \* SUPER-CANARD DÉTECTÉ \*"))
 
                     else:
                         canards.remove(canardencours)
+
                         database.addToStat(message.channel, message.author, "canardsTues", 1)
                         database.addToStat(message.channel, message.author, "exp", getPref(message.server, "expParCanard"))
+                        yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
                             " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
                             language).format(**{
