@@ -21,19 +21,20 @@ canards_portrait = ["\\_O<", "\\_o<", "\\_Õ<", "\\_õ<", "\\_Ô<", "\\_ô<", "\
                     "/_Ö\{", "/_ö\{", "/_Ø\{", "/_ø\{", "/_Ò\{", "/_ò\{", "/_Ó\{", "/_ó\{", "/_0\{", "/_©\{", "/_@\{", "/_^\{", "§_O\{", "§_o\{", "§_Õ\{",
                     "§_õ\{", "§_Ô\{", "§_ô\{", "§_Ö\{", "§_ö\{", "§_Ø\{", "§_ø\{", "§_Ò\{", "§_ò\{", "§_Ó\{", "§_ó\{", "§_0\{", "§_©\{", "§_@\{", "§_º\{",
                     "§_°\{", "§_^\{"]
-
 canards_cri = ["COIN", "COIN", "COIN", "COIN", "COIN", "KWAK", "KWAK", "KWAAK", "KWAAK", "KWAAAK", "KWAAAK", "COUAK", "COUAK", "COUAAK", "COUAAK",
                "COUAAAK", "COUAAAK", "QUAK", "QUAK", "QUAAK", "QUAAK", "QUAAAK", "QUAAAK", "QUACK", "QUACK", "QUAACK", "QUAACK", "QUAAACK", "QUAAACK",
                "COUAC", "COUAC", "COUAAC", "COUAAC", "COUAAAC", "COUAAAC", "COUACK", "COUACK", "COUAACK", "COUAACK", "COUAAACK", "COUAAACK", "QWACK",
                "QWACK", "QWAACK", "QWAACK", "QWAAACK", "QWAAACK", "ARK", "ARK", "AARK", "AARK", "AAARK", "AAARK", "CUI ?", "PIOU ?", _("*sifflote*"),
-               _("Hello world"), _("c'est ici pour le casting ?"), _("pourvu que personne ne me remarque..."), "http://tinyurl.com/2qc9pl"]
+               _("Hello world"), _("c'est ici pour le casting ?"), _("pourvu que personne ne me remarque..."), "http://tinyurl.com/2qc9pl",
+               _("Canard un jour, canard de bain")]
 
 canards_bye = [_("Le canard prend la fuite.  ·°'\`'°-.,¸¸.·°'\`"),
                _("Le canard va voir ailleurs.  ·°'\`'°-.,¸¸.·°'\`"),
                _("Le canard n'a pas le temps pour ça.  ·°'\`'°-.,¸¸.·°'\`"),
                _("Le canard est parti.  ·°'\`'°-.,¸¸.·°'\`"),
-               _("Le canard de dissipe dans l'espace-temps.  ·°'\`'°-.,¸¸.·°'\`"),
-               _("Le canard en a ras le bol d'être ignoré et fuit.  ·°'\`'°-.,¸¸.·°'\`")]
+               _("Le canard se dissipe dans l'espace-temps.  ·°'\`'°-.,¸¸.·°'\`"),
+               _("Le canard en a ras le bol d'être ignoré et fuit.  ·°'\`'°-.,¸¸.·°'\`"),
+               _("Le canard ne veut pas etre canardé.  ·°'\`'°-.,¸¸.·°'\`")]
 
 levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 1},
           {"niveau": 1, "expMin": -4, "nom": _("touriste"), "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 2},
@@ -80,8 +81,9 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           }]
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
 defaultSettings = {
-    "deleteCommands": True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
-    "expParCanard"  : 10, "lang": "fr", "randomCanard": True, "malusFauxCanards": False
+    "deleteCommands" : True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
+    "expParCanard"   : 10, "lang": lang, "randomCanard": True, "malusFauxCanards": False, "SCactif": True, "SCchance": 10, "SCviemin": 3, "SCviemax": 7,
+    "duckChanceLeave": 5, "SClevelmultiplier": 0.75
 }
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide"

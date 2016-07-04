@@ -123,7 +123,6 @@ def messageUser(message, toSend, forcePv=False):
     else:
         yield from client.send_message(message.channel, str(message.author.mention) + " > " + toSend)
 
-
 def representsInt(s):
     try:
         int(s)
@@ -1161,8 +1160,9 @@ try:
 except KeyboardInterrupt:
     logger.warn(_("Arret demandé"))
     client.loop.run_until_complete(allCanardsGo())
-
     client.loop.run_until_complete(client.logout())
     # cancel all tasks lingering
 finally:
     client.loop.close()
+
+
