@@ -392,6 +392,15 @@ def on_message(message):
             yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
 
         return
+    elif message.content.startswith("!broadcast"):
+        logger.debug("> BROADCAST (" + str(message.author) + ")")
+        bc = message.content.replace("!broadcast","",1)
+        if int(message.author.id) in admins:
+            for channel in planification.keys():
+                yield from client.send_message(channel, bc)
+
+        else:
+            yield from messageUser(message, _("Oupas (Permission Denied)", language))
 
     if message.channel.id not in servers[message.channel.server.id]["channels"]:
         return
@@ -490,12 +499,11 @@ def on_message(message):
 
                         else:
                             yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
-                            yield from client.edit_message(tmp, str(message.author.mention) + _(
-                                " > :gun: \tLe canard a survécu ! Essaie encore.   \_O<  [vie -1]  \* SUPER-CANARD DÉTECTÉ \*"))
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > :gun:  Le canard a survécu ! Essaie encore.  /_O<  [vie -1]  *Super canard détécté*", language))
+
 
                     else:
                         canards.remove(canardencours)
-
                         database.addToStat(message.channel, message.author, "canardsTues", 1)
                         database.addToStat(message.channel, message.author, "exp", getPref(message.server, "expParCanard"))
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
@@ -858,7 +866,6 @@ def on_message(message):
                                                "server"    : prochaincanard["channel"].server.name, "channel": prochaincanard["channel"].name,
                                                "timetonext": timetonext, "time": prochaincanard["time"]
                                            }))
-            deleteMessage(message)
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
 
@@ -937,7 +944,7 @@ def on_message(message):
                 x.add_row([param, getPref(message.server, param), defaultSettings[param]])
 
             yield from messageUser(message,
-                                   _("Liste des paramètres disponibles : \n```{table}```", language).format(**{"table": x.get_string(sortby="Paramètre")}))
+                                   _("Liste des paramètres disponibles : \n```{table}```", language).format(**{"table": x.get_string(sortby=_("Paramètre",language))}))
 
             return
 
@@ -1126,6 +1133,8 @@ def on_server_remove(server):
     if server.id in servers:
         for canard in canards:
             for channel in server.channels:
+                try: planification.pop(channel)
+                except: pass
                 if channel == canard["channel"]:
                     logger.Debug("Canard supprimé : " + str(canard))
                     canards.remove(canard)
