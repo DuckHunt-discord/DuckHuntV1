@@ -235,7 +235,7 @@ def nouveauCanard(canard, canBeSC=True):
 
     logger.debug("Nouveau canard : " + str(canard))
     if getPref(canard["channel"].server, "randomCanard"):
-        canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + random.choice(_(canards_cri, language=getPref(canard["channel"].server, "lang")))
+        canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(random.choice(canards_cri), language=getPref(canard["channel"].server, "lang"))
     else:
         canard_str = "-,,.-'`'°-,,.-'`'° /_^<   QUAACK"
     yield from client.send_message(canard["channel"], canard_str)
