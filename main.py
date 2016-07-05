@@ -89,7 +89,11 @@ _ = Domain("default").get
 logger.debug("Suppport de la langue implémenté")
 logger.info(_("Initialisation du programme, merci de patienter..."))
 logger.debug("Version : " + str(sys.version))
+logger.debug("Creation client")
 client = discord.Client()
+logger.debug("Génération variables de base")
+
+
 
 planification = {}  # {"channel":[time objects]}
 canards = []  # [{"channel" : channel, "time" : time.time()}]
@@ -1232,6 +1236,7 @@ def on_message_edit(old, new):
             database.addToStat(new.channel, new.author, "exp", -5)
 
 
+logger.debug("Connexion à Discord — Début de la boucle")
 try:
     client.loop.run_until_complete(client.start(token))
 except KeyboardInterrupt:
