@@ -235,7 +235,7 @@ def nouveauCanard(canard, canBeSC=True):
 
     logger.debug("Nouveau canard : " + str(canard))
     if getPref(canard["channel"].server, "randomCanard"):
-        canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + random.choice(canards_cri)
+        canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + random.choice(_(canards_cri, language=getPref(canard["channel"].server, "lang")))
     else:
         canard_str = "-,,.-'`'°-,,.-'`'° /_^<   QUAACK"
     yield from client.send_message(canard["channel"], canard_str)
@@ -317,8 +317,7 @@ def mainloop():
                         "time": canard["time"], "now": now, "shouldwaitto": str(
                             int(canard["time"] + getPref(canard["channel"].server, "tempsAttente")))
                     }))
-                yield from client.send_message(canard["channel"], _(random.choice(canards_bye),
-                                                                    language=getPref(canard["channel"].server, "lang")))
+                yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
                 canards.remove(canard)
         yield from asyncio.sleep(1)
 
