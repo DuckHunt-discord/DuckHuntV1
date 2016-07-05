@@ -21,18 +21,6 @@ args = parser.parse_args()
 import logging
 from logging.handlers import RotatingFileHandler
 
-import sys
-import discord
-import asyncio
-import random
-import time
-import json
-import gettext
-import database
-from prettytable import PrettyTable
-
-from config import *
-
 ## INIT ##
 logger = logging.getLogger("duckhunt")
 logger.setLevel(logging.DEBUG)
@@ -49,6 +37,31 @@ else:
 logger.addHandler(steam_handler)
 steam_handler.setFormatter(formatter)
 logger.debug("Logger Initialisé")
+
+logger.debug("Import sys")
+import sys
+logger.debug("Import discord")
+import discord
+logger.debug("Import asyncio")
+import asyncio
+logger.debug("Import random")
+import random
+logger.debug("Import time")
+import time
+logger.debug("Import json")
+import json
+logger.debug("Import getext")
+import gettext
+logger.debug("Import database.py")
+import database
+logger.debug("Import PrettyTable")
+from prettytable import PrettyTable
+logger.debug("Import *config")
+from config import *
+
+logger.debug("Récupération de starttime")
+startTime = time.time()
+
 
 
 # t = gettext.translation('default', localedir='language', languages=[lang])#, fallback=True)
@@ -119,7 +132,10 @@ def allCanardsGo():
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
     if getPref(message.server, "pmMostMessages") or forcePv == True:
-        yield from client.send_message(message.author, toSend)
+        try:
+            yield from client.send_message(message.author, toSend)
+        except discord.errors.Forbidden:
+            yield from client.send_message(message.channel, str(message.author.mention) + "403 Permission denied (can't send private messages to this user)")
     else:
         yield from client.send_message(message.channel, str(message.author.mention) + " > " + toSend)
 
@@ -171,7 +187,7 @@ def updateJSON():
 
 
 @asyncio.coroutine
-def planifie():
+def planifie(channel = None):
     global planification
 
     planification_ = {}
@@ -181,32 +197,50 @@ def planifie():
     now = time.time()
     thisDay = now - (now % 86400)
     servers = JSONloadFromDisk("channels.json", default="{}")
+    if not channel:
+        for server in client.servers:
+            logger.debug("Serveur " + str(server) + " (" + str(server.id) + ")")
+            if not server.id in servers:
+                logger.debug(" |- Serveur inexistant dans channels.json")
+            else:
+                for channel in server.channels:
+                    if channel.type == discord.ChannelType.text:
+                        logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
+                        permissions = channel.permissions_for(server.me)
+                        if permissions.read_messages and permissions.send_messages:
+                            # if (channelWL and int(channel.id) in whitelist) or not channelWL:
+                            if channel.id in servers[server.id]["channels"]:
+                                logger.debug("   |-Ajout channel : {id} ({canardsjours} c/j)".format(**{
+                                    "id": channel.id, "canardsjours": getPref(server, "canardsJours")
+                                }))
+                                templist = []
+                                for id_ in range(1, getPref(server, "canardsJours") + 1):
+                                    templist.append(int(thisDay + random.randint(0, 86400)))
+                                planification_[channel] = sorted(templist)
+        logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification_}))
+        logger.debug("Supression de l'ancienne planification, et application de la nouvelle")
 
-    for server in client.servers:
-        logger.debug("Serveur " + str(server) + " (" + str(server.id) + ")")
-        if not server.id in servers:
-            logger.debug(" |- Serveur inexistant dans channels.json")
-        else:
-            for channel in server.channels:
-                if channel.type == discord.ChannelType.text:
-                    logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
-                    permissions = channel.permissions_for(server.me)
-                    if permissions.read_messages and permissions.send_messages:
-                        # if (channelWL and int(channel.id) in whitelist) or not channelWL:
-                        if channel.id in servers[server.id]["channels"]:
-                            logger.debug("   |-Ajout channel : {id} ({canardsjours} c/j)".format(**{
-                                "id": channel.id, "canardsjours": getPref(server, "canardsJours")
-                            }))
-                            templist = []
-                            for id_ in range(1, getPref(server, "canardsJours") + 1):
-                                templist.append(int(thisDay + random.randint(0, 86400)))
-                            planification_[channel] = sorted(templist)
+        planification = planification_  # {"channel":[time objects]}
 
-    logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification_}))
+    else:
+        if channel.type == discord.ChannelType.text:
+            logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
+            permissions = channel.permissions_for(channel.server.me)
+            if permissions.read_messages and permissions.send_messages:
+                # if (channelWL and int(channel.id) in whitelist) or not channelWL:
+                if channel.id in servers[channel.server.id]["channels"]:
+                    logger.debug("   |-Ajout channel : {id} ({canardsjours} c/j)".format(**{
+                        "id": channel.id, "canardsjours": getPref(channel.server, "canardsJours")
+                    }))
+                    templist = []
+                    for id_ in range(1, getPref(channel.server, "canardsJours") + 1):
+                        templist.append(int(thisDay + random.randint(0, 86400)))
+                    planification[channel] = sorted(templist)
 
-    logger.debug("Supression de l'ancienne planification, et application de la nouvelle")
+        logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification}))
 
-    planification = planification_  # {"channel":[time objects]}
+
+
 
 
 def nouveauCanard(canard, canBeSC=True):
@@ -372,7 +406,7 @@ def on_message(message):
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
                 yield from messageUser(message, _(":robot: Channel ajoutée au jeu !", language))
-                yield from planifie()
+                yield from planifie(channel=message.channel)
 
             else:
                 yield from messageUser(message, _(":x: Cette channel existe déjà dans le jeu.", language))
@@ -382,7 +416,7 @@ def on_message(message):
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
                 yield from messageUser(message, _(":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur.", language))
-                yield from planifie()
+                yield from planifie(channel=message.channel)
 
             else:
                 yield from messageUser(message,
@@ -991,7 +1025,7 @@ def on_message(message):
                                    _(":ok: Valeur modifiée à {value} (type: {type})", language).format(**{"value": args_[2], "type": str(type(args_[2]))}))
 
             if args_[1] == "canardsJours":
-                yield from planifie()
+                yield from planifie(channel=message.channel)
 
 
 
@@ -1014,6 +1048,41 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
+    elif message.content.startswith("!stat"):
+        logger.debug("> STATS (" + str(message.author) + ")")
+
+
+        compteurCanards = 0
+        for channel in planification.keys():
+            compteurCanards += len(planification[channel])
+
+
+        yield from messageUser(message, _("""Statistiques de DuckHunt:
+
+    DuckHunt est actif dans `{nbre_channels_actives}` channels, sur `{nbre_serveurs}` serveurs. Il voit `{nbre_channels}` channels, et plus de `{nbre_utilisateurs}` utilisateurs.
+    Dans la planification d'aujourd'hui sont prévus et ont étés lancés au total `{nbre_canards}` canards.
+    Le bot est lancé avec Python ```{python_version}```""",language).format(**{
+                            "nbre_channels_actives" : len(planification),
+                            "nbre_serveurs" : len(client.servers),
+                            "nbre_channels" : len(list(client.get_all_channels())),
+                            "nbre_utilisateurs": len(list(client.get_all_members())),
+                            "nbre_canards" : compteurCanards,
+                            "python_version" : str(sys.version)}))
+
+    elif message.content.startswith("!permissions"):
+        logger.debug("> PERMISSIONS (" + str(message.author) + ")")
+
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
+            permissions_str = ""
+            for permission, value in message.server.me.permissions_in(message.channel):
+                if value:
+                    emo = ":white_check_mark:"
+                else:
+                    emo = ":negative_squared_cross_mark:"
+                permissions_str += "\n{value}\t{name}".format(**{"value": emo, "name": str(permission)})
+            yield from messageUser(message, _("Permissions : {permissions}",language).format(**{"permissions" : permissions_str}))
+        else:
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
     elif message.content.startswith("!dearm"):
         logger.debug("> DEARM (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -1044,7 +1113,7 @@ def on_message(message):
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith("!rearm"):
-        logger.debug("> rearm (" + str(message.author) + ")")
+        logger.debug("> REARM (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
 

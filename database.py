@@ -90,7 +90,10 @@ def getPlayerLevel(channel, player):
             return level
         lvexp = config.levels[numero + 1]["expMin"]
         level = config.levels[numero]
-        numero += 1
+        if len(config.levels) > numero +1:
+            numero += 1
+        else:
+            break
 
     return level
 
@@ -104,6 +107,9 @@ def getPlayerLevelWithExp(exp):
             return level
         lvexp = config.levels[numero]["expMin"]
         level = config.levels[numero]
-        numero += 1
+        if len(config.levels) > numero +1:
+            numero += 1
+        else:
+            break
 
     return level
