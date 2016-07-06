@@ -645,8 +645,7 @@ def on_message(message):
         logger.debug("> SHOP (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1:
-            yield from messageUser(message,
-                                   _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
+            yield from messageUser(message, _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
 
             return
         else:
@@ -1051,9 +1050,8 @@ def on_message(message):
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith("!stat"):
+        yield from deleteMessage(message)
         logger.debug("> STATS (" + str(message.author) + ")")
-
-
         compteurCanards = 0
         for channel in planification.keys():
             compteurCanards += len(planification[channel])
@@ -1072,6 +1070,7 @@ def on_message(message):
                             "python_version" : str(sys.version)}))
 
     elif message.content.startswith("!permissions"):
+        yield from deleteMessage(message)
         logger.debug("> PERMISSIONS (" + str(message.author) + ")")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
