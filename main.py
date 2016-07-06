@@ -653,9 +653,7 @@ def on_message(message):
             try:
                 item = int(args_[1])
             except ValueError:
-                yield from messageUser(message, str(
-                    message.author.mention) + _(
-                    ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`",
+                yield from messageUser(message,  _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`",
                     language))
 
                 return
