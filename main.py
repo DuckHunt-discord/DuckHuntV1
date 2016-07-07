@@ -789,7 +789,7 @@ def on_message(message):
             if database.getStat(message.channel, message.author, "exp") > 7:
                 if database.getStat(message.channel, message.author, "mouille", default=0) > int(time.time()):
 
-                    yield from messageUser(message, _(":money_with_wings: Tu te changes et repart chasser avec des vétements secs", language))
+                    yield from messageUser(message, _(":money_with_wings: Tu te changes et repart chasser avec des vétements secs, pour seulement 7 exp", language))
                     database.setStat(message.channel, message.author, "mouille", 0)
                 else:
                     yield from messageUser(message, _(":money_with_wings: Tu perds 7 experience, mais au moins, tu as du style !", language))
