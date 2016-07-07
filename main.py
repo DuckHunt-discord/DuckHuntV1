@@ -380,7 +380,9 @@ def on_message(message):
         return
 
     CompteurMessages += 1
-
+    if message.author.bot:
+        return
+    
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
         client.send_message(message.author,
@@ -1258,6 +1260,8 @@ def on_server_remove(server):
 @client.async_event
 def on_message_edit(old, new):
     if new.author == client.user:
+        return
+    if new.author.bot:
         return
 
     servers = JSONloadFromDisk("channels.json", default="{}")
