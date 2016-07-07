@@ -97,13 +97,15 @@ logger.debug("Génération variables de base")
 
 planification = {}  # {"channel":[time objects]}
 canards = []  # [{"channel" : channel, "time" : time.time()}]
+CompteurMessages = 0
 
 
 def getPref(server, pref):
     servers = JSONloadFromDisk("channels.json")
-
-    return servers[server.id]["settings"].get(pref, defaultSettings[pref])
-
+    try:
+        return servers[server.id]["settings"].get(pref, defaultSettings[pref])
+    except KeyError:
+        return None
 
 def JSONsaveToDisk(data, filename):
     with open(filename, 'w') as outfile:
@@ -373,8 +375,11 @@ def on_ready():
 
 @client.async_event
 def on_message(message):
+    global CompteurMessages
     if message.author == client.user:
         return
+
+    CompteurMessages += 1
 
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
@@ -1053,20 +1058,57 @@ def on_message(message):
         yield from deleteMessage(message)
         logger.debug("> STATS (" + str(message.author) + ")")
         compteurCanards = 0
-        for channel in planification.keys():
-            compteurCanards += len(planification[channel])
+        serveurs = 0
+        channels = 0
+        membres = 0
+        servsFr = 0
+        servsEn = 0
+        servsEt = 0
+        for server in client.servers:
+            serveurs += 1
+            if getPref(server, "lang") == "fr":
+                servsFr += 1
+            elif getPref(server, "lang") == "en":
+                servsEn +=1
+            else:
+                servsEt += 1
+
+
+
+            for channel in server.channels:
+                channels += 1
+                if channel in planification.keys():
+                    compteurCanards += len(planification[channel])
+            for membre in server.members:
+                membres += 1
+        uptime = int(time.time() - startTime)
+
 
 
         yield from messageUser(message, _("""Statistiques de DuckHunt:
 
     DuckHunt est actif dans `{nbre_channels_actives}` channels, sur `{nbre_serveurs}` serveurs. Il voit `{nbre_channels}` channels, et plus de `{nbre_utilisateurs}` utilisateurs.
-    Dans la planification d'aujourd'hui sont prévus et ont étés lancés au total `{nbre_canards}` canards.
+    Dans la planification d'aujourd'hui sont prévus et ont été lancés au total `{nbre_canards}` canards (soit `{nbre_canards_minute}` canards par minute).
+    Au total, le bot connait `{nbre_serveurs_francais}` serveurs francais, `{nbre_serveurs_anglais}` serveurs anglais et `{nbre_serveurs_etrangers}` serveurs étrangers.
+    Il a reçu au total durant la session `{messages}` message(s) (soit `{messages_minute}` message(s) par minute).
+    Le bot est lancé depuis `{uptime_sec}` seconde(s), ce qui équivaut à `{uptime_min}` minute(s) ou encore `{uptime_heures}` heure(s), ou, en jours, `{uptime_jours}` jour(s).
+
     Le bot est lancé avec Python ```{python_version}```""",language).format(**{
                             "nbre_channels_actives" : len(planification),
-                            "nbre_serveurs" : len(client.servers),
-                            "nbre_channels" : len(list(client.get_all_channels())),
-                            "nbre_utilisateurs": len(list(client.get_all_members())),
+                            "nbre_serveurs" : serveurs,
+                            "nbre_serveurs_francais" : servsFr,
+                            "nbre_serveurs_anglais" : servsEn,
+                            "nbre_serveurs_etrangers" : servsEt,
+                            "nbre_channels" : channels,
+                            "nbre_utilisateurs": membres,
                             "nbre_canards" : compteurCanards,
+                            "nbre_canards_minute" : round(compteurCanards/1440,4),
+                            "messages" : CompteurMessages,
+                            "messages_minute" : round(CompteurMessages/(uptime/60),4),
+                            "uptime_sec" : uptime,
+                            "uptime_min" : int(uptime/60),
+                            "uptime_heures" : int(uptime/60/60),
+                            "uptime_jours" : int(uptime/60/60/24),
                             "python_version" : str(sys.version)}))
 
     elif message.content.startswith("!permissions"):
@@ -1186,6 +1228,8 @@ def on_message(message):
 def on_channel_delete(channel):
     logger.info(_("Channel supprimée... {channel_id} | {channel_name}").format(**{"channel_id": channel.id, "channel_name": channel.name}))
     servers = JSONloadFromDisk("channels.json", default="{}")
+    if channel in planification.keys():
+        planification.pop(channel)
     if channel.id in servers[channel.server.id]["channels"]:
         for canard in canards:
             if channel in canard["channel"]:
