@@ -591,8 +591,17 @@ def on_message(message):
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
                     tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                     if canardencours["isSC"]:
-                        canardencours["SCvie"] -= 1
-                        if canardencours["SCvie"] == 0:
+                        if database.getStat(message.channel, message.author, "munExplo", default=0) > int(time.time()):
+                            canardencours["SCvie"] -= 3
+                            vieenmoins = 3
+                        elif database.getStat(message.channel, message.author, "munAp", default=0) > int(time.time()):
+                            canardencours["SCvie"] -= 2
+                            vieenmoins = 2
+                        else:
+                            canardencours["SCvie"] -= 1
+                            vieenmoins = 1
+                        
+                        if canardencours["SCvie"] <= 0:
 
                             canards.remove(canardencours)
                             database.addToStat(message.channel, message.author, "canardsTues", 1)
@@ -621,7 +630,7 @@ def on_message(message):
 
                         else:
                             yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
-                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > :gun:  Le canard a survécu ! Essaie encore.  /_O<  [vie -1]  *Super canard détécté*", language))
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > :gun:  Le canard a survécu ! Essaie encore.  /_O<  [vie -{vie}]  *Super canard détécté*", language).format(**{"vie": vieenmoins}))
 
 
                     else:
@@ -772,6 +781,25 @@ def on_message(message):
             else:
                 yield from messageUser(message, _(":champagne: Ta réserve de chargeurs est déjà pleine !", language))
 
+        elif item == 3:
+            if database.getStat(message.channel, message.author, "exp") > 15:
+                yield from messageUser(message, _(":money_with_wings: Tu achetes des munitions AP, qui doubleront tes dégats pendant une journée", language))
+                database.setStat(message.channel, message.author, "munAP", int(time.time()) + 86400)
+                database.addToStat(message.channel, message.author, "exp", -15)
+
+            else:
+                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+        elif item == 4:
+            if database.getStat(message.channel, message.author, "exp") > 25:
+                yield from messageUser(message, _(":money_with_wings: Tu achetes des munitions explosives, qui tripleront tes dégats pendant une journée", language))
+                database.setStat(message.channel, message.author, "munExplo", int(time.time()) + 86400)
+                database.addToStat(message.channel, message.author, "exp", -25)
+
+            else:
+                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+
         elif item == 5:
             if database.getStat(message.channel, message.author, "confisque"):
                 if database.getStat(message.channel, message.author, "exp") > 40:
@@ -814,7 +842,7 @@ def on_message(message):
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 10:
-                yield from messageUser(message, _(":money_with_wings: Tu jettes un seau d'eau sur {target}, l'obligant ainsi à attendre 1 heure avant de retourner chasser", language).format(**{"target": target.name}))
+                yield from messageUser(message, _(":money_with_wings: Tu jettes un seau d'eau sur {target}, l'obligeant ainsi à attendre 1 heure avant de retourner chasser", language).format(**{"target": target.name}))
                 database.setStat(message.channel, target, "mouille", int(time.time()) + 3600)
                 database.addToStat(message.channel, message.author, "exp", -10)
 
