@@ -134,6 +134,16 @@ def allCanardsGo():
         logger.debug("Départ forcé du canard " + str(canard) + " | " + str(canard["channel"].name) + str(canard["channel"].server.name))
         yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
 
+@asyncio.coroutine
+def giveBackIfNeeded(channel, player):
+    lastGB = int(database.getStat(channel, player, "lastGiveback", default=int(time.time())))
+    if int(lastGB / 86400) != int(int(time.time()) / 86400):
+        logger.debug("GiveBack  > LastGB :" + str(lastGB)           + " / 86400 = " + str(int(lastGB / 86400)))
+        logger.debug("GiveBack  > Now : " + str(int(time.time())) + " / 86400 = " + str(int(int(time.time()) /  86400)))
+        database.giveBack(logger, player=player, channel=channel)
+    else:
+        logger.debug("Pas besoin de passer à l'armurerie")
+        return
 
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
@@ -331,7 +341,7 @@ def mainloop():
         now = time.time()
 
         if (int(now)) % 86400 == 0:
-            database.giveBack(logger)
+            #database.giveBack(logger)
             yield from planifie()
             prochaincanard = yield from getprochaincanard()
 
@@ -382,7 +392,7 @@ def on_message(message):
     CompteurMessages += 1
     if message.author.bot:
         return
-    
+
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
         client.send_message(message.author,
@@ -454,9 +464,11 @@ def on_message(message):
     # Messages en whitelist sur les channels activées
 
     if message.content.startswith('!bang'):
+
         yield from deleteMessage(message)
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
+        yield from giveBackIfNeeded(message.channel, message.author)
         if database.getStat(message.channel, message.author, "confisque", default=False):
             yield from messageUser(message, _("Vous n'etes pas armé", language))
             return
@@ -597,6 +609,7 @@ def on_message(message):
     elif message.content.startswith("!reload"):
         yield from deleteMessage(message)
         logger.debug("> RELOAD (" + str(message.author) + ")")
+        yield from giveBackIfNeeded(message.channel, message.author)
         if database.getStat(message.channel, message.author, "confisque", default=False):
             yield from messageUser(message, _("Vous n'etes pas armé", language))
 
@@ -650,6 +663,8 @@ def on_message(message):
     elif message.content.startswith("!shop"):
         yield from deleteMessage(message)
         logger.debug("> SHOP (" + str(message.author) + ")")
+        yield from giveBackIfNeeded(message.channel, message.author)
+
         args_ = message.content.split(" ")
         if len(args_) == 1:
             yield from messageUser(message, _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))

@@ -68,16 +68,26 @@ def topScores(channel):
     return sorted(table.all(), key=lambda k: defaultInt(k["exp"]), reverse=True)  # Retourne l'ensemble des joueurs dans une liste par exp
 
 
-def giveBack(logger):
+def giveBack(logger, player=None, channel = None):
     logger.debug("C'est l'heure de passer à l'armurerie.")
-    for table in db.tables:
-        logger.debug("|- " + str(table))
-        table_ = db.load_table(table_name=table)
-        for player in table_.all():
-            if not "exp" in player or not player["exp"]:
-                player["exp"] = 0
-            logger.debug("   |- " + player["name"])
-            table_.upsert({"id_": player["id_"], "chargeurs": getPlayerLevelWithExp(player["exp"])["chargeurs"], "confisque": False}, ['id_'])
+    if player:
+        table = _gettable(channel.server, channel)
+
+        user = getChannelTable(channel).find_one(id_=player.id)
+        if not "exp" in user or not user["exp"]:
+            user["exp"] = 0
+        logger.debug("GIVEBACK SUR " + user["name"])
+
+        table.upsert({"id_": user["id_"], "chargeurs": getPlayerLevelWithExp(user["exp"])["chargeurs"], "confisque": False}, ['id_'])
+    else:
+        for table in db.tables:
+            logger.debug("|- " + str(table))
+            table_ = db.load_table(table_name=table)
+            for player in table_.all():
+                if not "exp" in player or not player["exp"]:
+                    player["exp"] = 0
+                logger.debug("   |- " + player["name"])
+                table_.upsert({"id_": player["id_"], "chargeurs": getPlayerLevelWithExp(player["exp"])["chargeurs"], "confisque": False}, ['id_'])
 
 
 def getPlayerLevel(channel, player):
