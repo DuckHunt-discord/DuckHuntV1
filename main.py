@@ -532,6 +532,9 @@ def on_message(message):
         logger.debug("> BANG (" + str(message.author) + ")")
         now = time.time()
         yield from giveBackIfNeeded(message.channel, message.author)
+        if database.getStat(message.channel, message.author, "mouille", default=0) > int(time.time()):
+            yield from messageUser(message, _("Tu es trempé ! Tu ne peux pas aller chasser ! Il faut attendre encore {temps_restant} minutes pour que tes vétement séchent !", language).format(**{"temps_restant": int((database.getStat(message.channel, message.author, "mouille", default=0) - int(time.time())) / 60)}))
+            return
         if database.getStat(message.channel, message.author, "confisque", default=False):
             yield from messageUser(message, _("Vous n'etes pas armé", language))
             return
@@ -780,6 +783,30 @@ def on_message(message):
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme n'est pas confisquée!", language))
+
+        elif item == 16:
+            if len(args_) <= 2:
+                yield from messageUser(message,
+                                       _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
+
+                return
+            args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
+            target = message.channel.server.get_member_named(args_[2])
+            if target is None:
+                target = message.channel.server.get_member(args_[2])
+                if target is None:
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+
+                    return
+
+            if database.getStat(message.channel, message.author, "exp") > 10:
+                yield from messageUser(message, _(":money_with_wings: Tu jettes un seau d'eau sur {target}, l'obligant ainsi à attendre 1 heure avant de retourner chasser", language).format(**{"target": target.name}))
+                database.setStat(message.channel, target, "mouille", int(time.time()) + 3600)
+                database.addToStat(message.channel, message.author, "exp", -10)
+
+            else:
+                yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
 
         elif item == 17:
             if len(args_) <= 2:
