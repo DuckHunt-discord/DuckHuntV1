@@ -119,3 +119,15 @@ def getPlayerLevelWithExp(exp):
             return level
 
     return level
+
+def delServerTables(server):
+    for table_name in db.tables:
+        table_name.split("-")
+        if str(table_name[0]) == str(server.id):
+            table_ = db.load_table(table_name=table_name)
+            table_.drop()
+
+def delChannelTable(channel):
+        table = _gettable(channel.server, channel)
+        table.drop()
+

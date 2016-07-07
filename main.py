@@ -100,6 +100,7 @@ canards = []  # [{"channel" : channel, "time" : time.time()}]
 CompteurMessages = 0
 
 
+
 def getPref(server, pref):
     servers = JSONloadFromDisk("channels.json")
     try:
@@ -133,6 +134,66 @@ def allCanardsGo():
     for canard in canards:
         logger.debug("Départ forcé du canard " + str(canard) + " | " + str(canard["channel"].name) + str(canard["channel"].server.name))
         yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+
+@asyncio.coroutine
+def tableCleanup():
+    db = database.db
+    keep_channels = []
+    keep_servers = []
+    dropped = 0
+    popped = 0
+    table_nbre = 0
+    server_nbre = 0
+    logger.debug("TableCleanup")
+    servers = JSONloadFromDisk("channels.json", default="{}")
+    for server in client.servers:
+        keep_servers.append(server.id)
+        logger.debug("Serveur " + str(server) + " (" + str(server.id) + ")")
+        if not server.id in servers:
+            logger.debug(" |- Serveur inexistant dans channels.json")
+        else:
+            for channel in server.channels:
+                if channel.type == discord.ChannelType.text:
+                    logger.debug(" |- Check channel : " + channel.id + " | " + channel.name)
+                    permissions = channel.permissions_for(server.me)
+                    if permissions.read_messages and permissions.send_messages:
+                        # if (channelWL and int(channel.id) in whitelist) or not channelWL:
+                        if channel.id in servers[server.id]["channels"]:
+                            logger.debug("   |-Ajout channel : {id} ({canardsjours} c/j)".format(**{
+                                "id": channel.id, "canardsjours": getPref(server, "canardsJours")
+                            }))
+                            keep_channels.append(str(server.id) + "-" + str(channel.id))
+
+    logger.debug("Liste des tables a conserver : " + str(keep_channels))
+    logger.debug("Liste des serveurs a conserver : " + str(keep_servers))
+    for table_name in db.tables:
+        table_nbre += 1
+        logger.debug("Check " + str(table_name))
+        if table_name not in keep_channels:
+            logger.debug(" |- DROPPING " + table_name)
+            dropped += 1
+            db[table_name].drop()
+        else:
+            keep_channels.remove(table_name)
+
+    logger.debug("Tables not seen : " + str(keep_channels))
+    servers_ = dict(servers)
+    for server in servers:
+        server_nbre += 1
+        logger.debug("Check " + str(server))
+        if server not in keep_servers:
+            logger.debug(" |- POPPING " + server)
+            servers_.pop(server)
+            popped += 1
+    JSONsaveToDisk(servers_, "channels.json")
+
+    logger.debug("Tables  Cleanup Done " + str(dropped) + "/" + str(table_nbre) + " table(s) dropped")
+    logger.debug("Servers Cleanup Done " + str(popped) + "/" + str(server_nbre) + " server(s) popped")
+
+
+
+
+
 
 @asyncio.coroutine
 def giveBackIfNeeded(channel, player):
@@ -377,6 +438,7 @@ def mainloop():
 def on_ready():
     logger.info("Connecté comme {name} | {id}".format(**{"name": client.user.name, "id": client.user.id}))
     yield from updateJSON()
+    yield from tableCleanup()
     logger.info("Creation de la planification")
     yield from planifie()
     logger.info("Lancers de canards planifiés")
@@ -584,7 +646,7 @@ def on_message(message):
                     yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                     if random.randint(0, 100) < 5:
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
-                            " > **BANG**\tTu à raté le canard... Et tu à tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
+                            " > **BANG**\tTu as raté le canard... Et tu à tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
                             language).format(**{"player": random.choice(list(message.server.members)).mention}))
                         database.addToStat(message.channel, message.author, "tirsManques", 1)
                         database.addToStat(message.channel, message.author, "chasseursTues", 1)
@@ -1254,6 +1316,7 @@ def on_channel_delete(channel):
                 logger.debug("Canard supprimé : " + str(canard))
                 canards.remove(canard)
         servers[channel.server.id]["channels"].remove(channel.id)
+        database.delChannelTable(channel)
         JSONsaveToDisk(servers, "channels.json")
 
 
@@ -1270,6 +1333,7 @@ def on_server_remove(server):
                     logger.Debug("Canard supprimé : " + str(canard))
                     canards.remove(canard)
         servers.pop(server.id)
+        database.delServerTables(server)
         JSONsaveToDisk(servers, "channels.json")
 
 
