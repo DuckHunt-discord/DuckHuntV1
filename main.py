@@ -141,6 +141,7 @@ def giveBackIfNeeded(channel, player):
         logger.debug("GiveBack  > LastGB :" + str(lastGB)           + " / 86400 = " + str(int(lastGB / 86400)))
         logger.debug("GiveBack  > Now : " + str(int(time.time())) + " / 86400 = " + str(int(int(time.time()) /  86400)))
         database.giveBack(logger, player=player, channel=channel)
+        database.setStat(channel, player, "lastGiveback", int(time.time()))
     else:
         logger.debug("Pas besoin de passer à l'armurerie")
         return
