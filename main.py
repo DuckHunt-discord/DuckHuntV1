@@ -436,14 +436,22 @@ def mainloop():
 
 @client.async_event
 def on_ready():
-    logger.info("Connecté comme {name} | {id}".format(**{"name": client.user.name, "id": client.user.id}))
-    yield from updateJSON()
-    yield from tableCleanup()
-    logger.info("Creation de la planification")
-    yield from planifie()
-    logger.info("Lancers de canards planifiés")
-    logger.info("Initialisation terminée :) Ce jeu, ca va faire un carton !")
-    yield from mainloop()
+    try:
+        logger.info("Connecté comme {name} | {id}".format(**{"name": client.user.name, "id": client.user.id}))
+        yield from updateJSON()
+        yield from tableCleanup()
+        logger.info("Creation de la planification")
+        yield from planifie()
+        logger.info("Lancers de canards planifiés")
+        logger.info("Initialisation terminée :) Ce jeu, ca va faire un carton !")
+        yield from mainloop()
+    except Exception as e:
+        logger.critical("Exception dans On_Ready... Redémarrage")
+        logger.exception("Exception : ")
+        try: allCanardsGo()
+        except: pass
+
+        sys.exit(1)
 
 
 @client.async_event
