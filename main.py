@@ -5,6 +5,7 @@ Discord-duckhunt -- main.py
 MODULE DESC 
 """
 # Constants #
+from database import getPref, JSONsaveToDisk, JSONloadFromDisk
 
 __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
@@ -49,7 +50,6 @@ import random
 logger.debug("Import time")
 import time
 logger.debug("Import json")
-import json
 logger.debug("Import getext")
 import gettext
 logger.debug("Import database.py")
@@ -100,36 +100,6 @@ canards = []  # [{"channel" : channel, "time" : time.time()}]
 CompteurMessages = 0
 
 
-
-def getPref(server, pref):
-    servers = JSONloadFromDisk("channels.json")
-    try:
-        return servers[server.id]["settings"].get(pref, defaultSettings[pref])
-    except KeyError:
-        return None
-
-def JSONsaveToDisk(data, filename):
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile, sort_keys=True, indent=4, ensure_ascii=False)
-
-
-def JSONloadFromDisk(filename, default="{}", error=False):
-    try:
-        file = open(filename, 'r')
-        data = json.load(file)
-        return data
-    except IOError:
-        if not error:
-            file = open(filename, 'w')
-            file.write(default)
-            file.close()
-            file = open(filename, 'r')
-            data = json.load(file)
-            return data
-        else:
-            raise
-
-
 def allCanardsGo():
     for canard in canards:
         logger.debug("Départ forcé du canard " + str(canard) + " | " + str(canard["channel"].name) + str(canard["channel"].server.name))
@@ -164,17 +134,21 @@ def tableCleanup():
                             }))
                             keep_channels.append(str(server.id) + "-" + str(channel.id))
 
+
     logger.debug("Liste des tables a conserver : " + str(keep_channels))
     logger.debug("Liste des serveurs a conserver : " + str(keep_servers))
     for table_name in db.tables:
         table_nbre += 1
         logger.debug("Check " + str(table_name))
-        if table_name not in keep_channels:
+        if table_name not in keep_channels and table_name not in keep_servers:
             logger.debug(" |- DROPPING " + table_name)
             dropped += 1
             db[table_name].drop()
         else:
-            keep_channels.remove(table_name)
+            try:
+                keep_channels.remove(table_name)
+            except ValueError: # La table est globale
+                pass
 
     logger.debug("Tables not seen : " + str(keep_channels))
     servers_ = dict(servers)

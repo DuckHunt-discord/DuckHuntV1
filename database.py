@@ -4,6 +4,9 @@
 Discord-duckhunt -- database.py
 Communication avec la base de données pour stocker les stats sur les canards"""
 # Constants #
+import json
+
+from config import defaultSettings
 
 __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
@@ -16,7 +19,10 @@ db = dataset.connect('sqlite:///scores.db')
 
 
 def _gettable(server, channel):
-    return db[server.id + "-" + channel.id]
+    if getPref(server, "global"):
+        return db[server.id]
+    else:
+        return db[server.id + "-" + channel.id]
 
 
 def getChannelTable(channel):
@@ -131,3 +137,32 @@ def delChannelTable(channel):
         table = _gettable(channel.server, channel)
         table.drop()
 
+
+def getPref(server, pref):
+    servers = JSONloadFromDisk("channels.json")
+    try:
+        return servers[server.id]["settings"].get(pref, defaultSettings[pref])
+    except KeyError:
+        return None
+
+
+def JSONsaveToDisk(data, filename):
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, sort_keys=True, indent=4, ensure_ascii=False)
+
+
+def JSONloadFromDisk(filename, default="{}", error=False):
+    try:
+        file = open(filename, 'r')
+        data = json.load(file)
+        return data
+    except IOError:
+        if not error:
+            file = open(filename, 'w')
+            file.write(default)
+            file.close()
+            file = open(filename, 'r')
+            data = json.load(file)
+            return data
+        else:
+            raise
