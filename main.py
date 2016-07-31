@@ -666,14 +666,14 @@ def on_message(message):
                     yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                     if random.randint(0, 100) < 5:
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
-                            " > **BANG**\tTu as raté le canard... Et tu à tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
+                            " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
                             language).format(**{"player": random.choice(list(message.server.members)).mention}))
                         database.addToStat(message.channel, message.author, "tirsManques", 1)
                         database.addToStat(message.channel, message.author, "chasseursTues", 1)
                         database.addToStat(message.channel, message.author, "exp", -3)
                         database.setStat(message.channel, message.author, "confisque", True)
                         return
-                    yield from client.edit_message(tmp, str(message.author.mention) + _(" > **PIEWW**\tTu à raté le canard ! [raté : -1 xp]", language))
+                    yield from client.edit_message(tmp, str(message.author.mention) + _(" > **PIEWW**\tTu as raté le canard ! [raté : -1 xp]", language))
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
@@ -766,7 +766,7 @@ def on_message(message):
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) < \
                     database.getPlayerLevel(message.channel, message.author)["balles"]:
                 if database.getStat(message.channel, message.author, "exp") > 7:
-                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'experience", language))
+                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'expérience.", language))
                     database.addToStat(message.channel, message.author, "balles", 1)
                     database.addToStat(message.channel, message.author, "exp", -7)
                 else:
@@ -780,7 +780,7 @@ def on_message(message):
                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) < \
                     database.getPlayerLevel(message.channel, message.author)["chargeurs"]:
                 if database.getStat(message.channel, message.author, "exp") > 13:
-                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'experience", language))
+                    yield from messageUser(message, _(":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'expérience.", language))
                     database.addToStat(message.channel, message.author, "chargeurs", 1)
                     database.addToStat(message.channel, message.author, "exp", -13)
                 else:
