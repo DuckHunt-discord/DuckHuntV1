@@ -5,7 +5,6 @@ Discord-duckhunt -- main.py
 MODULE DESC 
 """
 # Constants #
-from database import getPref, JSONsaveToDisk, JSONloadFromDisk
 
 __author__ = "Arthur — paris-ci"
 __licence__ = "WTFPL — 2016"
@@ -53,6 +52,7 @@ logger.debug("Import json")
 logger.debug("Import getext")
 import gettext
 logger.debug("Import database.py")
+from database import getPref, JSONsaveToDisk, JSONloadFromDisk
 import database
 logger.debug("Import PrettyTable")
 from prettytable import PrettyTable
@@ -1351,6 +1351,26 @@ def on_message(message):
                 yield from messageUser(message, _("{deleted} message(s) supprimés", language).format(**{"deleted": len(deleted)}))
             else:
                 yield from messageUser(message, _("0 message(s) supprimés : permission refusée", language))
+        else:
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+    elif message.content.startswith("!serverlist"):
+        logger.debug("> SERVER LIST (" + str(message.author) + ")")
+        if int(message.author.id) in admins:
+            servers = JSONloadFromDisk("channels.json", default="{}")
+
+            message_ts = ""
+            for server in client.servers:
+                invite = None
+                for channel in server.channels:
+                    permissions = channel.permissions_for(server.me)
+                    if permissions.create_instant_invite:
+                        invite = yield from client.create_invite(channel)
+                        message_ts += "{server_name} | {invite} | {actives}\n".format(**{"server_name": server.name, "invite": invite.url, "actives": len(servers[server.id]["channels"])})
+                        break
+                if not invite:
+                    message_ts += "{server_name} | X | {actives}\n".format(**{"server_name": server.name, "actives": len(servers[server.id]["channels"])})
+            yield from messageUser(message, message_ts)
+
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
