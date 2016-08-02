@@ -506,6 +506,38 @@ def on_message(message):
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
 
+    elif message.content.startswith("!addadmin"):
+        logger.debug("> ADDADMIN (" + str(message.author) + ")")
+
+        args_ = message.content.split(" ")
+        if len(args_) == 1:
+            target = message.author
+        else:
+            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
+            target = message.channel.server.get_member_named(args_[1])
+            if target is None:
+                target = message.channel.server.get_member(args_[1])
+                if target is None:
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
+
+                    return
+
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
+            servers[message.channel.server.id]["admins"].append(target.id)
+            logger.debug("Ajout de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(
+                **{"admin_id": target.id, "admin_name": target.name, "server_id": message.channel.server.id, "server_name": message.channel.server.name}))
+            yield from messageUser(message,
+                                   _(":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}", language).format(
+                                       **{
+                                           "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
+                                           "server_name": message.channel.server.name
+                                       }))
+        else:
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+        JSONsaveToDisk(servers, "channels.json")
+        return
+
+
     if message.channel.id not in servers[message.channel.server.id]["channels"]:
         return
 
@@ -1074,37 +1106,6 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
 
-        return
-
-    elif message.content.startswith("!addadmin"):
-        logger.debug("> ADDADMIN (" + str(message.author) + ")")
-
-        args_ = message.content.split(" ")
-        if len(args_) == 1:
-            target = message.author
-        else:
-            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-            target = message.channel.server.get_member_named(args_[1])
-            if target is None:
-                target = message.channel.server.get_member(args_[1])
-                if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-
-                    return
-
-        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
-            servers[message.channel.server.id]["admins"].append(target.id)
-            logger.debug("Ajout de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(
-                **{"admin_id": target.id, "admin_name": target.name, "server_id": message.channel.server.id, "server_name": message.channel.server.name}))
-            yield from messageUser(message,
-                                   _(":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}", language).format(
-                                       **{
-                                           "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
-                                           "server_name": message.channel.server.name
-                                       }))
-        else:
-            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
-        JSONsaveToDisk(servers, "channels.json")
         return
 
     elif message.content.startswith("!set"):
