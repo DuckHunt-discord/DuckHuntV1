@@ -134,7 +134,7 @@ def delServerTables(server):
             table_.drop()
 
 def delChannelTable(channel):
-        table = _gettable(channel.server, channel)
+        table = _gettable(channel.server, channel.id)
         table.drop()
 
 

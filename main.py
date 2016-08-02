@@ -58,6 +58,11 @@ logger.debug("Import PrettyTable")
 from prettytable import PrettyTable
 logger.debug("Import *config")
 from config import *
+logger.debug("Import raven.Client pour sentry")
+
+from raven import Client as Sentry
+
+sentry = Sentry('https://cc82bca5d88649fc91897d47a54d7828:9d0a9e0af53941839413e711d0f84500@app.getsentry.com/90073')
 
 logger.debug("Récupération de starttime")
 startTime = time.time()
@@ -424,7 +429,7 @@ def on_ready():
         logger.exception("Exception : ")
         try: allCanardsGo()
         except: pass
-
+        client.captureException()
         sys.exit(1)
 
 
