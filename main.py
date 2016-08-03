@@ -108,7 +108,8 @@ CompteurMessages = 0
 def allCanardsGo():
     for canard in canards:
         logger.debug("Départ forcé du canard " + str(canard) + " | " + str(canard["channel"].name) + str(canard["channel"].server.name))
-        yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+        try: yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+        except: pass
 
 @asyncio.coroutine
 def tableCleanup():
@@ -192,9 +193,14 @@ def messageUser(message, toSend, forcePv=False):
         try:
             yield from client.send_message(message.author, toSend)
         except discord.errors.Forbidden:
-            yield from client.send_message(message.channel, str(message.author.mention) + "403 Permission denied (can't send private messages to this user)")
+            try:
+                yield from client.send_message(message.channel, str(message.author.mention) + "403 Permission denied (can't send private messages to this user)")
+            except: pass
     else:
-        yield from client.send_message(message.channel, str(message.author.mention) + " > " + toSend)
+        try:
+            yield from client.send_message(message.channel, str(message.author.mention) + " > " + toSend)
+        except:
+            pass
 
 def representsInt(s):
     try:
@@ -226,7 +232,8 @@ def updateJSON():
     logger.debug("Verfification du fichier channels.json")
     servers = JSONloadFromDisk("channels.json", default="{}")
     logger.debug("Version parsée de servers : " + str(servers))
-    for server in servers:
+
+    for server in servers.keys():
         if not "admins" in servers[server]:
             logger.debug("Le parametre admins n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["admins"] = []
@@ -239,6 +246,8 @@ def updateJSON():
         if not "detecteur" in servers[server]:
             logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["detecteur"] = {}
+        logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
+        servers[server]["name"] = client.get_server(server).name
 
     JSONsaveToDisk(servers, "channels.json")
 
@@ -305,9 +314,10 @@ def nouveauCanard(canard, canBeSC=True):
     if servers[canard["channel"].server.id]["detecteur"].get(canard["channel"].id, False):
         for playerid in servers[canard["channel"].server.id]["detecteur"][canard["channel"].id]:
             player = discord.utils.get(canard["channel"].server.members, id=playerid)
-            yield from client.send_message(player, _("Il y a un canard sur #{channel}",
+            try: yield from client.send_message(player, _("Il y a un canard sur #{channel}",
                                                      getPref(canard["channel"].server, "lang")).format(
                 **{"channel": canard["channel"].name}))
+            except: pass
 
         servers[canard["channel"].server.id]["detecteur"].pop(canard["channel"].id)
         JSONsaveToDisk(servers, "channels.json")
@@ -329,7 +339,8 @@ def nouveauCanard(canard, canBeSC=True):
         canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(random.choice(canards_cri), language=getPref(canard["channel"].server, "lang"))
     else:
         canard_str = "-,,.-'`'°-,,.-'`'° /_^<   QUAACK"
-    yield from client.send_message(canard["channel"], canard_str)
+    try: yield from client.send_message(canard["channel"], canard_str)
+    except: pass
     canards.append(canard)
 
 
@@ -408,7 +419,8 @@ def mainloop():
                         "time": canard["time"], "now": now, "shouldwaitto": str(
                             int(canard["time"] + getPref(canard["channel"].server, "tempsAttente")))
                     }))
-                yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+                try: yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+                except: pass
                 canards.remove(canard)
         yield from asyncio.sleep(1)
 
@@ -429,7 +441,7 @@ def on_ready():
         logger.exception("Exception : ")
         try: allCanardsGo()
         except: pass
-        client.captureException()
+        sentry.captureException()
         sys.exit(1)
 
 
@@ -445,8 +457,9 @@ def on_message(message):
 
     servers = JSONloadFromDisk("channels.json", default="{}")
     if message.channel.is_private:
-        client.send_message(message.author,
+        try: client.send_message(message.author,
                             _(":x: Merci de communiquer avec moi dans les channels ou je suis actif."))  # No server so no translation here :x
+        except: pass
         return
     if not message.channel.server.id in servers:
         yield from newserver(message.channel.server)
@@ -501,7 +514,8 @@ def on_message(message):
         bc = message.content.replace("!broadcast","",1)
         if int(message.author.id) in admins:
             for channel in planification.keys():
-                yield from client.send_message(channel, bc)
+                try: yield from client.send_message(channel, bc)
+                except: pass
 
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
@@ -601,16 +615,22 @@ def on_message(message):
                 if getPref(message.server, "duckLeaves"):
                     if random.randint(1, 100) < getPref(message.server, "duckChanceLeave"):
                         canards.remove(canardencours)
-                        tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
+                        try:
+                            tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
+                        except: pass
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
                             " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language))
                         database.addToStat(message.channel, message.author, "exp", -1)
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
-                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
+                    try:
+                        tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
+                    except:
+                        pass
                     if canardencours["isSC"]:
                         if database.getStat(message.channel, message.author, "munExplo", default=0) > int(time.time()):
+
                             canardencours["SCvie"] -= 3
                             vieenmoins = 3
                         elif database.getStat(message.channel, message.author, "munAp", default=0) > int(time.time()):
@@ -673,7 +693,9 @@ def on_message(message):
                                     **{"inutilitee": _(random.choice(inutilite), language)}))
 
                 else:
-                    tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
+                    try:
+                        tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
+                    except: pass
                     yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                     if random.randint(0, 100) < 5:
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
@@ -836,7 +858,7 @@ def on_message(message):
             if database.getStat(message.channel, message.author, "exp") > 7:
                 if database.getStat(message.channel, message.author, "mouille", default=0) > int(time.time()):
 
-                    yield from messageUser(message, _(":money_with_wings: Tu te changes et repart chasser avec des vétements secs, pour seulement 7 exp", language))
+                    yield from messageUser(message, _(":money_with_wings: Tu te changes et repart chasser avec des vêtements secs, pour seulement 7 exp", language))
                     database.setStat(message.channel, message.author, "mouille", 0)
                 else:
                     yield from messageUser(message, _(":money_with_wings: Tu perds 7 experience, mais au moins, tu as du style !", language))
@@ -939,7 +961,8 @@ def on_message(message):
                     language), forcePv=True)
                 database.addToStat(message.channel, message.author, "exp", -50)
                 yield from asyncio.sleep(75)
-                yield from client.send_message(message.channel, _("-_-'`'°-_-.-'`'° %__%   *BZAACK*", language))
+                try: yield from client.send_message(message.channel, _("-_-'`'°-_-.-'`'° %__%   *BZAACK*", language))
+                except: pass
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
@@ -992,7 +1015,10 @@ def on_message(message):
     elif message.content.startswith('!ping'):
         yield from deleteMessage(message)
         logger.debug("> PING (" + str(message.author) + ")")
-        tmp = yield from client.send_message(message.channel, _('BOUM', language))
+        try:
+            tmp = yield from client.send_message(message.channel, _('BOUM', language))
+        except:
+            pass
         yield from asyncio.sleep(4)
         yield from client.edit_message(tmp, _('... Oups ! Pardon, pong !', language))
 
@@ -1031,7 +1057,7 @@ def on_message(message):
                    str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + _(database.getPlayerLevel(message.channel, target)["nom"],
                                                                                               language) + ")"])
         x.add_row([_("Précision des tirs", language), database.getPlayerLevel(message.channel, target)["precision"]])
-        x.add_row([_("Fiabilitée de l'arme", language), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
+        x.add_row([_("Fiabilité de l'arme", language), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
 
         yield from messageUser(message,
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
@@ -1068,11 +1094,13 @@ def on_message(message):
         if int(message.author.id) in admins:
             prochaincanard = yield from getprochaincanard()
             timetonext = int(prochaincanard["time"] - time.time())
-            yield from client.send_message(message.author,
+            try:
+                yield from client.send_message(message.author,
                                            _("Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}", language).format(**{
                                                "server"    : prochaincanard["channel"].server.name, "channel": prochaincanard["channel"].name,
                                                "timetonext": timetonext, "time": prochaincanard["time"]
                                            }))
+            except: pass
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
 
@@ -1184,8 +1212,10 @@ def on_message(message):
             table = ""
             for timestamp in planification[message.channel]:
                 table += str(int((time.time() - timestamp) / 60)) + "\n"
-            yield from client.send_message(message.author, _(":hammer: TimeDelta en minutes pour les canards sur le chan\n```{table}```", language).format(
+
+            try: yield from client.send_message(message.author, _(":hammer: TimeDelta en minutes pour les canards sur le chan\n```{table}```", language).format(
                 **{"table": table}))
+            except: pass
 
 
         else:
