@@ -249,8 +249,15 @@ def updateJSON():
         logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
         server_obj = client.get_server(server)
         names = {"server": server_obj.name}
+        ids = []
         for channel in server_obj.channels:
             names[channel.id] = channel.name
+            ids += [channel.id]
+
+        for channel in servers[server]["channels"]:
+            if channel not in ids:
+                servers[server]["channels"].remove(channel)
+                logger.debug("Supression de " + str(channel) + " du channels.json")
 
         servers[server]["name"] = names
 
