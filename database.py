@@ -9,7 +9,6 @@ import json
 from config import defaultSettings
 
 __author__ = "Arthur — paris-ci"
-__licence__ = "WTFPL — 2016"
 
 import dataset
 

@@ -7,7 +7,18 @@ MODULE DESC
 # Constants #
 
 __author__ = "Arthur — paris-ci"
-__licence__ = "WTFPL — 2016"
+
+# Licence
+#
+#		Cette création est mise à disposition selon le Contrat
+#		Attribution-NonCommercial-ShareAlike 3.0 Unported disponible en ligne
+#		http://creativecommons.org/licenses/by-nc-sa/3.0/ ou par courrier postal à
+#		Creative Commons, 171 Second Street, Suite 300, San Francisco, California
+#		94105, USA.
+#		Vous pouvez également consulter la version française ici :
+#		http://creativecommons.org/licenses/by-nc-sa/3.0/deed.fr
+#
+#       Travail original par MenzAgitat : http://scripts.eggdrop.fr/details-Duck+Hunt-s228.html
 
 print("Démarrage...")
 
