@@ -247,7 +247,13 @@ def updateJSON():
             logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
             servers[server]["detecteur"] = {}
         logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
-        servers[server]["name"] = client.get_server(server).name
+        server_obj = client.get_server(server)
+        names = {"server": server_obj.name}
+        for channel in server_obj.channels:
+            names[channel.id] = channel.name
+
+        servers[server]["name"] = names
+
 
     JSONsaveToDisk(servers, "channels.json")
 
@@ -442,6 +448,8 @@ def on_ready():
         try: allCanardsGo()
         except: pass
         sentry.captureException()
+        client.loop.run_until_complete(client.logout())
+        client.loop.close()
         sys.exit(1)
 
 
@@ -489,6 +497,7 @@ def on_message(message):
                 logger.debug("Ajout de la channel {name} | {id} au fichier...".format(**{"id": message.channel.id, "name": message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
+                yield from updateJSON()
                 yield from messageUser(message, _(":robot: Channel ajoutée au jeu !", language))
                 yield from planifie(channel=message.channel)
 
@@ -499,6 +508,7 @@ def on_message(message):
                 logger.debug("Ajout de la channel {name} | {id} au fichier...".format(**{"id": message.channel.id, "name": message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
+                yield from updateJSON()
                 yield from messageUser(message, _(":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du serveur.", language))
                 yield from planifie(channel=message.channel)
 
