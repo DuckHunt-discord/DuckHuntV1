@@ -735,9 +735,14 @@ def on_message(message):
                     except: pass
                     yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                     if random.randint(0, 100) < 5:
+                        victime = random.choice(list(message.server.members))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
                             " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
-                            language).format(**{"player": random.choice(list(message.server.members)).mention}))
+                            language).format(**{"player": victime.mention}))
+                        if database.getStat(message.channel, victime, "AssuranceVie", default=0) > int(time.time()):
+                            exp = int(database.getPlayerLevel(message.channel, message.author) /2)
+                            database.addToStat(message.channel, victime, "exp", exp)
+
                         database.addToStat(message.channel, message.author, "tirsManques", 1)
                         database.addToStat(message.channel, message.author, "chasseursTues", 1)
                         database.addToStat(message.channel, message.author, "exp", -3)
@@ -893,7 +898,7 @@ def on_message(message):
         elif item == 6:
             if database.getStat(message.channel, message.author, "graisse", default=0) < int(time.time()):
                 if database.getStat(message.channel, message.author, "exp") > 8:
-                    yield from messageUser(message, _(":money_with_wings: Tu mets de la graisse dans ton arme, ce qui réduit ses chances d'enrayemment de 50% pendant 24h ! Cela te coute 8 points d'experience", language))
+                    yield from messageUser(message, _(":money_with_wings: Tu mets de la graisse dans ton arme, ce qui réduit ses chances d'enrayement de 50% pendant 24h ! Cela te coûte 8 points d'expérience", language))
                     database.setStat(message.channel, message.author, "graisse", int(time.time()) + 86400)
                     database.addToStat(message.channel, message.author, "exp", -8)
                 else:
@@ -909,6 +914,8 @@ def on_message(message):
 
                     yield from messageUser(message, _(":money_with_wings: Tu te changes et repart chasser avec des vêtements secs, pour seulement 7 exp", language))
                     database.setStat(message.channel, message.author, "mouille", 0)
+                    database.addToStat(message.channel, message.author, "exp", -10)
+
                 else:
                     yield from messageUser(message, _(":money_with_wings: Tu perds 7 experience, mais au moins, tu as du style !", language))
                 database.addToStat(message.channel, message.author, "exp", -7)
@@ -968,9 +975,18 @@ def on_message(message):
                                            forcePv=True)
 
                     return
+        elif item == 18:
+            if database.getStat(message.channel, message.author, "exp") > 10:
+                if database.getStat(message.channel, message.author, "AssuranceVie", default=0) > int(time.time()):
+                    yield from messageUser(message, _(":money_with_wings: Tu souscris à une assurance vie, qui dure une semaine", language))
+                    database.setStat(message.channel, message.author, "AssuranceVie", int(time.time()) + 604800)
+                    database.addToStat(message.channel, message.author, "exp", -10)
 
+                else:
+                    yield from messageUser(message, _(":money_with_wings: Tu es déjà assuré !", language))
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
         elif item == 20:
             if database.getStat(message.channel, message.author, "exp") > 8:
                 yield from messageUser(message, _(
