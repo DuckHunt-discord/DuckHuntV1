@@ -977,7 +977,7 @@ def on_message(message):
                     return
         elif item == 18:
             if database.getStat(message.channel, message.author, "exp") > 10:
-                if database.getStat(message.channel, message.author, "AssuranceVie", default=0) > int(time.time()):
+                if database.getStat(message.channel, message.author, "AssuranceVie", default=0) < int(time.time()):
                     yield from messageUser(message, _(":money_with_wings: Tu souscris à une assurance vie, qui dure une semaine", language))
                     database.setStat(message.channel, message.author, "AssuranceVie", int(time.time()) + 604800)
                     database.addToStat(message.channel, message.author, "exp", -10)
