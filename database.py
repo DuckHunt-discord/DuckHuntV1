@@ -94,7 +94,6 @@ def giveBack(logger, player=None, channel = None):
                 logger.debug("   |- " + player["name"])
                 table_.upsert({"id_": player["id_"], "chargeurs": getPlayerLevelWithExp(player["exp"])["chargeurs"], "confisque": False}, ['id_'])
 
-
 def getPlayerLevel(channel, player):
     plexp = getStat(channel, player, "exp")
     lvexp = -9999

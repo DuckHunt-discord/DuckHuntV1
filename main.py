@@ -633,9 +633,13 @@ def on_message(message):
             if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["fiabilitee"]:
                 database.addToStat(message.channel, message.author, "balles", -1)
             else:
-                yield from messageUser(message, _("Ton arme s'est enrayée, recharge la pour la décoincer.", language))
-                database.setStat(message.channel, message.author, "enrayee", True)
-                return
+                if not (database.getStat(message.channel, message.author, "graisse", default=0) > int(time.time()) and random.randint(1, 100) < 50):
+
+                    yield from messageUser(message, _("Ton arme s'est enrayée, recharge la pour la décoincer.", language))
+                    database.setStat(message.channel, message.author, "enrayee", True)
+                    return
+                else:
+                    database.addToStat(message.channel, message.author, "balles", -1)
 
         if canards:
             canardencours = None
@@ -885,6 +889,18 @@ def on_message(message):
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme n'est pas confisquée!", language))
+
+        elif item == 6:
+            if database.getStat(message.channel, message.author, "graisse", default=0) < int(time.time()):
+                if database.getStat(message.channel, message.author, "exp") > 8:
+                    yield from messageUser(message, _(":money_with_wings: Tu mets de la graisse dans ton arme, ce qui réduit ses chances d'enrayemment de 50% pendant 24h ! Cela te coute 8 points d'experience", language))
+                    database.setStat(message.channel, message.author, "graisse", int(time.time()) + 86400)
+                    database.addToStat(message.channel, message.author, "exp", -8)
+                else:
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+            else:
+                yield from messageUser(message, _(":champagne: Ton arme est déjà bien lubrifiée!", language))
 
         elif item == 12:
 
