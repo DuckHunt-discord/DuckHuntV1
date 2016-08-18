@@ -83,7 +83,7 @@ lang = "fr"  # Language specified here is for console messages, everything that 
 defaultSettings = {
     "deleteCommands" : True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
     "expParCanard"   : 10, "lang": lang, "randomCanard": True, "malusFauxCanards": False, "SCactif": True, "SCchance": 10, "SCviemin": 3, "SCviemax": 7,
-    "duckChanceLeave": 5, "SClevelmultiplier": 0.75
+    "duckChanceLeave": 5, "SClevelmultiplier": 0.75, "global": False, "trefleMin" : 1, "trefleMax" : 10
 }
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide"

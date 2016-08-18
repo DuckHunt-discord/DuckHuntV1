@@ -919,7 +919,7 @@ def on_message(message):
         elif item == 10:
             if database.getStat(message.channel, message.author, "trefle", default=0) < int(time.time()):
                 if database.getStat(message.channel, message.author, "exp") > 13:
-                    exp = random.randint(1,10)
+                    exp = random.randint(getPref(message.server, "trefleMin"),getPref(message.server, "trefleMax"))
 
                     yield from messageUser(message, _(":money_with_wings: Tu achetes un trefle à 4 feuilles, qui te donnera {exp} points d'exp supplémentaires à chaque canard tué pendant 24 heures!", language).format(**{"exp": exp}))
                     database.setStat(message.channel, message.author, "trefle", int(time.time()) + 86400)
