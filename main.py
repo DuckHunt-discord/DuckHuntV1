@@ -742,6 +742,7 @@ def on_message(message):
                         if database.getStat(message.channel, victime, "AssuranceVie", default=0) > int(time.time()):
                             exp = int(database.getPlayerLevel(message.channel, message.author) /2)
                             database.addToStat(message.channel, victime, "exp", exp)
+                            yield from messageUser(message, _("Tu gagnes {exp} avec ton assurance vie".format(**{"exp": exp})))
 
                         database.addToStat(message.channel, message.author, "tirsManques", 1)
                         database.addToStat(message.channel, message.author, "chasseursTues", 1)
@@ -1104,7 +1105,10 @@ def on_message(message):
 
                     return
         x = PrettyTable()
-
+        if database.getStat(message.channel, target, "canardsTues") > 0:
+            ratio = round(database.getStat(message.channel, target, "exp") / database.getStat(message.channel, target, "canardsTues"), 4)
+        else:
+            ratio = _("Huh, pas de canard tué :x !", language)
         x._set_field_names([_("Statistique", language), _("Valeur", language)])
         x.add_row([_("Canards tués", language), database.getStat(message.channel, target, "canardsTues")])
         x.add_row([_("Tirs manqués", language), database.getStat(message.channel, target, "tirsManques")])
@@ -1118,6 +1122,8 @@ def on_message(message):
             database.getStat(message.channel, target, "chargeurs", default=database.getPlayerLevel(message.channel, target)["chargeurs"])) + " / " + str(
             database.getPlayerLevel(message.channel, target)["chargeurs"])])
         x.add_row([_("Experience", language), database.getStat(message.channel, target, "exp")])
+        x.add_row([_("Ratio (exp/canard tué)", language), ratio])
+
         x.add_row([_("Niveau actuel", language),
                    str(database.getPlayerLevel(message.channel, target)["niveau"]) + " (" + _(database.getPlayerLevel(message.channel, target)["nom"],
                                                                                               language) + ")"])
