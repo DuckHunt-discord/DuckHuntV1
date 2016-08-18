@@ -680,10 +680,13 @@ def on_message(message):
                         if canardencours["SCvie"] <= 0:
 
                             canards.remove(canardencours)
+                            gain = int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"]))
+                            if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
+                                gain += database.getStat(message.channel, message.author, "trefle_exp", default=0)
+
                             database.addToStat(message.channel, message.author, "canardsTues", 1)
                             database.addToStat(message.channel, message.author, "superCanardsTues", 1)
-                            database.addToStat(message.channel, message.author, "exp", int(
-                                getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"])))
+                            database.addToStat(message.channel, message.author, "exp", gain)
                             yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards (dont {supercanards} supercanards) sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
@@ -711,14 +714,19 @@ def on_message(message):
 
                     else:
                         canards.remove(canardencours)
+                        gain = int(getPref(message.server, "expParCanard"))
+                        if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
+                            gain += database.getStat(message.channel, message.author, "trefle_exp", default=0)
+
                         database.addToStat(message.channel, message.author, "canardsTues", 1)
-                        database.addToStat(message.channel, message.author, "exp", getPref(message.server, "expParCanard"))
+                        database.addToStat(message.channel, message.author, "exp", gain)
+
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
                             " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te fait un total de {total} canards sur #{channel}.     \_X<   *COUAC*   [{exp} xp]",
                             language).format(**{
                             "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
-                            "channel": message.channel, "exp": getPref(message.server, "expParCanard")
+                            "channel": message.channel, "exp": gain
                         }))
                         if database.getStat(message.channel, message.author, "meilleurTemps",
                                             default=getPref(message.server, "tempsAttente")) > int(
@@ -907,6 +915,21 @@ def on_message(message):
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme est déjà bien lubrifiée!", language))
+
+        elif item == 10:
+            if database.getStat(message.channel, message.author, "trefle", default=0) < int(time.time()):
+                if database.getStat(message.channel, message.author, "exp") > 13:
+                    exp = random.randint(1,10)
+
+                    yield from messageUser(message, _(":money_with_wings: Tu achetes un trefle à 4 feuilles, qui te donnera {exp} points d'exp supplémentaires à chaque canard tué pendant 24 heures!", language).format(**{"exp": exp}))
+                    database.setStat(message.channel, message.author, "trefle", int(time.time()) + 86400)
+                    database.setStat(message.channel, message.author, "trefle_exp", exp)
+                    database.addToStat(message.channel, message.author, "exp", -13)
+                else:
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+            else:
+                yield from messageUser(message, _("Trop de chance tue la chance, c'est mort, je ne te donnerait pas un 2eme trefle!", language))
 
         elif item == 12:
 
