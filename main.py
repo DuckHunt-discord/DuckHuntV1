@@ -1120,7 +1120,7 @@ def on_message(message):
                     if getPref(message.server, "mecaRandom") == 0:
                         yield from client.send_message(message.channel, _("-_-'`'°-_-.-'`'° %__%   *BZAACK*", language))
                     elif getPref(message.server, "mecaRandom") == 1:
-                        yield from client.send_message("-_-'`'°-_-.-'`'° %__%    " + _(random.choice(canards_cri), language=getPref(message.server, "lang")))
+                        yield from client.send_message(message.channel, "-_-'`'°-_-.-'`'° %__%    " + _(random.choice(canards_cri), language=getPref(message.server, "lang")))
                     else:
                         yield from client.send_message(message.channel,random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(random.choice(canards_cri), language=getPref(message.server, "lang")))
 
