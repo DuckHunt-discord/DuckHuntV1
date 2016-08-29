@@ -55,7 +55,10 @@ def getStat(channel, player, stat, default=0):
             return default
 
     except:
-        setStat(channel, player, stat, default)
+        try:
+            setStat(channel, player, stat, default)
+        except:
+            pass
         return default
 
 
