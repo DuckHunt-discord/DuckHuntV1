@@ -795,9 +795,14 @@ def on_message(message):
                     yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                     if random.randint(0, 100) < 5:
                         victime = random.choice(list(message.server.members))
-                        yield from client.edit_message(tmp, str(message.author.mention) + _(
-                            " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
-                            language).format(**{"player": victime.mention}))
+                        if not victime == message.author:
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
+                                language).format(**{"player": victime.mention}))
+                        else:
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                " > **BANG**\tTu as raté le canard... Et tu t'es tiré dessus. Apprends à tenir ton fusil à l'endroit la prochaine fois, boulet ! . ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
+                                language))
                         if database.getStat(message.channel, victime, "AssuranceVie", default=0) > int(time.time()):
                             exp = int(database.getPlayerLevel(message.channel, message.author) / 2)
                             database.addToStat(message.channel, victime, "exp", exp)

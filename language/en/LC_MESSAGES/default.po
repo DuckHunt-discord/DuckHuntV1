@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-08-28 19:11-0400\n"
+"POT-Creation-Date: 2016-08-31 13:06-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -368,45 +368,53 @@ msgstr "bushes."
 msgid "100 balles et un mars."
 msgstr "10 bucks."
 
-#: main.py:108
+#: config.py:142
+msgid ""
+"Une tomate : http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-"
+"shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"
+msgstr ""
+"A tomato: http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-"
+"shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"
+
+#: main.py:117
 msgid "Initialisation du programme, merci de patienter..."
 msgstr "Program initialization, please wait ..."
 
-#: main.py:217
+#: main.py:224
 msgid "Message trop long, envoi sur hastebin avec le lien : "
 msgstr "Message too long, sending on hastebin with the link:"
 
-#: main.py:250
+#: main.py:260
 #, python-brace-format
 msgid "Ajout du serveur {server_id} | {server_name} au fichier..."
 msgstr "Added {server_id} | {server_name} server to the file ..."
 
-#: main.py:361
+#: main.py:368
 #, python-brace-format
 msgid "Il y a un canard sur #{channel}"
 msgstr "There is a duck on #{channel}"
 
-#: main.py:511
+#: main.py:528
 msgid ":x: Merci de communiquer avec moi dans les channels ou je suis actif."
 msgstr ":x: Please contact me in channels where I am enabled."
 
-#: main.py:529
+#: main.py:547
 msgid ":robot: Vous etes maintenant le gestionnaire du serveur !"
 msgstr ":robot: You are now the manager of the server!"
 
-#: main.py:531
+#: main.py:549
 msgid ":x: Il y a déjà un admin sur ce serveur..."
 msgstr ":x: There is already an admin on this server ..."
 
-#: main.py:543
+#: main.py:561
 msgid ":robot: Channel ajoutée au jeu !"
 msgstr ":robot: Channel added to the game!"
 
-#: main.py:547
+#: main.py:565
 msgid ":x: Cette channel existe déjà dans le jeu."
 msgstr ":x: This channel already exists in the game."
 
-#: main.py:554
+#: main.py:572
 msgid ""
 ":robot: Channel ajoutée au jeu ! :warning: Vous n'etes pas administrateur du "
 "serveur."
@@ -414,7 +422,7 @@ msgstr ""
 ":robot: Channel added to the game! :warning: You are not the server "
 "administrator."
 
-#: main.py:559
+#: main.py:577
 msgid ""
 ":x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas "
 "administrateur du serveur."
@@ -422,19 +430,19 @@ msgstr ""
 ":x: This channel already exists in the game. :warning: You are not the "
 "server administrator."
 
-#: main.py:561 main.py:1255
+#: main.py:579 main.py:1313
 msgid ":x: Vous n'etes pas l'administrateur du serveur."
 msgstr ":x: You are not the server administrator."
 
-#: main.py:573 main.py:1225
+#: main.py:593 main.py:1283
 msgid "Oupas (Permission Denied)"
 msgstr "Maybe... Or maybe not (Permission Denied)"
 
-#: main.py:587 main.py:1153
+#: main.py:607 main.py:1210
 msgid "Je ne reconnais pas cette personne :x"
 msgstr "I do not recognize this person :x"
 
-#: main.py:597
+#: main.py:619
 #, python-brace-format
 msgid ""
 ":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : "
@@ -443,16 +451,16 @@ msgstr ""
 ":robot: Adding admin {admin_name} | {admin_id} ​​on server {server_name} | "
 "{server_id} "
 
-#: main.py:603
+#: main.py:626
 msgid ":x: Oops, cette personne est déjà administrateur du serveur..."
 msgstr ": x: Oops, that person is already administrator of the server..."
 
-#: main.py:605 main.py:1324 main.py:1342 main.py:1419 main.py:1447 main.py:1473
-#: main.py:1503 main.py:1515 main.py:1549
+#: main.py:628 main.py:1383 main.py:1404 main.py:1479 main.py:1507 main.py:1533
+#: main.py:1563 main.py:1575 main.py:1610
 msgid ":x: Oops, vous n'etes pas administrateur du serveur..."
 msgstr ":x: Oops, you're not the server administrator ..."
 
-#: main.py:624
+#: main.py:647
 #, python-brace-format
 msgid ""
 "Tu es trempé ! Tu ne peux pas aller chasser ! Il faut attendre encore "
@@ -461,21 +469,21 @@ msgstr ""
 "You are soaked! You can't go hunting! You must wait for {temps_restant} "
 "minutes to let your clothes dry!"
 
-#: main.py:627 main.py:803
+#: main.py:652 main.py:837
 msgid "Vous n'etes pas armé"
 msgstr "You are not armed"
 
-#: main.py:631
+#: main.py:656
 msgid "Votre arme est enrayée, il faut la recharger pour la décoincer."
 msgstr "Your gun jammed, it must be reloaded to unstuck."
 
-#: main.py:636
+#: main.py:661
 #, python-brace-format
 msgid ""
 "Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague."
 msgstr "Your weapon is sabotaged, thank {assaillant} for this bad joke."
 
-#: main.py:644
+#: main.py:669
 #, python-brace-format
 msgid ""
 "**CHARGEUR VIDE** | Munitions dans l'arme : {balles_actuelles}/{balles_max} "
@@ -484,15 +492,15 @@ msgstr ""
 "** CHARGER EMPTY ** | Ammunition in the weapon: {balles_actuelles} / "
 "{balles_max} | Chargers remaining: {chargeurs_actuels} / {chargeurs_max}"
 
-#: main.py:660
+#: main.py:685
 msgid "Ton arme s'est enrayée, recharge la pour la décoincer."
 msgstr "Your gun jammed, reload to unstuck."
 
-#: main.py:678 main.py:687 main.py:764
+#: main.py:703 main.py:713 main.py:792
 msgid " > BANG"
 msgstr " > BANG"
 
-#: main.py:682
+#: main.py:708
 msgid ""
 " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH "
 "BRAVO ! [raté : -1 xp]"
@@ -500,7 +508,7 @@ msgstr ""
 " > **FLAPP**\tFrightened by so much noise, the duck fled ! CONGRATS ! "
 "[missed : -1 xp]"
 
-#: main.py:714
+#: main.py:740
 #, python-brace-format
 msgid ""
 " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te "
@@ -511,12 +519,12 @@ msgstr ""
 "total of {total} ducks (including {supercanards} super ducks) on #{channel}. "
 "\\_X< *COUAC* [{exp} xp]"
 
-#: main.py:729 main.py:759
+#: main.py:755 main.py:787
 #, python-brace-format
 msgid "En fouillant les buissons autour du canard, tu trouves {inutilitee}"
 msgstr "By searching the bushes around the duck, you find {inutilitee}"
 
-#: main.py:734
+#: main.py:761
 #, python-brace-format
 msgid ""
 " > :gun:  Le canard a survécu ! Essaie encore.  /_O<  [vie -{vie}]  *Super "
@@ -525,7 +533,7 @@ msgstr ""
 "> :gun:   The duck survived! Try again. / _O < [life -{vie}] *SUPER-DUCK "
 "DETECTED*"
 
-#: main.py:748
+#: main.py:776
 #, python-brace-format
 msgid ""
 " > :skull_crossbones: **BOUM**\tTu l'as eu en {time} secondes, ce qui te "
@@ -535,7 +543,7 @@ msgstr ""
 " > :skull_crossbones: **BOOM** You got it in {time} seconds, makes you a "
 "total of {total} ducks on #{channel}. \\_X< *COUAC* [{exp} xp]"
 
-#: main.py:770
+#: main.py:800
 #, python-brace-format
 msgid ""
 " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : "
@@ -544,16 +552,25 @@ msgstr ""
 " > **PIEWW**\tYou missed the duck... and shot {player}! [missed : -1 xp] "
 "[hunting incident : -2xp] [weapon removed]"
 
-#: main.py:775
+#: main.py:804
+msgid ""
+" > **BANG**\tTu as raté le canard... Et tu t'es tiré dessus. Apprends à "
+"tenir ton fusil à l'endroit la prochaine fois, boulet ! . ! [raté : -1 xp] "
+"[accident de chasse : -2 xp] [arme confisquée]"
+msgstr ""
+" > **PIEWW**\tYou missed the duck... and shot yourself. congrats! [missed : "
+"-1 xp] [hunting incident : -2xp] [weapon removed]"
+
+#: main.py:809
 #, python-brace-format
 msgid "Tu gagnes {exp} avec ton assurance vie"
 msgstr "You earn {exp} with your life insurance."
 
-#: main.py:782
+#: main.py:816
 msgid " > **PIEWW**\tTu as raté le canard ! [raté : -1 xp]"
 msgstr " > **PIEWW**\tYou missed the duck ! [missed : -1 xp]"
 
-#: main.py:787 main.py:793
+#: main.py:821 main.py:827
 msgid ""
 "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard "
 "dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]"
@@ -561,11 +578,11 @@ msgstr ""
 "Luckily you missed, what were you aiming at exactly? There are no duck "
 "here... [missed : -1 xp] [wild shot: -1 xp]"
 
-#: main.py:807
+#: main.py:841
 msgid "Tu décoinces ton arme."
 msgstr "You unstuck your weapon."
 
-#: main.py:818
+#: main.py:852
 #, python-brace-format
 msgid ""
 "Tu recharges ton arme. | Munitions dans l'arme : {balles_actuelles}/"
@@ -574,7 +591,7 @@ msgstr ""
 "You top your weapon. | Ammunition in the weapon: {balles_actuelles} / "
 "{balles_max}  | Chargers remaining: {chargeurs_actuels} / {chargeurs_max} "
 
-#: main.py:829
+#: main.py:863
 #, python-brace-format
 msgid ""
 "Tu es à court de munitions. | Munitions dans l'arme : {balles_actuelles}/"
@@ -583,7 +600,7 @@ msgstr ""
 "You're out of ammo. | Ammunition in the weapon: {balles_actuelles} / "
 "{balles_max}  | Chargers remaining: {chargeurs_actuels} / {chargeurs_max}"
 
-#: main.py:841
+#: main.py:875
 #, python-brace-format
 msgid ""
 "Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : "
@@ -594,7 +611,7 @@ msgstr ""
 "{balles_actuelles} / {balles_max}  | Chargers remaining: "
 "{chargeurs_actuels} / {chargeurs_max}"
 
-#: main.py:859
+#: main.py:894
 msgid ""
 ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette "
 "commande. `!shop [N° item]`"
@@ -602,7 +619,7 @@ msgstr ""
 ":mortar_board: You must specify the item number to buy after this command. "
 "`! Shop [No. item]`"
 
-#: main.py:868
+#: main.py:904
 msgid ""
 ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette "
 "commande. Le numéro donné n'est pas valide. `!shop [N° item]`"
@@ -610,24 +627,24 @@ msgstr ""
 ":mortar_board: You must specify the item number to buy after this command. "
 "The given number is invalid. `! Shop [No. item]`"
 
-#: main.py:879
+#: main.py:915
 msgid ""
 ":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points "
 "d'expérience."
 msgstr ""
 ":money_with_wings: You add a bullet in your gun for 7 Experience Points"
 
-#: main.py:883 main.py:897 main.py:909 main.py:918 main.py:928 main.py:940
-#: main.py:955 main.py:973 main.py:997 main.py:1038 main.py:1053 main.py:1069
-#: main.py:1082
+#: main.py:919 main.py:933 main.py:946 main.py:956 main.py:966 main.py:980
+#: main.py:997 main.py:1016 main.py:1042 main.py:1083 main.py:1098 main.py:1114
+#: main.py:1135
 msgid ":x: Tu n'as pas assez d'experience pour effectuer cet achat !"
 msgstr ":x: You don’t have enough experience points to make the purchase!"
 
-#: main.py:886
+#: main.py:922
 msgid ":champagne: Ton chargeur est déjà plein !"
 msgstr ":champagne: Your charger is already full!"
 
-#: main.py:893
+#: main.py:929
 msgid ""
 ":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points "
 "d'expérience."
@@ -635,11 +652,11 @@ msgstr ""
 ":money_with_wings: You add a charger in your backpack for 13 experience "
 "points"
 
-#: main.py:900
+#: main.py:936
 msgid ":champagne: Ta réserve de chargeurs est déjà pleine !"
 msgstr ":champagne: Your backpack of chargers is already full!"
 
-#: main.py:904
+#: main.py:941
 msgid ""
 ":money_with_wings: Tu achetes des munitions AP, qui doubleront tes dégats "
 "pendant une journée"
@@ -647,7 +664,7 @@ msgstr ""
 ":money_with_wings: You purchased some AP ammo, which will double your damage "
 "for a day"
 
-#: main.py:913
+#: main.py:950
 msgid ""
 ":money_with_wings: Tu achetes des munitions explosives, qui tripleront tes "
 "dégats pendant une journée"
@@ -655,15 +672,15 @@ msgstr ""
 ":money_with_wings: You purchased some explosive ammo, which will triple your "
 "damage for a day"
 
-#: main.py:924
+#: main.py:962
 msgid ":money_with_wings: Tu récupéres ton arme pour 40 points d'experience"
 msgstr ":money_with_wings: you recovered your weapon for 40 experience points"
 
-#: main.py:931
+#: main.py:969
 msgid ":champagne: Ton arme n'est pas confisquée!"
 msgstr ":champagne: your weapon is not forfeited!"
 
-#: main.py:936
+#: main.py:975
 msgid ""
 ":money_with_wings: Tu mets de la graisse dans ton arme, ce qui réduit ses "
 "chances d'enrayement de 50% pendant 24h ! Cela te coûte 8 points d'expérience"
@@ -671,11 +688,11 @@ msgstr ""
 ":money_with_wings: You add fat in your weapon, that slam down the jammed "
 "chance by 50% ! Only for 8 exp points ! What a deal ! "
 
-#: main.py:943
+#: main.py:983
 msgid ":champagne: Ton arme est déjà bien lubrifiée!"
 msgstr ":champagne: Your weapon is already full of fat, no need to add more !"
 
-#: main.py:950
+#: main.py:991
 #, python-brace-format
 msgid ""
 ":money_with_wings: Tu achetes un trefle à 4 feuilles, qui te donnera {exp} "
@@ -684,13 +701,13 @@ msgstr ""
 ":money_with_wings: You buy a 4 leaf clover, that’ll give you {exp} exp by "
 "duck killed in the next 24 hours."
 
-#: main.py:958
+#: main.py:1000
 msgid ""
 "Trop de chance tue la chance, c'est mort, je ne te donnerait pas un 2eme "
 "trefle!"
 msgstr "Too much luck. I can’t give you another one…"
 
-#: main.py:965
+#: main.py:1008
 msgid ""
 ":money_with_wings: Tu te changes et repart chasser avec des vêtements secs, "
 "pour seulement 7 exp"
@@ -698,23 +715,23 @@ msgstr ""
 ":money_with_wings: You change clothes and goes hunting with dry ones, for "
 "only 7 exp"
 
-#: main.py:970
+#: main.py:1013
 msgid ""
 ":money_with_wings: Tu perds 7 experience, mais au moins, tu as du style !"
 msgstr ":money_with_wings: You spent 7 experience, but at least you got style!"
 
-#: main.py:979 main.py:1003
+#: main.py:1022 main.py:1048
 msgid ""
 "C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de "
 "la personne ? :p"
 msgstr "It's not exactly like this ... Try to put the name of the person? :p"
 
-#: main.py:987 main.py:1011
+#: main.py:1030 main.py:1056
 #, python-brace-format
 msgid "Je ne reconnais pas cette personne : {target}"
 msgstr "I do not recognize this person : {target}"
 
-#: main.py:992
+#: main.py:1036
 #, python-brace-format
 msgid ""
 ":money_with_wings: Tu jettes un seau d'eau sur {target}, l'obligeant ainsi à "
@@ -723,7 +740,7 @@ msgstr ""
 ":money_with_wings: you throw a bucket of water on {target}, obliging him to "
 "wait 1 hour before returning hunting"
 
-#: main.py:1017
+#: main.py:1062
 #, python-brace-format
 msgid ""
 ":ok: Tu sabote l'arme de {target}! Elle est maintenant enrayée... Mais il ne "
@@ -732,22 +749,22 @@ msgstr ""
 ":ok: You sabotaged {target}'s weapon! It is now checked ... But he don't "
 "know!"
 
-#: main.py:1024
+#: main.py:1069
 #, python-brace-format
 msgid ":ok: L'arme de {target} est déjà sabotée!"
 msgstr ":ok: {target} weapon is already sabotaged!"
 
-#: main.py:1031
+#: main.py:1076
 msgid ""
 ":money_with_wings: Tu souscris à une assurance vie, qui dure une semaine"
 msgstr ""
 ":money_with_wings: You buy a life insurance, that will last for a week."
 
-#: main.py:1036
+#: main.py:1081
 msgid ":money_with_wings: Tu es déjà assuré !"
 msgstr ":money_with_wings: You are already protected by your insurance"
 
-#: main.py:1043
+#: main.py:1088
 #, python-brace-format
 msgid ""
 ":money_with_wings: Un canard apparaitera dans les 10 prochaines minutes sur "
@@ -756,14 +773,14 @@ msgstr ""
 ":money_with_wings: A duck will spawn in the next 10 minutes on the channel, "
 "with the decoy to {mention}. It costed him 8 exp!"
 
-#: main.py:1059
+#: main.py:1104
 #, python-brace-format
 msgid ""
 ":money_with_wings: Vous serez averti lors du prochain canard sur "
 "#{channel_name}"
 msgstr ":money_with_wings: We will send the next duck on #{channel_name} "
 
-#: main.py:1075
+#: main.py:1120
 msgid ""
 ":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 "
 "points d'experience. C'est méchant, mais tellement drôle !"
@@ -771,27 +788,27 @@ msgstr ""
 ":money_with_wings: you prepare a mechanical duck on the chan for 50 "
 "experience points. It's nasty, but so funny!"
 
-#: main.py:1079
+#: main.py:1126
 msgid "-_-'`'°-_-.-'`'° %__%   *BZAACK*"
 msgstr "-_-'`'°-_-.-'`'° %__%   *BZAACK*"
 
-#: main.py:1085
+#: main.py:1138
 msgid ":x: Objet non trouvé :'("
 msgstr ":x: Object not found: '("
 
-#: main.py:1089
+#: main.py:1142
 msgid ""
 "Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 "
 "exp]"
 msgstr "You handed a duck flag and you got shot. Too bad! [-1 Exp]"
 
-#: main.py:1103
+#: main.py:1156
 msgid ""
 ":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs "
 "scores est de 20"
 msgstr ":mortar_board: The maximum number of players to the score table is 20"
 
-#: main.py:1109
+#: main.py:1162
 msgid ""
 ":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro "
 "donné n'est pas valide. `!top [nombre joueurs]`"
@@ -799,23 +816,23 @@ msgstr ""
 ":mortar_board: You must specify the number of players to display. The number "
 "given is invalid. `! Top [number of players]`"
 
-#: main.py:1115 main.py:1127
+#: main.py:1168 main.py:1181
 msgid "Position"
 msgstr "Position"
 
-#: main.py:1115
+#: main.py:1168
 msgid "Pseudo"
 msgstr "Nickname"
 
-#: main.py:1115 main.py:1173
+#: main.py:1168 main.py:1230
 msgid "Experience"
 msgstr "Experience"
 
-#: main.py:1115
+#: main.py:1168
 msgid "Canards Tués"
 msgstr "ducks Kills"
 
-#: main.py:1126
+#: main.py:1180
 #, python-brace-format
 msgid ""
 ":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n"
@@ -824,67 +841,67 @@ msgstr ""
 ":cocktail: Top scores for #{channel_name} :cocktail:\n"
 "```{table}```"
 
-#: main.py:1134
+#: main.py:1188
 msgid "BOUM"
 msgstr "BOOM"
 
-#: main.py:1138
+#: main.py:1193
 msgid "... Oups ! Pardon, pong !"
 msgstr "... Oops! Sorry, pong!"
 
-#: main.py:1160
+#: main.py:1217
 msgid "Huh, pas de canard tué :x !"
 msgstr "OMG ! You still haven’t killed A SINGLE DUCK !"
 
-#: main.py:1161
+#: main.py:1218
 msgid "Statistique"
 msgstr "Key"
 
-#: main.py:1161
+#: main.py:1218
 msgid "Valeur"
 msgstr "Value"
 
-#: main.py:1162
+#: main.py:1219
 msgid "Canards tués"
 msgstr "ducks killed"
 
-#: main.py:1163
+#: main.py:1220
 msgid "Tirs manqués"
 msgstr "missed shots"
 
-#: main.py:1164
+#: main.py:1221
 msgid "Tirs sans canards"
 msgstr "shots without duck"
 
-#: main.py:1165
+#: main.py:1222
 msgid "Meilleur temps de tir"
 msgstr "Best time for shooting"
 
-#: main.py:1167
+#: main.py:1224
 msgid "Balles dans le chargeur actuel"
 msgstr "Bullets in the current charger"
 
-#: main.py:1170
+#: main.py:1227
 msgid "Chargeurs restants"
 msgstr "Chargers remaining"
 
-#: main.py:1174
+#: main.py:1231
 msgid "Ratio (exp/canard tué)"
 msgstr "Ratio (exp/duck killed)"
 
-#: main.py:1176
+#: main.py:1233
 msgid "Niveau actuel"
 msgstr "Current level"
 
-#: main.py:1179
+#: main.py:1236
 msgid "Précision des tirs"
 msgstr "Shooting Accuracy"
 
-#: main.py:1180
+#: main.py:1237
 msgid "Fiabilité de l'arme"
 msgstr "Weapon accuracy"
 
-#: main.py:1183
+#: main.py:1240
 #, python-brace-format
 msgid ""
 "Statistiques du chasseur : \n"
@@ -895,35 +912,35 @@ msgstr ""
 "```{table}```\n"
 "https://api-d.com/snaps/table_de_progression.html"
 
-#: main.py:1195
+#: main.py:1252
 msgid "En cours..."
 msgstr "In progress..."
 
-#: main.py:1197
+#: main.py:1254
 msgid ":ok: Terminé. Voir les logs sur la console ! "
 msgstr ":ok: Done. See logs on the console!"
 
-#: main.py:1199 main.py:1208
+#: main.py:1256 main.py:1265
 msgid ":x: Oupas (Permission Denied)"
 msgstr ":x: oupas (Permission Denied)"
 
-#: main.py:1219
+#: main.py:1276
 #, python-brace-format
 msgid ""
 "Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}"
 msgstr "Next duck: {time} (in {timetonext} sec) on #{channel} | {server}"
 
-#: main.py:1235
+#: main.py:1293
 msgid ""
 ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés..."
 msgstr ""
 ":robot: Channel removed from the game! The scores are nevertheless kept ..."
 
-#: main.py:1239
+#: main.py:1297
 msgid ":x: Cette channel n'existe pas dans le jeu."
 msgstr ":x: This channel does not exist in the game."
 
-#: main.py:1247
+#: main.py:1305
 msgid ""
 ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :"
 "warning: Vous n'etes pas administrateur du serveur"
@@ -931,7 +948,7 @@ msgstr ""
 ":robot: Channel removed from the game! The scores are nevertheless kept ... :"
 "warning: You are not the server administrator"
 
-#: main.py:1253
+#: main.py:1311
 msgid ""
 ":x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas "
 "administrateur du serveur"
@@ -939,23 +956,23 @@ msgstr ""
 ":x: This channel does not exist in the game. :warning: You are not the "
 "server administrator"
 
-#: main.py:1263
+#: main.py:1321
 msgid ":x: Oops, mauvaise syntaxe. !set [paramètre] <valeur>"
 msgstr ":x: Oops, wrong syntax. !set [parameter] <value>"
 
-#: main.py:1266 main.py:1271
+#: main.py:1324 main.py:1330
 msgid "Paramètre"
 msgstr "Parameter"
 
-#: main.py:1266
+#: main.py:1324
 msgid "Valeur actuelle"
 msgstr "Current value"
 
-#: main.py:1266
+#: main.py:1324
 msgid "Valeur par défaut"
 msgstr "Default value"
 
-#: main.py:1271
+#: main.py:1329
 #, python-brace-format
 msgid ""
 "Liste des paramètres disponibles : \n"
@@ -964,21 +981,21 @@ msgstr ""
 "List of available parameters:\n"
 "```{table}```"
 
-#: main.py:1276
+#: main.py:1335
 msgid ":x: Oops, le paramètre n'as pas été reconnu. !set [paramètre] <valeur>"
 msgstr ""
 ":x: Oops, the parameter have not been recognized. !set [parameter] <value>"
 
-#: main.py:1284
+#: main.py:1343
 msgid ":ok: Valeur réinitialisée a la valeur par défaut !"
 msgstr ":ok: Value reset to the default value!"
 
-#: main.py:1316
+#: main.py:1375
 #, python-brace-format
 msgid ":ok: Valeur modifiée à {value} (type: {type})"
 msgstr ":ok: Value changed to {value} (type: {type})"
 
-#: main.py:1336
+#: main.py:1397
 #, python-brace-format
 msgid ""
 ":hammer: TimeDelta en minutes pour les canards sur le chan\n"
@@ -987,7 +1004,7 @@ msgstr ""
 ":hammer: timedelta in minutes for ducks on the channel\n"
 "```{table}```"
 
-#: main.py:1375
+#: main.py:1433
 #, python-brace-format
 msgid ""
 "Statistiques de DuckHunt:\n"
@@ -1027,100 +1044,100 @@ msgstr ""
 "\n"
 "The bot is started using Python ```{python_version}```"
 
-#: main.py:1417
+#: main.py:1477
 #, python-brace-format
 msgid "Permissions : {permissions}"
 msgstr "Permissions: {permissions}"
 
-#: main.py:1426 main.py:1455
+#: main.py:1486 main.py:1515
 msgid ":x: Joueur non spécifié"
 msgstr ":x: player not specified"
 
-#: main.py:1434 main.py:1463 main.py:1489
+#: main.py:1494 main.py:1523 main.py:1549
 msgid ":x: Je ne reconnais pas cette personne :x"
 msgstr ":x: I do not recognize this person :x"
 
-#: main.py:1441
+#: main.py:1501
 msgid ":ok: Ce joueur est maintenant banni du bot !"
 msgstr ":ok: This player is now banned from the bot!"
 
-#: main.py:1443
+#: main.py:1503
 msgid ":x: Il est admin ce mec, c'est mort !"
 msgstr ":x: This guy is an admin !"
 
-#: main.py:1445
+#: main.py:1505
 msgid ":x: Il est déja banni, lui ^^"
 msgstr ":x: He is already banned ^^"
 
-#: main.py:1469
+#: main.py:1529
 msgid ":ok: Ce joueur est maintenant dé-banni du bot !"
 msgstr ":ok: This player is unbanned from the bot!"
 
-#: main.py:1471
+#: main.py:1531
 msgid ":x: Il est pas banni, lui ^^"
 msgstr ":x: He is not banned ^^"
 
-#: main.py:1481 main.py:1493
+#: main.py:1541 main.py:1553
 msgid "Erreur de syntaxe : !giveexp <joueur> <exp>"
 msgstr "Syntax error: !giveexp <player> <exp>"
 
-#: main.py:1499
+#: main.py:1559
 #, python-brace-format
 msgid ":ok:, il a maintenant {newexp} points d'experience !"
 msgstr ":ok: he now have got {newexp} exp points !"
 
-#: main.py:1511
+#: main.py:1571
 #, python-brace-format
 msgid "{deleted} message(s) supprimés"
 msgstr "{deleted} message(s) removed"
 
-#: main.py:1513
+#: main.py:1573
 msgid "0 message(s) supprimés : permission refusée"
 msgstr "No message deleted : permission denied"
 
-#: main.py:1521
+#: main.py:1581
 msgid "Nom"
 msgstr "Name"
 
-#: main.py:1521
+#: main.py:1581
 msgid "Invitation"
 msgstr "Invitation"
 
-#: main.py:1521
+#: main.py:1581
 msgid "Channels actives"
 msgstr "number of channels enabled"
 
-#: main.py:1521 main.py:1546
+#: main.py:1581 main.py:1607
 msgid "Nombres de connectés"
 msgstr "Total number of players connected"
 
-#: main.py:1524
+#: main.py:1584
 msgid " > En cours"
 msgstr "In progress..."
 
-#: main.py:1533
+#: main.py:1593
 #, python-brace-format
 msgid " > En cours ({done}/{total})"
 msgstr "> In progress... ({done} / {total})"
 
-#: main.py:1554
+#: main.py:1615
 #, python-brace-format
 msgid "Channel supprimée... {channel_id} | {channel_name}"
 msgstr "Channel deleted… {channel_id} | {channel_name}"
 
-#: main.py:1570
+#: main.py:1631
 #, python-brace-format
 msgid "Serveur supprimé... {server_id} | {server_name}"
 msgstr "Deleted {server_id} | {server_name} server from the file ..."
 
-#: main.py:1605
+#: main.py:1668
 msgid ""
 "Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 "
 "exp]"
 msgstr ""
 "You tried to outsmart the bot by showing a duck flag afterwards! [-5 exp]"
 
-#: main.py:1613
+#: main.py:1676
 msgid "Arret demandé"
 msgstr "Stop request"
 
