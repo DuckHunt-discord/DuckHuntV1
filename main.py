@@ -67,7 +67,12 @@ import random
 logger.debug("Import time")
 import time
 
-logger.debug("Import json")
+logger.debug("Import psutil")
+import psutil
+
+logger.debug("Import os")
+import os
+
 logger.debug("Import getext")
 import gettext
 
@@ -302,6 +307,8 @@ def updateJSON():
             logger.warning("Le serveur " + server + " n'existe pas dans la liste des serveurs du bot...")
             servers.pop(server)
 
+
+
     JSONsaveToDisk(servers, "channels.json")
 
 
@@ -453,7 +460,7 @@ def mainloop():
         now = time.time()
 
         if (int(now)) % 86400 == 0:
-            #database.giveBack(logger)
+            # database.giveBack(logger)
             yield from planifie()
             prochaincanard = yield from getprochaincanard()
 
@@ -612,9 +619,10 @@ def on_message(message):
             if not target.id in servers[message.channel.server.id]["admins"]:
                 servers[message.channel.server.id]["admins"].append(target.id)
                 logger.debug("Ajout de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(
-                    **{"admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
-                       "server_name": message.channel.server.name
-                       }))
+                    **{
+                        "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
+                        "server_name": message.channel.server.name
+                        }))
                 yield from messageUser(message,
                                        _(":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}",
                                          language).format(
@@ -894,6 +902,7 @@ def on_message(message):
                                    _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
             for message_ in shopitems:
                 yield from messageUser(message, message_)
+
             return
         else:
             try:
@@ -1125,9 +1134,11 @@ def on_message(message):
                     if getPref(message.server, "mecaRandom") == 0:
                         yield from client.send_message(message.channel, _("-_-'`'°-_-.-'`'° %__%   *BZAACK*", language))
                     elif getPref(message.server, "mecaRandom") == 1:
-                        yield from client.send_message(message.channel, "-_-'`'°-_-.-'`'° %__%    " + _(random.choice(canards_cri), language=getPref(message.server, "lang")))
+                        yield from client.send_message(message.channel, "-_-'`'°-_-.-'`'° %__%    " + _(random.choice(canards_cri),
+                                                                                                        language=getPref(message.server, "lang")))
                     else:
-                        yield from client.send_message(message.channel,random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(random.choice(canards_cri), language=getPref(message.server, "lang")))
+                        yield from client.send_message(message.channel, random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(
+                            random.choice(canards_cri), language=getPref(message.server, "lang")))
 
                 except:
                     pass
@@ -1428,6 +1439,9 @@ def on_message(message):
                     compteurCanards += len(planification[channel])
             for membre in server.members:
                 membres += 1
+        pid = os.getpid()
+        py = psutil.Process(pid)
+        memoryUsed = py.memory_info()[0]/2.**30
         uptime = int(time.time() - startTime)
 
         yield from messageUser(message, _("""Statistiques de DuckHunt:
@@ -1437,6 +1451,7 @@ def on_message(message):
     Au total, le bot connait `{nbre_serveurs_francais}` serveurs francais, `{nbre_serveurs_anglais}` serveurs anglais et `{nbre_serveurs_etrangers}` serveurs étrangers.
     Il a reçu au total durant la session `{messages}` message(s) (soit `{messages_minute}` message(s) par minute).
     Le bot est lancé depuis `{uptime_sec}` seconde(s), ce qui équivaut à `{uptime_min}` minute(s) ou encore `{uptime_heures}` heure(s), ou, en jours, `{uptime_jours}` jour(s).
+    Le bot utilise actuellement `{memory_used}` MB de ram.
 
     Le bot est lancé avec Python ```{python_version}```""", language).format(**{
             "nbre_channels_actives"  : len(planification),
@@ -1454,6 +1469,7 @@ def on_message(message):
             "uptime_min"             : int(uptime / 60),
             "uptime_heures"          : int(uptime / 60 / 60),
             "uptime_jours"           : int(uptime / 60 / 60 / 24),
+            "memory_used"            : round(memoryUsed * 1000,5),
             "python_version"         : str(sys.version)
         }))
 
@@ -1576,9 +1592,10 @@ def on_message(message):
     elif message.content.startswith("!serverlist"):
         logger.debug("> SERVER LIST (" + str(message.author) + ")")
         if int(message.author.id) in admins:
-            x = PrettyTable()
 
-            x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language)])
+            x = PrettyTable()
+            args_ = message.content.split(" ")
+            x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language), _("Permissions en trop", language), _("Permissions manquantes", language)])
             x.reversesort = True
 
             tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > En cours", language))
@@ -1588,21 +1605,44 @@ def on_message(message):
             i = 0
             for server in client.servers:
                 i += 1
-                if total < 10 or i % 5 == 0 or i == total:
+                if total < 10 or i % 10 == 0 or i == total:
                     try:
                         yield from client.edit_message(tmp, str(message.author.mention) + _(" > En cours ({done}/{total})", language).format(
                             **{"done": i, "total": total}))
                     except:
                         pass
                 invite = None
-                for channel in server.channels:
-                    permissions = channel.permissions_for(server.me)
-                    if permissions.create_instant_invite:
-                        invite = yield from client.create_invite(channel)
-                        x.add_row([server.name, invite.url, len(servers[server.id]["channels"]), server.member_count])
-                        break
+
+                permissionsToHave = ["change_nicknames", "connect", "create_instant_invite", "embed_links", "manage_messages", "mention_everyone", "read_messages",
+                                     "send_messages", "send_tts_messages"]
+
+                permEnMoins = 0
+                permEnPlus = 0
+                channel = server.default_channel
+                for permission, value in channel.permissions_for(server.me):
+                    if not value and permission in permissionsToHave :
+                        permEnMoins += 1
+                    elif value and not permission in permissionsToHave:
+                        permEnPlus += 1
+
+
+
+                if "invitations" in args_:
+                    for channel in server.channels:
+                        permissions = channel.permissions_for(server.me)
+                        if permissions.create_instant_invite:
+                            invite = yield from client.create_invite(channel)
+                            try:
+                                x.add_row([server.name, invite.url, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)) , server.member_count, permEnPlus, permEnMoins])
+                            except KeyError: # Pas de channels ou une autre merde dans le genre ?
+                                x.add_row([server.name, invite.url, "0" + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
+                            break
                 if not invite:
-                    x.add_row([server.name, "", len(servers[server.id]["channels"]), server.member_count])
+                    try:
+                        x.add_row([server.name, "", str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
+                    except KeyError: # Pas de channels ou une autre merde dans le genre ?
+                        x.add_row([server.name, "", str(0) + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
+
 
             yield from messageUser(message, x.get_string(sortby=_("Nombres de connectés", language)))
 
@@ -1679,4 +1719,3 @@ except KeyboardInterrupt:
     # cancel all tasks lingering
 finally:
     client.loop.close()
-
