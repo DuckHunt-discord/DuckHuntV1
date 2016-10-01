@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-10-01 19:16+0200\n"
+"POT-Creation-Date: 2016-10-01 21:14+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -375,6 +375,10 @@ msgid ""
 msgstr ""
 "A tomato: http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-"
 "shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"
+
+#: config.py:140
+msgid "un hippie qui te propose de tirer une douille sur son bang"
+msgstr "someone that looks creepy"
 
 #: main.py:122
 msgid "Initialisation du programme, merci de patienter..."

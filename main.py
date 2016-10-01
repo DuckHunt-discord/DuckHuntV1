@@ -1190,7 +1190,7 @@ def on_message(message):
         yield from messageUser(message,
                                _(":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n```{table}```", language).format(
                                    **{"channel_name": message.channel.name, "table": x.get_string(end=nombre, sortby=_("Position", language))}),
-                               forcePv=True)
+                               )
 
     elif message.content.startswith('!ping'):
         yield from deleteMessage(message)
