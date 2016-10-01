@@ -911,13 +911,40 @@ def on_message(message):
         yield from giveBackIfNeeded(message.channel, message.author)
 
         args_ = message.content.split(" ")
+        x = PrettyTable()
+
+        x._set_field_names([_("Numéro", language), _("Fonctionnement", language), _("Coût", language)])
+        x.add_row(["1", _("Ajoute une balle à votre arme", language), "7"])
+        x.add_row(["2", _("Ajoute un chargeur à votre réserve", language), "13"])
+        x.add_row(["3", _("Munitions AP qui doublent vos dégâts pour 1 journée", language), "15"])
+        x.add_row(["4", _("Munitions Explosives qui triplent vos dégâts pour 1 journée", language), "25"])
+        x.add_row(["5", _("Vous permet de récupérer une arme confisquée.", language), "40"])
+        x.add_row(["6", _("Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et protège (une seule fois) contre une poignée de sable.", language), "85"])
+        # x.add_row(["7", _("Améliore la précision du prochain tir de (100 - précision actuelle) / 3", language), "6"])
+        x.add_row(["8", _("Bloque la gâchette de l'arme quand il n'y a pas de canard dans les environs dans le but d'éviter le gaspillage de munitions pendant 24h", language), "15"])
+        # x.add_row(["9", _("Réduit considérablement le bruit des tirs pendant 24h afin de ne pas effrayer les canards", language), "5"])
+        x.add_row(["10", _("Vous fait gagner un bonus aléatoire d'xp sur tous les canards que vous tuez pendant 24h. Ce bonus est déterminé lors de l'achat et peut valoir de 1 à 10.", language), "13"])
+        # x.add_row(["11", _("Protège contre l'effet éblouissant du miroir pendant 24h", language), "5"])
+        x.add_row(["12", _("Annule l'effet du seau d'eau.", language), "7"])
+        # x.add_row(["13", _("Annule l'effet de la poignée de sable et du sabotage.", language), "7"])
+        # x.add_row(["14", _("Éblouit un chasseur de votre choix pour lui faire perdre 50% de précision lors de son prochain tir.", language), "7"])
+        # x.add_row(["15", _("Poignée de sable Jetez du sable sur l'arme d'un chasseur de votre choix pour lui faire perdre 50% de fiabilité lors de son prochain tir. Supprime l'effet de la graisse.", language), "7"])
+        x.add_row(["16", _("Videz un seau d'eau sur un chasseur de votre choix, l'obligeant ainsi à attendre pendant 1h que ses vêtements sèchent avant de pouvoir retourner chasser", language), "10"])
+        x.add_row(["17", _("Sabotez l'arme d'un chasseur de votre choix. Celle-ci s'enrayera et lui explosera à la figure lors de son prochain tir.", language), "14"])
+        x.add_row(["18", _("Assurance à usage unique permettant de gagner un bonus d'xp équivalent à 2x le niveau du tireur si vous êtes victime d'un accident de chasse pendant 1 semaine.", language), "10"])
+        # x.add_row(["19", _("Divise par 3 la pénalité d'xp encourue en cas d'accident de chasse pendant 2 jours.", language), "5"])
+        x.add_row(["20", _("Attire un canard dans les 10 prochaines minutes.", language), "8"])
+        # x.add_row(["21", _("Jetez des morceaux de pain pour augmenter la probabilité qu'un canard apparaisse pendant 1h. Le pain augmente aussi de 20s le temps pendant lequel les canards restent avant de partir. Plusieurs morceaux de pain peuvent être achetés pour en cumuler l'effet. ", language), "2"])
+        x.add_row(["22", _("Appareil à usage unique permettant d'être averti quand le prochain canard s'envolera", language), "5"])
+        x.add_row(["23", _("Faites une bonne blague aux autres chasseurs en lançant un faux canard ne rapportant pas d'xp. Il sera lancé automatiquement 75 secondes après l'achat.", language), "50"])
+
+        shopitems = x.get_string()
         if len(args_) == 1:
             yield from messageUser(message,
                                    _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
-            for message_ in shopitems:
-                yield from messageUser(message, message_)
-
+            yield from messageUser(message, shopitems)
             return
+
         else:
             try:
                 item = int(args_[1])
@@ -926,9 +953,7 @@ def on_message(message):
                 yield from messageUser(message, _(
                     ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`",
                     language))
-                for message_ in shopitems:
-                    yield from messageUser(message, message_)
-
+                yield from messageUser(message, shopitems)
                 return
 
         if item == 1:
@@ -1575,6 +1600,40 @@ def on_message(message):
                 yield from messageUser(message, _(":x: Il est pas banni, lui ^^", language))
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+
+    elif message.content.startswith("!sendexp"):
+        yield from deleteMessage(message)
+        logger.debug("> SENDEXP (" + str(message.author) + ")")
+        if getPref(message.server, "donExp"):
+            args_ = message.content.split(" ")
+
+            if len(args_) < 2:
+                yield from messageUser(message, _(":x: Joueur/Montant non spécifié : `!sendexp @joueur montant`", language))
+                return
+            else:
+                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
+                target = message.channel.server.get_member_named(args_[1])
+                if target is None:
+                    target = message.channel.server.get_member(args_[1])
+                    if target is None:
+                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
+                        return
+            montant = args_[2]
+            if not representsInt(montant) or int(montant) <= 0:
+                yield from messageUser(message, _(":x: Essaye de préciser un montant valide, c'est a dire positif et entier", language))
+                return
+            montant = int(montant)
+            if database.getStat(message.channel, message.author, "exp") > montant:
+                database.addToStat(message.channel, message.author, "exp", -montant)
+                database.addToStat(message.channel, target, "exp", montant)
+                yield from messageUser(message, _("Vous avez envoyé {amount} exp à {target} !", language).format(**{"amount" : montant, "target": target.mention}))
+            else:
+                yield from messageUser(message, _("Vous n'avez pas assez d'experience", language))
+
+
+
+        else:
+            yield from messageUser(message, _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`"))
 
     elif message.content.startswith("!giveexp"):
         logger.debug("> GIVEEXP (" + str(message.author) + ")")
