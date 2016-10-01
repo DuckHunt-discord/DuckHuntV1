@@ -825,12 +825,26 @@ def on_message(message):
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
+                if database.getStat(message.channel, message.author, "detecteurInfra", default=0) > int(time.time()):
+                    yield from messageUser(message, _(
+                        "Il n'y a aucun canard dans le coin... Mais grace à ton detecteur infrarouge, la balle n'est pas partie :D",
+                        language))
+                    database.addToStat(message.channel, message.author, "balles", 1)
+                    return
+
                 yield from messageUser(message, _(
                     "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]",
                     language))
                 database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
                 database.addToStat(message.channel, message.author, "exp", -2)
         else:
+            if database.getStat(message.channel, message.author, "detecteurInfra", default=0) > int(time.time()):
+                yield from messageUser(message, _(
+                    "Il n'y a aucun canard dans le coin... Mais grace à ton detecteur infrarouge, la balle n'est pas partie :D",
+                    language))
+                database.addToStat(message.channel, message.author, "balles", 1)
+
+                return
             yield from messageUser(message, _(
                 "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]",
                 language))
@@ -990,6 +1004,20 @@ def on_message(message):
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme est déjà bien lubrifiée!", language))
+
+        elif item == 8:
+            if database.getStat(message.channel, message.author, "detecteurInfra", default=0) < int(time.time()):
+                if database.getStat(message.channel, message.author, "exp") > 15:
+                    yield from messageUser(message, _(
+                        ":money_with_wings: Tu ajoutes un détécteur infrarouge à ton arme pour 15 exp. Tu ne peux plus tirer lorsque aucun canard n'est présent.",
+                        language))
+                    database.setStat(message.channel, message.author, "detecteurInfra", int(time.time()) + 86400)
+                    database.addToStat(message.channel, message.author, "exp", -15)
+                else:
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+            else:
+                yield from messageUser(message, _(":champagne: Tu ne peux pas mettre deux détecteurs infrarouges sur ton arme!", language))
 
         elif item == 10:
             if database.getStat(message.channel, message.author, "trefle", default=0) < int(time.time()):
