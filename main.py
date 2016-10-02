@@ -919,7 +919,7 @@ def on_message(message):
         x.add_row(["3", _("Munitions AP qui doublent vos dégâts pour 1 journée", language), "15"])
         x.add_row(["4", _("Munitions Explosives qui triplent vos dégâts pour 1 journée", language), "25"])
         x.add_row(["5", _("Vous permet de récupérer une arme confisquée.", language), "40"])
-        x.add_row(["6", _("Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et protège (une seule fois) contre une poignée de sable.", language), "85"])
+        x.add_row(["6", _("Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et protège (une seule fois) contre une poignée de sable.", language), "8"])
         # x.add_row(["7", _("Améliore la précision du prochain tir de (100 - précision actuelle) / 3", language), "6"])
         x.add_row(["8", _("Bloque la gâchette de l'arme quand il n'y a pas de canard dans les environs dans le but d'éviter le gaspillage de munitions pendant 24h", language), "15"])
         # x.add_row(["9", _("Réduit considérablement le bruit des tirs pendant 24h afin de ne pas effrayer les canards", language), "5"])
@@ -1215,9 +1215,9 @@ def on_message(message):
         else:
             try:
                 nombre = int(args_[1])
-                if nombre not in range(1, 20 + 1):
+                if nombre not in range(1, 30 + 1):
                     yield from messageUser(message,
-                                           _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 20", language))
+                                           _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 30", language))
 
                     return
 
@@ -1238,7 +1238,7 @@ def on_message(message):
                 joueur["canardsTues"] = "AUCUN !"
             if joueur["exp"] is None:
                 joueur["exp"] = 0
-            x.add_row([i, joueur["name"], joueur["exp"], joueur["canardsTues"]])
+            x.add_row([i, joueur["name"].replace("`", ""), joueur["exp"], joueur["canardsTues"]])
 
         yield from messageUser(message,
                                _(":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n```{table}```", language).format(
