@@ -660,7 +660,7 @@ msgid ""
 "Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et "
 "protège (une seule fois) contre une poignée de sable."
 msgstr ""
-"Reduce by 50 percent the risk of misfire of the weapon for 24 hours and "
+"Reduce by 50 percent the risk of jamming the weapon for 24 hours and "
 "protects from sand (only once)."
 
 #: main.py:924
