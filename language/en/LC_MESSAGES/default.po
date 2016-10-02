@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-10-01 23:41+0200\n"
+"POT-Creation-Date: 2016-10-02 17:16+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -460,7 +460,7 @@ msgid ":x: Oops, cette personne est déjà administrateur du serveur..."
 msgstr ": x: Oops, that person is already administrator of the server..."
 
 #: main.py:636 main.py:1447 main.py:1468 main.py:1548 main.py:1576 main.py:1602
-#: main.py:1666 main.py:1678 main.py:1737
+#: main.py:1666 main.py:1678 main.py:1687 main.py:1747
 msgid ":x: Oops, vous n'etes pas administrateur du serveur..."
 msgstr ":x: Oops, you're not the server administrator ..."
 
@@ -1256,56 +1256,60 @@ msgid "0 message(s) supprimés : permission refusée"
 msgstr "No message deleted : permission denied"
 
 #: main.py:1685
+msgid ":ok: Les scores / stats de la channel ont bien étés supprimés."
+msgstr ":ok: Scores and stats of the channel have been deleted."
+
+#: main.py:1695
 msgid "Nom"
 msgstr "Name"
 
-#: main.py:1685
+#: main.py:1695
 msgid "Invitation"
 msgstr "Invitation"
 
-#: main.py:1685
+#: main.py:1695
 msgid "Channels actives"
 msgstr "number of channels enabled"
 
-#: main.py:1685 main.py:1734
+#: main.py:1695 main.py:1744
 msgid "Nombres de connectés"
 msgstr "Total number of players connected"
 
-#: main.py:1685
+#: main.py:1695
 msgid "Permissions en trop"
 msgstr "Permissions not used"
 
-#: main.py:1685
+#: main.py:1695
 msgid "Permissions manquantes"
 msgstr "Permissions needed but not given"
 
-#: main.py:1688
+#: main.py:1698
 msgid " > En cours"
 msgstr "In progress..."
 
-#: main.py:1697
+#: main.py:1707
 #, python-brace-format
 msgid " > En cours ({done}/{total})"
 msgstr "> In progress... ({done} / {total})"
 
-#: main.py:1742
+#: main.py:1752
 #, python-brace-format
 msgid "Channel supprimée... {channel_id} | {channel_name}"
 msgstr "Channel deleted… {channel_id} | {channel_name}"
 
-#: main.py:1758
+#: main.py:1768
 #, python-brace-format
 msgid "Serveur supprimé... {server_id} | {server_name}"
 msgstr "Deleted {server_id} | {server_name} server from the file ..."
 
-#: main.py:1795
+#: main.py:1805
 msgid ""
 "Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 "
 "exp]"
 msgstr ""
 "You tried to outsmart the bot by showing a duck flag afterwards! [-5 exp]"
 
-#: main.py:1803
+#: main.py:1813
 msgid "Arret demandé"
 msgstr "Stop request"
 

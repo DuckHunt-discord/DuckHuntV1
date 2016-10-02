@@ -17,7 +17,8 @@ import config
 db = dataset.connect('sqlite:///scores.db')
 
 
-def _gettable(server, channel):
+def _gettable(channel):
+    server = channel.server
     if getPref(server, "global"):
         return db[server.id]
     else:
@@ -25,8 +26,7 @@ def _gettable(server, channel):
 
 
 def getChannelTable(channel):
-    server = channel.server
-    table = _gettable(server, channel)
+    table = _gettable(channel)
     return table
 
 
@@ -79,7 +79,7 @@ def topScores(channel):
 def giveBack(logger, player=None, channel = None):
     logger.debug("C'est l'heure de passer à l'armurerie.")
     if player:
-        table = _gettable(channel.server, channel)
+        table = _gettable(channel)
 
         user = getChannelTable(channel).find_one(id_=player.id)
         if not "exp" in user or not user["exp"]:
@@ -99,8 +99,10 @@ def giveBack(logger, player=None, channel = None):
 
 def getPlayerLevel(channel, player):
     plexp = getStat(channel, player, "exp")
-    lvexp = -9999
+    lvexp = -999999
     numero = 0
+    level = config.levels[numero]
+
     while lvexp < plexp:
         level = config.levels[numero]
         if len(config.levels) > numero +1:
@@ -114,8 +116,10 @@ def getPlayerLevel(channel, player):
 
 
 def getPlayerLevelWithExp(exp):
-    lvexp = -9999
+    lvexp = -999999
     numero = 0
+    level = config.levels[numero]
+
     while lvexp < exp:
         level = config.levels[numero]
         if len(config.levels) > numero+1:
@@ -135,8 +139,8 @@ def delServerTables(server):
             table_.drop()
 
 def delChannelTable(channel):
-        table = _gettable(channel.server, channel.id)
-        table.drop()
+    table = _gettable(channel)
+    table.drop()
 
 
 def getPref(server, pref):

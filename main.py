@@ -1676,6 +1676,16 @@ def on_message(message):
                 yield from messageUser(message, _("0 message(s) supprimés : permission refusée", language))
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+
+    elif message.content.startswith("!deleteeverysinglescoreandstatonthischannel"):
+        logger.debug("> deleteeverysinglescoreandstatonthischannel (" + str(message.author) + ")")
+
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
+            database.delChannelTable(message.channel)
+            yield from messageUser(message, _(":ok: Les scores / stats de la channel ont bien étés supprimés.", language))
+        else:
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+
     elif message.content.startswith("!serverlist"):
         logger.debug("> SERVER LIST (" + str(message.author) + ")")
         if int(message.author.id) in admins:
