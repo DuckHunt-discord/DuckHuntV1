@@ -163,6 +163,7 @@ def tableCleanup():
     for server in client.servers:
         keep_servers.append(server.id)
         logger.debug("Serveur " + str(server) + " (" + str(server.id) + ")")
+
         if not server.id in servers:
             logger.debug(" |- Serveur inexistant dans channels.json")
         else:
@@ -705,7 +706,7 @@ def on_message(message):
 
             if canardencours:
                 if getPref(message.server, "duckLeaves"):
-                    if random.randint(1, 100) < getPref(message.server, "duckChanceLeave"):
+                    if random.randint(1, 100) < getPref(message.server, "duckChanceLeave") and database.getStat(message.channel, message.author, "silencieux", default=0) < int(time.time()) :
                         canards.remove(canardencours)
                         try:
                             tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
@@ -922,7 +923,7 @@ def on_message(message):
         x.add_row(["6", _("Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et protège (une seule fois) contre une poignée de sable.", language), "8"])
         # x.add_row(["7", _("Améliore la précision du prochain tir de (100 - précision actuelle) / 3", language), "6"])
         x.add_row(["8", _("Bloque la gâchette de l'arme quand il n'y a pas de canard dans les environs dans le but d'éviter le gaspillage de munitions pendant 24h", language), "15"])
-        # x.add_row(["9", _("Réduit considérablement le bruit des tirs pendant 24h afin de ne pas effrayer les canards", language), "5"])
+        x.add_row(["9", _("Réduit considérablement le bruit des tirs pendant 24h afin de ne pas effrayer les canards", language), "5"])
         x.add_row(["10", _("Vous fait gagner un bonus aléatoire d'xp sur tous les canards que vous tuez pendant 24h. Ce bonus est déterminé lors de l'achat et peut valoir de 1 à 10.", language), "13"])
         # x.add_row(["11", _("Protège contre l'effet éblouissant du miroir pendant 24h", language), "5"])
         x.add_row(["12", _("Annule l'effet du seau d'eau.", language), "7"])
@@ -1043,6 +1044,21 @@ def on_message(message):
 
             else:
                 yield from messageUser(message, _(":champagne: Tu ne peux pas mettre deux détecteurs infrarouges sur ton arme!", language))
+
+        elif item == 9:
+            if database.getStat(message.channel, message.author, "silencieux", default=0) < int(time.time()):
+                if database.getStat(message.channel, message.author, "exp") > 5:
+                    yield from messageUser(message, _(
+                        ":money_with_wings: Tu ajoutes un silencieux à ton arme pour 5 exp. Tes tirs n'effrayent plus les canards.",
+                        language))
+                    database.setStat(message.channel, message.author, "silencieux", int(time.time()) + 86400)
+                    database.addToStat(message.channel, message.author, "exp", -5)
+                else:
+                    yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
+
+            else:
+                yield from messageUser(message, _(":champagne: Ton arme est déjà équipée d'un silencieux!", language))
+
 
         elif item == 10:
             if database.getStat(message.channel, message.author, "trefle", default=0) < int(time.time()):
