@@ -1623,7 +1623,7 @@ def on_message(message):
         if getPref(message.server, "donExp"):
             args_ = message.content.split(" ")
 
-            if len(args_) < 2:
+            if len(args_) < 3:
                 yield from messageUser(message, _(":x: Joueur/Montant non spécifié : `!sendexp @joueur montant`", language))
                 return
             else:
@@ -1660,14 +1660,13 @@ def on_message(message):
                 messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
                 return
             else:
-                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
                 target = message.channel.server.get_member_named(args_[1])
                 if target is None:
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-
+                        yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[1]}))
                         return
+
             if not representsInt(args_[2]):
                 yield from messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
                 return
@@ -1692,6 +1691,45 @@ def on_message(message):
                 yield from messageUser(message, _("0 message(s) supprimés : permission refusée", language))
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+
+    elif message.content.startswith("!deladmin"):
+        logger.debug("> DELADMIN (" + str(message.author) + ")")
+
+        args_ = message.content.split(" ")
+        if len(args_) == 1:
+            target = message.author
+        else:
+            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
+            target = message.channel.server.get_member_named(args_[1])
+            if target is None:
+                target = message.channel.server.get_member(args_[1])
+                if target is None:
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
+
+                    return
+
+        if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
+            if target.id in servers[message.channel.server.id]["admins"]:
+                servers[message.channel.server.id]["admins"].remove(target.id)
+                logger.debug("Supression de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(
+                    **{
+                        "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
+                        "server_name": message.channel.server.name
+                    }))
+                yield from messageUser(message,
+                                       _(":robot: Supression de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}",
+                                         language).format(
+                                           **{
+                                               "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
+                                               "server_name": message.channel.server.name
+                                           }))
+                JSONsaveToDisk(servers, "channels.json")
+            else:
+                yield from messageUser(message, _(":x: Oops, cette personne n'est pas administrateur du serveur...", language))
+        else:
+            yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
+
+        return
 
     elif message.content.startswith("!deleteeverysinglescoreandstatonthischannel"):
         logger.debug("> deleteeverysinglescoreandstatonthischannel (" + str(message.author) + ")")
@@ -1776,7 +1814,7 @@ def on_channel_delete(channel):
                 canards.remove(canard)
         servers[channel.server.id]["channels"].remove(channel.id)
         database.delChannelTable(channel)
-        JSONsaveToDisk(servers, "channels.json")
+        JSONsaveToDisk(servers, "channels.json") 
 
 
 @client.async_event
@@ -1791,7 +1829,7 @@ def on_server_remove(server):
                 except:
                     pass
                 if channel == canard["channel"]:
-                    logger.Debug("Canard supprimé : " + str(canard))
+                    logger.debug("Canard supprimé : " + str(canard))
                     canards.remove(canard)
         servers.pop(server.id)
         database.delServerTables(server)
