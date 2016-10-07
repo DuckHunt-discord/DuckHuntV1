@@ -74,6 +74,9 @@ import psutil
 logger.debug("Import os")
 import os
 
+logger.debug("Import datetime")
+import datetime
+
 logger.debug("Import getext")
 import gettext
 
@@ -594,11 +597,16 @@ def on_message(message):
         logger.debug("> BROADCAST (" + str(message.author) + ")")
         bc = message.content.replace("!broadcast", "", 1)
         if int(message.author.id) in admins:
+            messageUser(message, _("Démarrage du broadcast...", language))
+
             for channel in planification.keys():
                 try:
                     yield from client.send_message(channel, bc)
                 except:
                     pass
+
+            messageUser(message, _("Broadcast terminé :)", language))
+
 
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
@@ -1220,8 +1228,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
 
-    elif getPref(message.server, "malusFauxCanards") and (
-                        message.content.startswith("-,,.-") or "QUAACK" in message.content or "QUAAACK" in message.content or "/_^<" in message.content):
+    elif getPref(message.server, "malusFauxCanards") and any(word in message.content for word in canards_trace) :
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
 
@@ -1318,6 +1325,25 @@ def on_message(message):
                                                                                               language) + ")"])
         x.add_row([_("Précision des tirs", language), database.getPlayerLevel(message.channel, target)["precision"]])
         x.add_row([_("Fiabilité de l'arme", language), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
+        if database.getStat(message.channel, target, "graisse", default=0) > int(time.time()):
+            x.add_row([_("Objet : graisse", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "graisse", default=0)).strftime('%H:%M:%S le %d/%m')])
+        if database.getStat(message.channel, target, "detecteurInfra", default=0) > int(time.time()):
+            x.add_row([_("Objet : détecteur infrarouge", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "detecteurInfra", default=0)).strftime('%H:%M:%S le %d/%m')])
+        if database.getStat(message.channel, target, "silencieux", default=0) > int(time.time()):
+            x.add_row([_("Objet : silencieux", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "silencieux", default=0)).strftime('%H:%M:%S le %d/%m')])
+        if database.getStat(message.channel, target, "trefle", default=0) > int(time.time()):
+            x.add_row([_("Objet : trefle", language), "{time} ({exp} exp)".format(**{"time" : datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "trefle", default=0)).strftime('%H:%M:%S le %d/%m'),
+                                                                                  "exp" : database.getStat(message.channel, target, "trefle_exp", default=0)}) ])
+        if database.getStat(message.channel, target, "mouille", default=0) > int(time.time()):
+            x.add_row([_("Effet : mouille", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "mouille", default=0)).strftime('%H:%M:%S le %d/%m')])
+        if database.getStat(message.channel, target, "AssuranceVie", default=0) > int(time.time()):
+            x.add_row([_("Objet : assurance vie", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "AssuranceVie", default=0)).strftime('%H:%M:%S le %d/%m')])
+        if database.getStat(message.channel, target, "AssuranceVie", default=0) > int(time.time()):
+            x.add_row([_("Objet : detecteur", language), _("Restant : 1", language)])
+        
+
+
+
 
         yield from messageUser(message,
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
@@ -1857,10 +1883,9 @@ def on_message_edit(old, new):
         return
 
     language = getPref(new.server, "lang")
-    if getPref(new.server, "malusFauxCanards"):
-        if new.content.startswith("-,,.-") or "QUAACK" in new.content or "/_^<" in new.content or "QUAAACK" in new.content:
-            yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
-            database.addToStat(new.channel, new.author, "exp", -5)
+    if getPref(new.server, "malusFauxCanards") and getPref(new.server, "malusFauxCanards") and any(word in new.content for word in canards_trace) :
+        yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
+        database.addToStat(new.channel, new.author, "exp", -5)
 
 
 logger.debug("Connexion à Discord — Début de la boucle")

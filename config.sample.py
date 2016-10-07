@@ -76,15 +76,17 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           {"niveau": 37, "expMin": 7020, "nom": _("annihilateur de canards"), "precision": 95, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 38, "expMin": 7400, "nom": _("serial duck killer"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 39, "expMin": 7790, "nom": _("génocideur de canards"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 40, "expMin": 8200, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1, "chargeurs": 5
-           }]
+          {"niveau": 40, "expMin": 8200, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 41, "expMin": 9999, "nom": _("Toasteur de canards"), "precision": 98, "fiabilitee": 99, "balles": 1, "chargeurs": 6},
+          {"niveau": 42, "expMin": 11111, "nom": _("Vieux noob"), "precision": 99, "fiabilitee": 99, "balles": 1, "chargeurs": 7}]
 
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
 defaultSettings = {
-    "deleteCommands" : True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
+    "deleteCommands" : False, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": .5,
     "expParCanard"   : 10, "lang": lang, "randomCanard": True, "malusFauxCanards": False, "SCactif": True, "SCchance": 10, "SCviemin": 3, "SCviemax": 7,
-    "duckChanceLeave": 5, "SClevelmultiplier": 0.75, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0, "donExp": False
+    "duckChanceLeave": 5, "SClevelmultiplier": 1.10, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0, "donExp": False
 }
+
 
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide | https://discord.gg/4MK2KyM"
