@@ -1670,15 +1670,19 @@ def on_message(message):
             montant = int(montant)
             if database.getStat(message.channel, message.author, "exp") > montant:
                 database.addToStat(message.channel, message.author, "exp", -montant)
-                database.addToStat(message.channel, target, "exp", montant)
-                yield from messageUser(message, _("Vous avez envoyé {amount} exp à {target} !", language).format(**{"amount" : montant, "target": target.mention}))
+                if getPref(message.server, "donExp") > 0:
+                    taxes = exp * (100/getPref(message.server, "donExp"))
+                else:
+                    taxes = 0
+                database.addToStat(message.channel, target, "exp", montant - taxes)
+                yield from messageUser(message, _("Vous avez envoyé {amount} exp à {target} (et payé {taxes} exp de taxe de transfert) !", language).format(**{"amount" : montant - taxes, "target": target.mention, "taxes": taxes}))
             else:
                 yield from messageUser(message, _("Vous n'avez pas assez d'experience", language))
 
 
 
         else:
-            yield from messageUser(message, _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`"))
+            yield from messageUser(message, _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`", language))
 
     elif message.content.startswith("!giveexp"):
         logger.debug("> GIVEEXP (" + str(message.author) + ")")

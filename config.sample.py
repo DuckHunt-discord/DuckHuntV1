@@ -81,13 +81,12 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           {"niveau": 42, "expMin": 11111, "nom": _("Vieux noob"), "precision": 99, "fiabilitee": 99, "balles": 1, "chargeurs": 7}]
 
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
+
 defaultSettings = {
     "deleteCommands" : False, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": .5,
     "expParCanard"   : 10, "lang": lang, "randomCanard": True, "malusFauxCanards": False, "SCactif": True, "SCchance": 10, "SCviemin": 3, "SCviemax": 7,
-    "duckChanceLeave": 5, "SClevelmultiplier": 1.10, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0, "donExp": False
+    "duckChanceLeave": 5, "SClevelmultiplier": 1.10, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0, "donExp": True, "donExpTaxe": 0
 }
-
-
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide | https://discord.gg/4MK2KyM"
 inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain."), _("un canard vibrant."), _("un tas de plumes."),
