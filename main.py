@@ -26,6 +26,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description="DuckHunt, jeu pour tirer sur des canards, pour Discord")
 parser.add_argument("-d", "--debug", help="Affiche les messages de débug", action="store_true")
+parser.add_argument("--quietstartup", help="N'affiche pas les messages de débug au démarrage", action="store_true")
 
 args = parser.parse_args()
 
@@ -41,7 +42,7 @@ file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 steam_handler = logging.StreamHandler()
-if args.debug:
+if args.debug and not args.quietstartup:
     steam_handler.setLevel(logging.DEBUG)
 else:
     steam_handler.setLevel(logging.INFO)
@@ -504,6 +505,8 @@ def on_ready():
         logger.info("Creation de la planification")
         yield from planifie()
         logger.info("Lancers de canards planifiés")
+        if args.debug:
+            steam_handler.setLevel(logging.DEBUG)
         logger.info("Initialisation terminée :) Ce jeu, ca va faire un carton !")
         yield from mainloop()
     except Exception as e:
@@ -513,7 +516,7 @@ def on_ready():
             allCanardsGo()
         except:
             pass
-        sentry.captureException()
+        #sentry.captureException()
         client.loop.run_until_complete(client.logout())
         client.loop.close()
         sys.exit(1)
@@ -1782,7 +1785,7 @@ def on_message(message):
                     for channel in server.channels:
                         permissions = channel.permissions_for(server.me)
                         if permissions.create_instant_invite:
-                            invite = yield from client.create_invite(channel)
+                            invite = yield from client.create_invite(channel, max_age=10*60)
                             try:
                                 x.add_row([server.name, invite.url, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)) , server.member_count, permEnPlus, permEnMoins])
                             except KeyError: # Pas de channels ou une autre merde dans le genre ?
@@ -1814,7 +1817,7 @@ def on_channel_delete(channel):
                 canards.remove(canard)
         servers[channel.server.id]["channels"].remove(channel.id)
         database.delChannelTable(channel)
-        JSONsaveToDisk(servers, "channels.json") 
+        JSONsaveToDisk(servers, "channels.json")
 
 
 @client.async_event
@@ -1867,6 +1870,7 @@ except KeyboardInterrupt:
     logger.warn(_("Arret demandé"))
     client.loop.run_until_complete(allCanardsGo())
     client.loop.run_until_complete(client.logout())
+    asyncio.sleep(2)
     # cancel all tasks lingering
 finally:
     client.loop.close()

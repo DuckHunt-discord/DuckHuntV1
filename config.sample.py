@@ -4,7 +4,7 @@ def _(string): return string  # Fake definition pour la traduction
 
 
 #### MODIFIEZ A PARTIR DE CETTE LIGNE ####
-token = "BOT TOKEN HERE"
+token = ""
 
 admins = [138751484517941259]  # Global admins
 
@@ -43,50 +43,51 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           {"niveau": 4, "expMin": 90, "nom": _("rateur de canards"), "precision": 58, "fiabilitee": 88, "balles": 6, "chargeurs": 2},
           {"niveau": 5, "expMin": 140, "nom": _("membre du Comité Contre les Canards"), "precision": 59, "fiabilitee": 89, "balles": 6, "chargeurs": 2},
           {"niveau": 6, "expMin": 200, "nom": _("détesteur de canards"), "precision": 60, "fiabilitee": 90, "balles": 4, "chargeurs": 3},
-          {"niveau": 7, "expMin": 270, "nom": _("emmerdeur de canards"), "precision": 65, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
-          {"niveau": 8, "expMin": 350, "nom": _("déplumeur de canards"), "precision": 67, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
-          {"niveau": 9, "expMin": 440, "nom": _("chasseur"), "precision": 69, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
-          {"niveau": 10, "expMin": 540, "nom": _("retourneur de canards"), "precision": 71, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
-          {"niveau": 11, "expMin": 650, "nom": _("assommeur de canards"), "precision": 73, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
-          {"niveau": 12, "expMin": 770, "nom": _("mâchouilleur de canards"), "precision": 73, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
-          {"niveau": 13, "expMin": 900, "nom": _("bouffeur de canards"), "precision": 74, "fiabilitee": 95, "balles": 4, "chargeurs": 3},
-          {"niveau": 14, "expMin": 1040, "nom": _("aplatisseur de canards"), "precision": 74, "fiabilitee": 95, "balles": 4, "chargeurs": 3},
-          {"niveau": 15, "expMin": 1190, "nom": _("démonteur de canards"), "precision": 75, "fiabilitee": 95, "balles": 4, "chargeurs": 3},
-          {"niveau": 16, "expMin": 1350, "nom": _("démolisseur de canards"), "precision": 80, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
-          {"niveau": 17, "expMin": 1520, "nom": _("tueur de canards"), "precision": 81, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
-          {"niveau": 18, "expMin": 1700, "nom": _("écorcheur de canards"), "precision": 81, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
-          {"niveau": 19, "expMin": 1890, "nom": _("prédateur"), "precision": 82, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
-          {"niveau": 20, "expMin": 2090, "nom": _("découpeur de canards"), "precision": 82, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
-          {"niveau": 21, "expMin": 2300, "nom": _("décortiqueur de canards"), "precision": 83, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
-          {"niveau": 22, "expMin": 2520, "nom": _("fraggeur de canards"), "precision": 83, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
-          {"niveau": 23, "expMin": 2750, "nom": _("éclateur de canards"), "precision": 84, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
-          {"niveau": 24, "expMin": 2990, "nom": _("défonceur de canards"), "precision": 84, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
-          {"niveau": 25, "expMin": 3240, "nom": _("bousilleur de canards"), "precision": 85, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
-          {"niveau": 26, "expMin": 3500, "nom": _("poutreur de canards"), "precision": 90, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 27, "expMin": 3770, "nom": _("empaleur de canards"), "precision": 91, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 28, "expMin": 4050, "nom": _("éventreur de canards"), "precision": 91, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 29, "expMin": 4340, "nom": _("terreur des canards"), "precision": 92, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 30, "expMin": 4640, "nom": _("exploseur de canards"), "precision": 92, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 31, "expMin": 4950, "nom": _("destructeur de canards"), "precision": 93, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 32, "expMin": 5270, "nom": _("pulvérisateur de canards"), "precision": 93, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 33, "expMin": 5600, "nom": _("démolécularisateur de canards"), "precision": 94, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 34, "expMin": 5940, "nom": _("désintégrateur de canards"), "precision": 94, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 35, "expMin": 6290, "nom": _("atomiseur de canards"), "precision": 95, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 36, "expMin": 6650, "nom": _("annihilateur de canards"), "precision": 95, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 37, "expMin": 7020, "nom": _("serial duck killer"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 38, "expMin": 7400, "nom": _("génocideur de canards"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {
-              "niveau"   : 39, "expMin": 7790, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1,
-              "chargeurs": 5
-          }]
+          {"niveau": 7, "expMin": 270, "nom": _("harceleur de canards"), "precision": 65, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
+          {"niveau": 8, "expMin": 350, "nom": _("emmerdeur de canards"), "precision": 65, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
+          {"niveau": 9, "expMin": 440, "nom": _("déplumeur de canards"), "precision": 67, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
+          {"niveau": 10, "expMin": 540, "nom": _("chasseur"), "precision": 69, "fiabilitee": 93, "balles": 4, "chargeurs": 3},
+          {"niveau": 11, "expMin": 650, "nom": _("retourneur de canards"), "precision": 71, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
+          {"niveau": 12, "expMin": 770, "nom": _("assommeur de canards"), "precision": 73, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
+          {"niveau": 13, "expMin": 900, "nom": _("mâchouilleur de canards"), "precision": 73, "fiabilitee": 94, "balles": 4, "chargeurs": 3},
+          {"niveau": 14, "expMin": 1040, "nom": _("bouffeur de canards"), "precision": 74, "fiabilitee": 95, "balles": 4, "chargeurs": 3},
+          {"niveau": 15, "expMin": 1190, "nom": _("aplatisseur de canards"), "precision": 74, "fiabilitee": 95, "balles": 4, "chargeurs": 3},
+          {"niveau": 16, "expMin": 1350, "nom": _("démonteur de canards"), "precision": 75, "fiabilitee": 95, "balles": 4, "chargeurs": 3},
+          {"niveau": 17, "expMin": 1520, "nom": _("démolisseur de canards"), "precision": 80, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
+          {"niveau": 18, "expMin": 1700, "nom": _("tueur de canards"), "precision": 81, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
+          {"niveau": 19, "expMin": 1890, "nom": _("écorcheur de canards"), "precision": 81, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
+          {"niveau": 20, "expMin": 2090, "nom": _("prédateur"), "precision": 82, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
+          {"niveau": 21, "expMin": 2300, "nom": _("découpeur de canards"), "precision": 82, "fiabilitee": 97, "balles": 2, "chargeurs": 4},
+          {"niveau": 22, "expMin": 2520, "nom": _("décortiqueur de canards"), "precision": 83, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
+          {"niveau": 23, "expMin": 2750, "nom": _("fraggeur de canards"), "precision": 83, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
+          {"niveau": 24, "expMin": 2990, "nom": _("éclateur de canards"), "precision": 84, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
+          {"niveau": 25, "expMin": 3240, "nom": _("défonceur de canards"), "precision": 84, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
+          {"niveau": 26, "expMin": 3500, "nom": _("bousilleur de canards"), "precision": 85, "fiabilitee": 98, "balles": 2, "chargeurs": 4},
+          {"niveau": 27, "expMin": 3770, "nom": _("poutreur de canards"), "precision": 90, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 28, "expMin": 4050, "nom": _("empaleur de canards"), "precision": 91, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 29, "expMin": 4340, "nom": _("éventreur de canards"), "precision": 91, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 30, "expMin": 4640, "nom": _("terreur des canards"), "precision": 92, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 31, "expMin": 4950, "nom": _("exploseur de canards"), "precision": 92, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 32, "expMin": 5270, "nom": _("destructeur de canards"), "precision": 93, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 33, "expMin": 5600, "nom": _("pulvérisateur de canards"), "precision": 93, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 34, "expMin": 5940, "nom": _("démolécularisateur de canards"), "precision": 94, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 35, "expMin": 6290, "nom": _("désintégrateur de canards"), "precision": 94, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 36, "expMin": 6650, "nom": _("atomiseur de canards"), "precision": 95, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 37, "expMin": 7020, "nom": _("annihilateur de canards"), "precision": 95, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 38, "expMin": 7400, "nom": _("serial duck killer"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 39, "expMin": 7790, "nom": _("génocideur de canards"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {"niveau": 40, "expMin": 8200, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1, "chargeurs": 5
+           }]
+
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
 defaultSettings = {
     "deleteCommands" : True, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": 1,
     "expParCanard"   : 10, "lang": lang, "randomCanard": True, "malusFauxCanards": False, "SCactif": True, "SCchance": 10, "SCviemin": 3, "SCviemax": 7,
-    "duckChanceLeave": 5, "SClevelmultiplier": 0.75, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0
+    "duckChanceLeave": 5, "SClevelmultiplier": 0.75, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0, "donExp": False
 }
 
-aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide"
+
+aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide | https://discord.gg/4MK2KyM"
 inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain."), _("un canard vibrant."), _("un tas de plumes."),
              _("un chewing-gum mâchouillé."),
              _("un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards)."), _("une vieille chaussure."), _("un truc à ressort."),
@@ -100,7 +101,7 @@ inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain.
              _("un vieux couteau de chasse."), _("un vieil enregistrement vidéo : http://tinyurl.com/zbejktu"),
              _("une vieille photo de chasse : http://tinyurl.com/hmn4r88"), _("une vieille carte postale : http://tinyurl.com/hbnkpzr"),
              _("une photo de super-canard : http://tinyurl.com/hle8fjf"), _("un pin's de chasseur : http://tinyurl.com/hqy7fhq"), _("des buissons."),
-             _("100 balles et un mars.")]
+             _("100 balles et un mars."), _("Une tomate : http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"), _("un hippie qui te propose de tirer une douille sur son bang")]
 
 #### NE PLUS MODIFIER APRES CETTE LIGNE ####
 
