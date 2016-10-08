@@ -136,10 +136,11 @@ CompteurMessages = 0
 
 def allCanardsGo():
     for canard in canards:
-        logger.debug("Départ forcé du canard " + str(canard) + " | " + str(canard["channel"].name) + str(canard["channel"].server.name))
         try:
             yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
+            logwithinfos(canard["channel"], None, "Départ forcé du canard " + str(canard))
         except:
+            logwithinfos(canard["channel"], None, "Départ forcé du canard ECHOUE" + str(canard))
             pass
 
 
@@ -219,7 +220,7 @@ def giveBackIfNeeded(channel, player):
     if int(lastGB / 86400) != int(int(time.time()) / 86400):
         #logger.debug("GiveBack  > LastGB :" + str(lastGB) + " / 86400 = " + str(int(lastGB / 86400)))
         #logger.debug("GiveBack  > Now : " + str(int(time.time())) + " / 86400 = " + str(int(int(time.time()) / 86400)))
-        logger.debug("GIVEBACK sur " + player.name)
+        logwithinfos(channel, player, "Giveback des armes et chargeurs")
         database.giveBack(logger, player=player, channel=channel)
         database.setStat(channel, player, "lastGiveback", int(time.time()))
     else:
@@ -230,9 +231,10 @@ def giveBackIfNeeded(channel, player):
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
     if len(toSend) > 1950:
-        logger.debug("Creation d'un paste...")
+        logwithinfos_message(message, "Creation d'un paste...")
         toSend = paste(toSend.replace("```", ""), "py")
-        logger.info(_("Message trop long, envoi sur hastebin avec le lien : ") + toSend)
+        #logger.info(_("Message trop long, envoi sur hastebin avec le lien : ") + toSend)
+        logwithinfos_message(message, "Lien : " + toSend)
     if getPref(message.server, "pmMostMessages") or forcePv == True:
         try:
             yield from client.send_message(message.author, toSend)
@@ -240,16 +242,22 @@ def messageUser(message, toSend, forcePv=False):
             try:
                 yield from client.send_message(message.channel,
                                                str(message.author.mention) + "403 Permission denied (can't send private messages to this user)")
+                logwithinfos_message(message, "Impossible d'envoyer des messages en privé à cet utilisateur")
             except:
+                logwithinfos_message(message, "Impossible d'envoyer des messages dans le channel")
                 pass
     else:
         try:
             yield from client.send_message(message.channel, str(message.author.mention) + " > " + toSend)
         except:
+            logwithinfos_message(message, "Impossible d'envoyer des messages dans ce channel.")
             pass
 
-def logwithinfos(message_obj, log_str):
+def logwithinfos_message(message_obj, log_str):
     logger.debug((message_obj.server.name if len(message_obj.server.name) < 16 else message_obj.server.name[:16]) + " :: #" + (message_obj.channel.name if len(message_obj.channel.name) < 16 else message_obj.channel.name[:16]) + " :: <" + message_obj.author.name + "> " + log_str)
+
+def logwithinfos(channel, author, log_str):
+    logger.debug(((channel.server.name if len(channel.server.name) < 16 else channel.server.name[:16]) if channel else "XX") + " :: #" + ((channel.name if len(channel.name) < 16 else channel.name[:16]) if channel else "XX") + " :: " + ("<" + author.name + ">" if author else "") + log_str)
 
 def representsInt(s):
     try:
@@ -381,7 +389,9 @@ def nouveauCanard(canard, canBeSC=True):
                 yield from client.send_message(player, _("Il y a un canard sur #{channel}",
                                                          getPref(canard["channel"].server, "lang")).format(
                     **{"channel": canard["channel"].name}))
+                logwithinfos(canard["channel"], player, "Envoi d'une notification de canard")
             except:
+                logwithinfos(canard["channel"], player, "Erreur lors de l'envoi d'une notification de canard")
                 pass
 
         servers[canard["channel"].server.id]["detecteur"].pop(canard["channel"].id)
@@ -399,7 +409,7 @@ def nouveauCanard(canard, canBeSC=True):
     else:
         canard["isSC"] = True
 
-    logger.debug("Nouveau canard : " + str(canard))
+    logwithinfos(canard["channel"], None, "Nouveau canard : " + str(canard))
     if getPref(canard["channel"].server, "randomCanard"):
         canard_str = random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(random.choice(canards_cri),
                                                                                                       language=getPref(canard["channel"].server, "lang"))
@@ -416,15 +426,15 @@ def nouveauCanard(canard, canBeSC=True):
 def deleteMessage(message):
     if getPref(message.server, "deleteCommands"):
         if message.channel.permissions_for(message.server.me).manage_messages:
-            logger.debug("Supression du message : {author} | {content}".format(**{"author": message.author.name, "content": message.content}))
+            logwithinfos_message(message, "Supression du message : {author} | {content}".format(**{"author": message.author.name, "content": message.content}))
             try:
                 yield from client.delete_message(message)
             except:
-                logger.debug("Supression du message échouée [permission allowed but forbidden >> Need 2FA ?] : {author} | {content}".format(
+                logwithinfos_message(message, "Supression du message échouée [permission allowed but forbidden >> Need 2FA ?] : {author} | {content}".format(
                     **{"author": message.author.name, "content": message.content}))
 
         else:
-            logger.debug("Supression du message échouée [permission denied] : {author} | {content}".format(
+            logwithinfos_message(message, "Supression du message échouée [permission denied] : {author} | {content}".format(
                 **{"author": message.author.name, "content": message.content}))
 
 
@@ -449,8 +459,8 @@ def getprochaincanard():
 
     else:
 
-        logger.debug("Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}".format(**{
-            "server": prochaincanard["channel"].server.name, "channel": prochaincanard["channel"].name, "timetonext": timetonext,
+        logwithinfos(prochaincanard["channel"], None, "Prochain canard : {time} (dans {timetonext} sec)".format(**{
+            "timetonext": timetonext,
             "time"  : prochaincanard["time"]
         }))
 
@@ -472,8 +482,8 @@ def mainloop():
 
         if int(now) % 60 == 0 and prochaincanard["time"] != 0:
             timetonext = prochaincanard["time"] - now
-            logger.debug("Prochain canard : {time} (dans {timetonext} sec) sur #{channel} | {server}".format(**{
-                "server": prochaincanard["channel"].server.name, "channel": prochaincanard["channel"].name, "timetonext": timetonext,
+            logwithinfos(prochaincanard["channel"], None, "Prochain canard : {time} (dans {timetonext} sec) ".format(**{
+                "timetonext": timetonext,
                 "time"  : prochaincanard["time"]
             }))
             logger.debug("Canards en cours : {canards}".format(**{"canards": canards}))
@@ -487,8 +497,7 @@ def mainloop():
 
         for canard in canards:
             if int(canard["time"]) + int(getPref(canard["channel"].server, "tempsAttente")) < int(now):  # Canard qui se barre
-                logger.debug(
-                    "Le canard de {time} est resté trop longtemps, il s'échappe. (il est {now}, et il aurait du rester jusqu'a {shouldwaitto}).".format(**{
+                logwithinfos(canard["channel"], None, "Le canard de {time} est resté trop longtemps, il s'échappe. (il est {now}, et il aurait du rester jusqu'a {shouldwaitto}).".format(**{
                         "time": canard["time"], "now": now, "shouldwaitto": str(
                             int(canard["time"] + getPref(canard["channel"].server, "tempsAttente")))
                     }))
@@ -564,25 +573,25 @@ def on_message(message):
     prefix = getPref(message.server, "prefix")
 
     if message.content.startswith(prefix + "claimserver"):
-        logwithinfos(message, "CLAIMSERVER")
+        logwithinfos_message(message, "CLAIMSERVER")
         if not servers[message.channel.server.id]["admins"]:
             servers[message.channel.server.id]["admins"] = [message.author.id]
-            logwithinfos(message, "Ajout de l'admin {admin_name} | {admin_id} au fichier de configuration pour le serveur {server_name} | {server_id}.".format(**{
+            logwithinfos_message(message, "Ajout de l'admin {admin_name} | {admin_id} au fichier de configuration pour le serveur {server_name} | {server_id}.".format(**{
                 "admin_name": message.author.name, "admin_id": message.author.id, "server_name": message.channel.server.name,
                 "server_id" : message.channel.server.id
             }))
             yield from messageUser(message, _(":robot: Vous etes maintenant le gestionnaire du serveur !", language))
         else:
-            logwithinfos(message, "il y a déjà un admin")
+            logwithinfos_message(message, "il y a déjà un admin")
             yield from messageUser(message, _(":x: Il y a déjà un admin sur ce serveur...", language))
         JSONsaveToDisk(servers, "channels.json")
         return
 
     elif message.content.startswith(prefix + "addchannel"):
-        logwithinfos(message, "ADDCHANNEL")
+        logwithinfos_message(message, "ADDCHANNEL")
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
-                logwithinfos(message, "Ajout de la channel {name} | {id} au fichier...".format(**{"id": message.channel.id, "name": message.channel.name}))
+                logwithinfos_message(message, "Ajout de la channel {name} | {id} au fichier...".format(**{"id": message.channel.id, "name": message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
                 yield from updateJSON()
@@ -590,11 +599,11 @@ def on_message(message):
                 yield from planifie(channel=message.channel)
 
             else:
-                logwithinfos(message, "Channel déja existante")
+                logwithinfos_message(message, "Channel déja existante")
                 yield from messageUser(message, _(":x: Cette channel existe déjà dans le jeu.", language))
         elif int(message.author.id) in admins:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
-                logwithinfos(message, "(GA) Ajout de la channel {name} | {id} au fichier...".format(**{"id": message.channel.id, "name": message.channel.name}))
+                logwithinfos_message(message, "(GA) Ajout de la channel {name} | {id} au fichier...".format(**{"id": message.channel.id, "name": message.channel.name}))
                 servers[str(message.channel.server.id)]["channels"].append(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
                 yield from updateJSON()
@@ -602,35 +611,35 @@ def on_message(message):
                 yield from planifie(channel=message.channel)
 
             else:
-                logwithinfos(message, "(GA) channel déjà existante")
+                logwithinfos_message(message, "(GA) channel déjà existante")
                 yield from messageUser(message,
                                        _(":x: Cette channel existe déjà dans le jeu. :warning: Vous n'etes pas administrateur du serveur.", language))
         else:
             yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
-            logwithinfos(message, "Non autorisé à ajouter une channel")
+            logwithinfos_message(message, "Non autorisé à ajouter une channel")
 
         return
     elif message.content.startswith(prefix + "broadcast"):
-        logwithinfos(message, "BROADCAST")
+        logwithinfos_message(message, "BROADCAST")
         bc = message.content.replace("!broadcast", "", 1)
         if int(message.author.id) in admins:
             yield from messageUser(message, _("Démarrage du broadcast...", language))
-            logwithinfos(message, "Brodcast démarré")
+            logwithinfos_message(message, "Brodcast démarré")
             for channel in planification.keys():
                 try:
                     yield from client.send_message(channel, bc)
                 except:
                     pass
-            logwithinfos(message, "Broadcast terminé")
+            logwithinfos_message(message, "Broadcast terminé")
             yield from messageUser(message, _("Broadcast terminé :)", language))
 
 
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
-            logwithinfos(message, "Cet utilisateur ne peut pas utiliser le broadcast")
+            logwithinfos_message(message, "Cet utilisateur ne peut pas utiliser le broadcast")
 
     elif message.content.startswith(prefix + "addadmin"):
-        logwithinfos(message, "ADDADMIN")
+        logwithinfos_message(message, "ADDADMIN")
 
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -642,13 +651,13 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    logwithinfos(message, "Personne non reconnue : " + str(args[1]))
+                    logwithinfos_message(message, "Personne non reconnue : " + str(args[1]))
                     return
-        logwithinfos(message, "La personne visée est : " + target.name + " | " + target.id)
+        logwithinfos_message(message, "La personne visée est : " + target.name + " | " + target.id)
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if not target.id in servers[message.channel.server.id]["admins"]:
                 servers[message.channel.server.id]["admins"].append(target.id)
-                logwithinfos(message, "Ajout de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(
+                logwithinfos_message(message, "Ajout de l'admin {admin_name} | {admin_id} dans le serveur {server_name} | {server_id}".format(
                     **{
                         "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
                         "server_name": message.channel.server.name
@@ -662,10 +671,10 @@ def on_message(message):
                                            }))
             else:
                 yield from messageUser(message, _(":x: Oops, cette personne est déjà administrateur du serveur...", language))
-                logwithinfos(message, "Personne déjà admin")
+                logwithinfos_message(message, "Personne déjà admin")
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
-            logwithinfos(message, "Non autorisé à ajouter un admin")
+            logwithinfos_message(message, "Non autorisé à ajouter un admin")
         JSONsaveToDisk(servers, "channels.json")
         return
 
@@ -673,14 +682,14 @@ def on_message(message):
         return
 
     if database.getStat(message.channel, message.author, "banni", default=False):
-        logwithinfos(message, "Message ignoré car personne bannie")
+        logwithinfos_message(message, "Message ignoré car personne bannie")
         return
     # Messages en whitelist sur les channels activées
 
     if message.content.startswith(prefix + "bang"):
 
         yield from deleteMessage(message)
-        logwithinfos(message, "BANG")
+        logwithinfos_message(message, "BANG")
         now = time.time()
         yield from giveBackIfNeeded(message.channel, message.author)
         if database.getStat(message.channel, message.author, "mouille", default=0) > int(time.time()):
@@ -688,20 +697,20 @@ def on_message(message):
                 "Tu es trempé ! Tu ne peux pas aller chasser ! Il faut attendre encore {temps_restant} minutes pour que tes vétement séchent !",
                 language).format(
                 **{"temps_restant": int((database.getStat(message.channel, message.author, "mouille", default=0) - int(time.time())) / 60)}))
-            logwithinfos(message, "[bang] Fail : personne mouillée ")
+            logwithinfos_message(message, "[bang] Fail : personne mouillée ")
             return
         if database.getStat(message.channel, message.author, "confisque", default=False):
             yield from messageUser(message, _("Vous n'etes pas armé", language))
-            logwithinfos(message, "[bang] Fail : non armé (arme confisquée)")
+            logwithinfos_message(message, "[bang] Fail : non armé (arme confisquée)")
             return
 
         if database.getStat(message.channel, message.author, "enrayee", default=False):
             yield from messageUser(message, _("Votre arme est enrayée, il faut la recharger pour la décoincer.", language))
-            logwithinfos(message, "[bang] Fail : arme (déjà) entayée")
+            logwithinfos_message(message, "[bang] Fail : arme (déjà) entayée")
             return
         if database.getStat(message.channel, message.author, "sabotee", default="-") is not "-":
             logger.debug("Arme sabotée par : " + database.getStat(message.channel, message.author, "sabotee", default="-"))
-            logwithinfos(message, "[bang] Fail : arme sabotée")
+            logwithinfos_message(message, "[bang] Fail : arme sabotée")
             yield from messageUser(message, _("Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague.", language).format(
                 **{"assaillant": database.getStat(message.channel, message.author, "sabotee", default="-")}))
             database.setStat(message.channel, message.author, "enrayee", True)
@@ -719,7 +728,7 @@ def on_message(message):
                                                       default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]),
                 "chargeurs_max"    : database.getPlayerLevel(message.channel, message.author)["chargeurs"]
             }))
-            logwithinfos(message, "[bang] Fail : chargeur vide")
+            logwithinfos_message(message, "[bang] Fail : chargeur vide")
             return
         else:
             if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["fiabilitee"]:
@@ -728,7 +737,7 @@ def on_message(message):
                 if not (database.getStat(message.channel, message.author, "graisse", default=0) > int(time.time()) and random.randint(1, 100) < 50):
 
                     yield from messageUser(message, _("Ton arme s'est enrayée, recharge la pour la décoincer.", language))
-                    logwithinfos(message, "[bang] Fail : arme enrayée")
+                    logwithinfos_message(message, "[bang] Fail : arme enrayée")
                     database.setStat(message.channel, message.author, "enrayee", True)
                     return
                 else:
@@ -755,12 +764,12 @@ def on_message(message):
                         except ValueError:
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
-                            logwithinfos(message, "[bang] Fail : balle défectueuse")
+                            logwithinfos_message(message, "[bang] Fail : balle défectueuse")
 
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
                             " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language))
-                        logwithinfos(message, "[bang] Fail : le canard s'échappe")
+                        logwithinfos_message(message, "[bang] Fail : le canard s'échappe")
                         database.addToStat(message.channel, message.author, "exp", -1)
                         return
                 if random.randint(1, 100) < database.getPlayerLevel(message.channel, message.author)["precision"]:
@@ -770,15 +779,15 @@ def on_message(message):
                         pass
                     if canardencours["isSC"]:
                         if database.getStat(message.channel, message.author, "munExplo", default=0) > int(time.time()):
-                            logwithinfos(message, "[bang] canard vie -3")
+                            logwithinfos_message(message, "[bang] canard vie -3")
                             canardencours["SCvie"] -= 3
                             vieenmoins = 3
                         elif database.getStat(message.channel, message.author, "munAp_", default=0) > int(time.time()):
-                            logwithinfos(message, "[bang] canard vie -2")
+                            logwithinfos_message(message, "[bang] canard vie -2")
                             canardencours["SCvie"] -= 2
                             vieenmoins = 2
                         else:
-                            logwithinfos(message, "[bang] canard vie -1")
+                            logwithinfos_message(message, "[bang] canard vie -1")
                             canardencours["SCvie"] -= 1
                             vieenmoins = 1
 
@@ -788,7 +797,7 @@ def on_message(message):
                             except ValueError:
                                 yield from client.edit_message(tmp, str(message.author.mention) + _(
                                     " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language)) # Canare déjà tué de toute facon :x
-                                logwithinfos(message, "[bang] Fail : balle défectueuse")
+                                logwithinfos_message(message, "[bang] Fail : balle défectueuse")
 
                             gain = int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"]))
                             if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
@@ -807,14 +816,14 @@ def on_message(message):
                                     getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"])),
                                 "supercanards": database.getStat(message.channel, message.author, "superCanardsTues")
                             }))
-                            logwithinfos(message, "[bang] OK : canard tué")
+                            logwithinfos_message(message, "[bang] OK : canard tué")
                             if database.getStat(message.channel, message.author, "meilleurTemps",
                                                 default=getPref(message.server, "tempsAttente")) > int(
                                         now - canardencours["time"]):
                                 database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
                             if getPref(message.server, "findObjects"):
                                 if random.randint(0, 100) < 25:
-                                    logwithinfos(message, "[bang] Inutilitée trouvée")
+                                    logwithinfos_message(message, "[bang] Inutilitée trouvée")
                                     yield from messageUser(message,
                                                            _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(
                                                                **{"inutilitee": _(random.choice(inutilite), language)}))
@@ -824,7 +833,7 @@ def on_message(message):
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > :gun:  Le canard a survécu ! Essaie encore.  /_O<  [vie -{vie}]  *Super canard détécté*", language).format(
                                 **{"vie": vieenmoins}))
-                            logwithinfos(message, "[bang] OK : canard survécu")
+                            logwithinfos_message(message, "[bang] OK : canard survécu")
 
 
                     else:
@@ -833,7 +842,7 @@ def on_message(message):
                         except ValueError:
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
-                            logwithinfos(message, "[bang] Fail : balle défectueuse")
+                            logwithinfos_message(message, "[bang] Fail : balle défectueuse")
 
                         gain = int(getPref(message.server, "expParCanard"))
                         if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
@@ -849,14 +858,14 @@ def on_message(message):
                             "time"   : int(now - canardencours["time"]), "total": database.getStat(message.channel, message.author, "canardsTues"),
                             "channel": message.channel, "exp": gain
                         }))
-                        logwithinfos(message, "[bang] OK : canard tué")
+                        logwithinfos_message(message, "[bang] OK : canard tué")
                         if database.getStat(message.channel, message.author, "meilleurTemps",
                                             default=getPref(message.server, "tempsAttente")) > int(
                                     now - canardencours["time"]):
                             database.setStat(message.channel, message.author, "meilleurTemps", int(now - canardencours["time"]))
                         if getPref(message.server, "findObjects"):
                             if random.randint(0, 100) < 25:
-                                logwithinfos(message, "[bang] Inutilitée trouvée")
+                                logwithinfos_message(message, "[bang] Inutilitée trouvée")
                                 yield from messageUser(message, _("En fouillant les buissons autour du canard, tu trouves {inutilitee}", language).format(
                                     **{"inutilitee": _(random.choice(inutilite), language)}))
 
@@ -869,18 +878,18 @@ def on_message(message):
                     if random.randint(0, 100) < 5:
                         victime = random.choice(list(message.server.members))
                         if not victime == message.author:
-                            logwithinfos(message, "[bang] Fail : raté, accident de chasse")
+                            logwithinfos_message(message, "[bang] Fail : raté, accident de chasse")
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
                                 language).format(**{"player": victime.mention}))
                         else:
-                            logwithinfos(message, "[bang] Fail : raté, accident de chasse, mort")
+                            logwithinfos_message(message, "[bang] Fail : raté, accident de chasse, mort")
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > **BANG**\tTu as raté le canard... Et tu t'es tiré dessus. Apprends à tenir ton fusil à l'endroit la prochaine fois, boulet ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
                                 language))
                         if database.getStat(message.channel, victime, "AssuranceVie", default=0) > int(time.time()):
                             exp = int(database.getPlayerLevel(message.channel, message.author) / 2)
-                            logwithinfos(message, "[bang] Assurance vie de " + victime.name + " ajout de " + str(exp) + "exp.")
+                            logwithinfos_message(message, "[bang] Assurance vie de " + victime.name + " ajout de " + str(exp) + "exp.")
                             database.addToStat(message.channel, victime, "exp", exp)
                             yield from client.send_message(message.channel, str(victime.mention) + _(" > Tu gagnes {exp} avec ton assurance vie".format(**{"exp": exp})))
 
@@ -889,19 +898,19 @@ def on_message(message):
                         database.addToStat(message.channel, message.author, "exp", -3)
                         database.setStat(message.channel, message.author, "confisque", True)
                         return
-                    logwithinfos(message, "[bang] Fail : raté")
+                    logwithinfos_message(message, "[bang] Fail : raté")
                     yield from client.edit_message(tmp, str(message.author.mention) + _(" > **PIEWW**\tTu as raté le canard ! [raté : -1 xp]", language))
                     database.addToStat(message.channel, message.author, "tirsManques", 1)
                     database.addToStat(message.channel, message.author, "exp", -1)
             else:
                 if database.getStat(message.channel, message.author, "detecteurInfra", default=0) > int(time.time()):
-                    logwithinfos(message, "[bang] Fail : pas de canard, détecteur infrarouge")
+                    logwithinfos_message(message, "[bang] Fail : pas de canard, détecteur infrarouge")
                     yield from messageUser(message, _(
                         "Il n'y a aucun canard dans le coin... Mais grace à ton detecteur infrarouge, la balle n'est pas partie :D",
                         language))
                     database.addToStat(message.channel, message.author, "balles", 1)
                     return
-                logwithinfos(message, "[bang] Fail : pas de canard")
+                logwithinfos_message(message, "[bang] Fail : pas de canard")
                 yield from messageUser(message, _(
                     "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]",
                     language))
@@ -909,14 +918,14 @@ def on_message(message):
                 database.addToStat(message.channel, message.author, "exp", -2)
         else:
             if database.getStat(message.channel, message.author, "detecteurInfra", default=0) > int(time.time()):
-                logwithinfos(message, "[bang] Fail : pas de canard, détecteur infrarouge")
+                logwithinfos_message(message, "[bang] Fail : pas de canard, détecteur infrarouge")
                 yield from messageUser(message, _(
                     "Il n'y a aucun canard dans le coin... Mais grace à ton detecteur infrarouge, la balle n'est pas partie :D",
                     language))
                 database.addToStat(message.channel, message.author, "balles", 1)
 
                 return
-            logwithinfos(message, "[bang] Fail : pas de canard")
+            logwithinfos_message(message, "[bang] Fail : pas de canard")
             yield from messageUser(message, _(
                 "Par chance tu as raté, mais tu visais qui au juste ? Il n'y a aucun canard dans le coin...   [raté : -1 xp] [tir sauvage : -1 xp]",
                 language))
@@ -925,14 +934,14 @@ def on_message(message):
 
     elif message.content.startswith(prefix + "reload"):
         yield from deleteMessage(message)
-        logwithinfos(message, "RELOAD")
+        logwithinfos_message(message, "RELOAD")
         yield from giveBackIfNeeded(message.channel, message.author)
         if database.getStat(message.channel, message.author, "confisque", default=False):
-            logwithinfos(message, "[reload] Fail : arme confisquée")
+            logwithinfos_message(message, "[reload] Fail : arme confisquée")
             yield from messageUser(message, _("Vous n'etes pas armé", language))
             return
         if database.getStat(message.channel, message.author, "enrayee", default=False):
-            logwithinfos(message, "[reload] Arme déconcée")
+            logwithinfos_message(message, "[reload] Arme déconcée")
             yield from messageUser(message, _("Tu décoinces ton arme.", language))
             database.setStat(message.channel, message.author, "enrayee", False)
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) > 0:
@@ -943,7 +952,7 @@ def on_message(message):
                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) > 0:
                 database.setStat(message.channel, message.author, "balles", database.getPlayerLevel(message.channel, message.author)["balles"])
                 database.addToStat(message.channel, message.author, "chargeurs", -1)
-                logwithinfos(message, "[reload] arme rechargée")
+                logwithinfos_message(message, "[reload] arme rechargée")
                 yield from messageUser(message, _(
                     "Tu recharges ton arme. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}",
                     language).format(**{
@@ -955,7 +964,7 @@ def on_message(message):
                     "chargeurs_max"    : database.getPlayerLevel(message.channel, message.author)["chargeurs"]
                 }))
             else:
-                logwithinfos(message, "[reload] Fail : plus de munitions")
+                logwithinfos_message(message, "[reload] Fail : plus de munitions")
                 yield from messageUser(message, _(
                     "Tu es à court de munitions. | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}",
                     language).format(**{
@@ -968,7 +977,7 @@ def on_message(message):
                 }))
                 return
         else:
-            logwithinfos(message, "[reload] Fail : l'arme n'a pas besoin d'etre rechargée")
+            logwithinfos_message(message, "[reload] Fail : l'arme n'a pas besoin d'etre rechargée")
             yield from messageUser(message, _(
                 "Ton arme n'a pas besoin d'etre rechargée | Munitions dans l'arme : {balles_actuelles}/{balles_max} | Chargeurs restants : {chargeurs_actuels}/{chargeurs_max}",
                 language).format(**{
@@ -983,7 +992,7 @@ def on_message(message):
 
     elif message.content.startswith(prefix + "shop"):
         yield from deleteMessage(message)
-        logwithinfos(message, "SHOP")
+        logwithinfos_message(message, "SHOP")
         yield from giveBackIfNeeded(message.channel, message.author)
 
         args_ = message.content.split(" ")
@@ -1032,7 +1041,7 @@ def on_message(message):
             yield from messageUser(message,
                                    _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
             yield from messageUser(message, shopitems)
-            logwithinfos(message, "[shop] Fail : pas d'argument")
+            logwithinfos_message(message, "[shop] Fail : pas d'argument")
             return
 
         else:
@@ -1044,23 +1053,23 @@ def on_message(message):
                     ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`",
                     language))
                 yield from messageUser(message, shopitems)
-                logwithinfos(message, "[shop] Fail : argument non int")
+                logwithinfos_message(message, "[shop] Fail : argument non int")
                 return
 
         if item == 1:
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) < \
                     database.getPlayerLevel(message.channel, message.author)["balles"]:
                 if database.getStat(message.channel, message.author, "exp") > 7:
-                    logwithinfos(message, "[shop] 1 | OK")
+                    logwithinfos_message(message, "[shop] 1 | OK")
                     yield from messageUser(message, _(":money_with_wings: Tu ajoutes une balle dans ton arme pour 7 points d'expérience.", language))
                     database.addToStat(message.channel, message.author, "balles", 1)
                     database.addToStat(message.channel, message.author, "exp", -7)
                 else:
-                    logwithinfos(message, "[shop] 1 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 1 | Pas d'exp")
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
             else:
-                logwithinfos(message, "[shop] 1 | Pas besoin")
+                logwithinfos_message(message, "[shop] 1 | Pas besoin")
                 yield from messageUser(message, _(":champagne: Ton chargeur est déjà plein !", language))
 
         elif item == 2:
@@ -1068,16 +1077,16 @@ def on_message(message):
                                 default=database.getPlayerLevel(message.channel, message.author)["chargeurs"]) < \
                     database.getPlayerLevel(message.channel, message.author)["chargeurs"]:
                 if database.getStat(message.channel, message.author, "exp") > 13:
-                    logwithinfos(message, "[shop] 2 | OK")
+                    logwithinfos_message(message, "[shop] 2 | OK")
                     yield from messageUser(message, _(":money_with_wings: Tu ajoutes un chargeur à ta réserve pour 13 points d'expérience.", language))
                     database.addToStat(message.channel, message.author, "chargeurs", 1)
                     database.addToStat(message.channel, message.author, "exp", -13)
                 else:
-                    logwithinfos(message, "[shop] 2 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 2 | Pas d'exp")
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
             else:
-                logwithinfos(message, "[shop] 2 | Pas besoin")
+                logwithinfos_message(message, "[shop] 2 | Pas besoin")
                 yield from messageUser(message, _(":champagne: Ta réserve de chargeurs est déjà pleine !", language))
 
         elif item == 3: # TODO : Check pas besoin
@@ -1086,22 +1095,22 @@ def on_message(message):
                                        _(":money_with_wings: Tu achetes des munitions AP, qui doubleront tes dégats pendant une journée", language))
                 database.setStat(message.channel, message.author, "munAP_", int(time.time()) + 86400)
                 database.addToStat(message.channel, message.author, "exp", -15)
-                logwithinfos(message, "[shop] 3 | OK")
+                logwithinfos_message(message, "[shop] 3 | OK")
 
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                logwithinfos(message, "[shop] 3 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 3 | Pas d'exp")
 
         elif item == 4: # TODO : Check pas besoin
             if database.getStat(message.channel, message.author, "exp") > 25:
-                logwithinfos(message, "[shop] 4 | OK")
+                logwithinfos_message(message, "[shop] 4 | OK")
                 yield from messageUser(message, _(":money_with_wings: Tu achetes des munitions explosives, qui tripleront tes dégats pendant une journée",
                                                   language))
                 database.setStat(message.channel, message.author, "munExplo", int(time.time()) + 86400)
                 database.addToStat(message.channel, message.author, "exp", -25)
 
             else:
-                logwithinfos(message, "[shop] 4 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 4 | Pas d'exp")
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
 
@@ -1111,14 +1120,14 @@ def on_message(message):
                     yield from messageUser(message, _(":money_with_wings: Tu récupéres ton arme pour 40 points d'experience", language))
                     database.setStat(message.channel, message.author, "confisque", False)
                     database.addToStat(message.channel, message.author, "exp", -40)
-                    logwithinfos(message, "[shop] 5 | OK")
+                    logwithinfos_message(message, "[shop] 5 | OK")
                 else:
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                    logwithinfos(message, "[shop] 5 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 5 | Pas d'exp")
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme n'est pas confisquée!", language))
-                logwithinfos(message, "[shop] 5 | Pas besoin")
+                logwithinfos_message(message, "[shop] 5 | Pas besoin")
 
         elif item == 6:
             if database.getStat(message.channel, message.author, "graisse", default=0) < int(time.time()):
@@ -1128,14 +1137,14 @@ def on_message(message):
                         language))
                     database.setStat(message.channel, message.author, "graisse", int(time.time()) + 86400)
                     database.addToStat(message.channel, message.author, "exp", -8)
-                    logwithinfos(message, "[shop] 6 | OK")
+                    logwithinfos_message(message, "[shop] 6 | OK")
                 else:
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                    logwithinfos(message, "[shop] 6 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 6 | Pas d'exp")
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme est déjà bien lubrifiée!", language))
-                logwithinfos(message, "[shop] 6 | Pas besoin")
+                logwithinfos_message(message, "[shop] 6 | Pas besoin")
 
         elif item == 8:
             if database.getStat(message.channel, message.author, "detecteurInfra", default=0) < int(time.time()):
@@ -1145,14 +1154,14 @@ def on_message(message):
                         language))
                     database.setStat(message.channel, message.author, "detecteurInfra", int(time.time()) + 86400)
                     database.addToStat(message.channel, message.author, "exp", -15)
-                    logwithinfos(message, "[shop] 8 | OK")
+                    logwithinfos_message(message, "[shop] 8 | OK")
                 else:
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                    logwithinfos(message, "[shop] 8 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 8 | Pas d'exp")
 
             else:
                 yield from messageUser(message, _(":champagne: Tu ne peux pas mettre deux détecteurs infrarouges sur ton arme!", language))
-                logwithinfos(message, "[shop] 8 | Pas besoin")
+                logwithinfos_message(message, "[shop] 8 | Pas besoin")
 
         elif item == 9:
             if database.getStat(message.channel, message.author, "silencieux", default=0) < int(time.time()):
@@ -1162,14 +1171,14 @@ def on_message(message):
                         language))
                     database.setStat(message.channel, message.author, "silencieux", int(time.time()) + 86400)
                     database.addToStat(message.channel, message.author, "exp", -5)
-                    logwithinfos(message, "[shop] 9 | OK")
+                    logwithinfos_message(message, "[shop] 9 | OK")
                 else:
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                    logwithinfos(message, "[shop] 9 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 9 | Pas d'exp")
 
             else:
                 yield from messageUser(message, _(":champagne: Ton arme est déjà équipée d'un silencieux!", language))
-                logwithinfos(message, "[shop] 9 | Pas besoin")
+                logwithinfos_message(message, "[shop] 9 | Pas besoin")
 
 
         elif item == 10:
@@ -1183,14 +1192,14 @@ def on_message(message):
                     database.setStat(message.channel, message.author, "trefle", int(time.time()) + 86400)
                     database.setStat(message.channel, message.author, "trefle_exp", exp)
                     database.addToStat(message.channel, message.author, "exp", -13)
-                    logwithinfos(message, "[shop] 10 | OK exp : " + str(exp))
+                    logwithinfos_message(message, "[shop] 10 | OK exp : " + str(exp))
                 else:
                     yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                    logwithinfos(message, "[shop] 10 | Pas d'exp")
+                    logwithinfos_message(message, "[shop] 10 | Pas d'exp")
 
             else:
                 yield from messageUser(message, _("Trop de chance tue la chance, c'est mort, je ne te donnerait pas un 2eme trefle!", language))
-                logwithinfos(message, "[shop] 10 | Pas besoin")
+                logwithinfos_message(message, "[shop] 10 | Pas besoin")
 
         elif item == 12:
 
@@ -1201,22 +1210,22 @@ def on_message(message):
                                            _(":money_with_wings: Tu te changes et repart chasser avec des vêtements secs, pour seulement 7 exp", language))
                     database.setStat(message.channel, message.author, "mouille", 0)
                     database.addToStat(message.channel, message.author, "exp", -10)
-                    logwithinfos(message, "[shop] 12 | OK")
+                    logwithinfos_message(message, "[shop] 12 | OK")
 
                 else:
                     yield from messageUser(message, _(":money_with_wings: Tu perds 7 experience, mais au moins, tu as du style !", language))
-                    logwithinfos(message, "[shop] 12 | Pas besoin (-7 exp)")
+                    logwithinfos_message(message, "[shop] 12 | Pas besoin (-7 exp)")
                 database.addToStat(message.channel, message.author, "exp", -7)
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                logwithinfos(message, "[shop] 12 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 12 | Pas d'exp")
 
 
         elif item == 16:
             if len(args_) <= 2:
                 yield from messageUser(message,
                                        _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
-                logwithinfos(message, "[shop] 16 | Manque pseudo")
+                logwithinfos_message(message, "[shop] 16 | Manque pseudo")
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[2])
@@ -1224,11 +1233,11 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
-                    logwithinfos(message, "[shop] 16 | Personne non reconnue : " + str(args_[2]))
+                    logwithinfos_message(message, "[shop] 16 | Personne non reconnue : " + str(args_[2]))
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 10:
-                logwithinfos(message, "[shop] 16 | OK")
+                logwithinfos_message(message, "[shop] 16 | OK")
                 yield from messageUser(message, _(
                     ":money_with_wings: Tu jettes un seau d'eau sur {target}, l'obligeant ainsi à attendre 1 heure avant de retourner chasser",
                     language).format(**{"target": target.name}))
@@ -1236,7 +1245,7 @@ def on_message(message):
                 database.addToStat(message.channel, message.author, "exp", -10)
 
             else:
-                logwithinfos(message, "[shop] 16 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 16 | Pas d'exp")
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
 
@@ -1244,7 +1253,7 @@ def on_message(message):
             if len(args_) <= 2:
                 yield from messageUser(message,
                                        _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
-                logwithinfos(message, "[shop] 17 | Manque pseudo")
+                logwithinfos_message(message, "[shop] 17 | Manque pseudo")
                 return
             args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
             target = message.channel.server.get_member_named(args_[2])
@@ -1252,7 +1261,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[2])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
-                    logwithinfos(message, "[shop] 17 | Personne non reconnue : " + str(args_[2]))
+                    logwithinfos_message(message, "[shop] 17 | Personne non reconnue : " + str(args_[2]))
                     return
 
             if database.getStat(message.channel, message.author, "exp") > 14:
@@ -1261,16 +1270,16 @@ def on_message(message):
                                                       language).format(**{"target": target.name}), forcePv=True)
                     database.addToStat(message.channel, message.author, "exp", -14)
                     database.setStat(message.channel, target, "sabotee", message.author.name)
-                    logwithinfos(message, "[shop] 17 | OK")
+                    logwithinfos_message(message, "[shop] 17 | OK")
                     return
                 else:
                     yield from messageUser(message, _(":ok: L'arme de {target} est déjà sabotée!", language).format(**{"target": target.name}),
                                            forcePv=True)
-                    logwithinfos(message, "[shop] 17 | Pas besoin")
+                    logwithinfos_message(message, "[shop] 17 | Pas besoin")
 
                     return
             else:
-                logwithinfos(message, "[shop] 17 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 17 | Pas d'exp")
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
 
         elif item == 18:
@@ -1279,14 +1288,14 @@ def on_message(message):
                     yield from messageUser(message, _(":money_with_wings: Tu souscris à une assurance vie, qui dure une semaine", language))
                     database.setStat(message.channel, message.author, "AssuranceVie", int(time.time()) + 604800)
                     database.addToStat(message.channel, message.author, "exp", -10)
-                    logwithinfos(message, "[shop] 18 | OK")
+                    logwithinfos_message(message, "[shop] 18 | OK")
 
                 else:
                     yield from messageUser(message, _(":money_with_wings: Tu es déjà assuré !", language))
-                    logwithinfos(message, "[shop] 18 | Pas besoin")
+                    logwithinfos_message(message, "[shop] 18 | Pas besoin")
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                logwithinfos(message, "[shop] 18 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 18 | Pas d'exp")
 
         elif item == 20:
             if database.getStat(message.channel, message.author, "exp") > 8:
@@ -1295,14 +1304,14 @@ def on_message(message):
                     language).format(**{"mention": message.author.mention}))
                 database.addToStat(message.channel, message.author, "exp", -8)
                 dans = random.randint(0, 60 * 10)
-                logwithinfos(message, "[shop] 20 | OK : Appeau lancé pour dans {dans} secondes, sur #{channel_name} | {server_name}.".format(
+                logwithinfos_message(message, "[shop] 20 | OK : Appeau lancé pour dans {dans} secondes, sur #{channel_name} | {server_name}.".format(
                     **{"dans": dans, "channel_name": message.channel.name, "server_name": message.channel.server.name}))
                 yield from asyncio.sleep(dans)
                 yield from nouveauCanard({"time": int(time.time()), "channel": message.channel})
 
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                logwithinfos(message, "[shop] 20 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 20 | Pas d'exp")
 
         elif item == 22:
             if database.getStat(message.channel, message.author, "exp") > 5:
@@ -1316,11 +1325,11 @@ def on_message(message):
                     servers[message.server.id]["detecteur"][message.channel.id] = [message.author.id]
                 JSONsaveToDisk(servers, "channels.json")
                 database.addToStat(message.channel, message.author, "exp", -5)
-                logwithinfos(message, "[shop] 22 | OK")
+                logwithinfos_message(message, "[shop] 22 | OK")
 
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                logwithinfos(message, "[shop] 22 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 22 | Pas d'exp")
 
 
         elif item == 23:
@@ -1329,7 +1338,7 @@ def on_message(message):
                     ":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !",
                     language), forcePv=True)
                 database.addToStat(message.channel, message.author, "exp", -50)
-                logwithinfos(message, "[shop] 23 | OK : ATtente spawn")
+                logwithinfos_message(message, "[shop] 23 | OK : ATtente spawn")
                 yield from asyncio.sleep(75)
                 try:
                     if getPref(message.server, "mecaRandom") == 0:
@@ -1340,27 +1349,27 @@ def on_message(message):
                     else:
                         yield from client.send_message(message.channel, random.choice(canards_trace) + "  " + random.choice(canards_portrait) + "  " + _(
                             random.choice(canards_cri), language=getPref(message.server, "lang")))
-                    logwithinfos(message, "[shop] 23 | Canard envoyé")
+                    logwithinfos_message(message, "[shop] 23 | Canard envoyé")
 
                 except:
-                    logwithinfos(message, "[shop] 23 | Erreur")
+                    logwithinfos_message(message, "[shop] 23 | Erreur")
                     pass
             else:
                 yield from messageUser(message, _(":x: Tu n'as pas assez d'experience pour effectuer cet achat !", language))
-                logwithinfos(message, "[shop] 23 | Pas d'exp")
+                logwithinfos_message(message, "[shop] 23 | Pas d'exp")
 
         else:
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
-            logwithinfos(message, "[shop] Objet non trouvé")
+            logwithinfos_message(message, "[shop] Objet non trouvé")
 
     elif getPref(message.server, "malusFauxCanards") and any(word in message.content for word in canards_trace):
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
-        logwithinfos(message, "FAUX CANARD")
+        logwithinfos_message(message, "FAUX CANARD")
 
     elif message.content.startswith(prefix + "top"):
         yield from deleteMessage(message)
-        logwithinfos(message, "TOPSCORES")
+        logwithinfos_message(message, "TOPSCORES")
         args_ = message.content.split(" ")
         if len(args_) == 1:
             nombre = 15
@@ -1370,14 +1379,14 @@ def on_message(message):
                 if nombre not in range(1, 30 + 1):
                     yield from messageUser(message,
                                            _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 30", language))
-                    logwithinfos(message, "Nombre trop grand")
+                    logwithinfos_message(message, "Nombre trop grand")
                     return
 
             except ValueError:
                 yield from messageUser(message, _(
                     ":mortar_board: Tu dois préciser le nombre de joueurs à afficher. Le numéro donné n'est pas valide. `!top [nombre joueurs]`",
                     language))
-                logwithinfos(message, "Nombre invalide")
+                logwithinfos_message(message, "Nombre invalide")
 
                 return
         x = PrettyTable()
@@ -1397,14 +1406,14 @@ def on_message(message):
                                _(":cocktail: Meilleurs scores pour #{channel_name} : :cocktail:\n```{table}```", language).format(
                                    **{"channel_name": message.channel.name, "table": x.get_string(end=nombre, sortby=_("Position", language))}),
                                )
-        logwithinfos(message, "Tableau affiché")
+        logwithinfos_message(message, "Tableau affiché")
 
     elif message.content.startswith(prefix + "ping"):
         yield from deleteMessage(message)
-        logwithinfos(message, "PING")
+        logwithinfos_message(message, "PING")
         try:
             tmp = yield from client.send_message(message.channel, _('BOUM', language))
-            logwithinfos(message, "Pong")
+            logwithinfos_message(message, "Pong")
         except:
             pass
         yield from asyncio.sleep(4)
@@ -1415,7 +1424,7 @@ def on_message(message):
 
     elif message.content.startswith(prefix + "duckstat"):
         yield from deleteMessage(message)
-        logwithinfos(message, "DUCKSTATS")
+        logwithinfos_message(message, "DUCKSTATS")
 
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -1427,7 +1436,7 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    logwithinfos(message, "Personne inconnue : " + str(args_[1]))
+                    logwithinfos_message(message, "Personne inconnue : " + str(args_[1]))
                     return
         x = PrettyTable()
         if database.getStat(message.channel, target, "canardsTues") > 0:
@@ -1471,42 +1480,42 @@ def on_message(message):
         yield from messageUser(message,
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
                                    **{"table": x.get_string()}))
-        logwithinfos(message, "Duckstats affichés pour " + target.name)
+        logwithinfos_message(message, "Duckstats affichés pour " + target.name)
 
     elif message.content.startswith(prefix + "aide") or message.content.startswith(prefix + "help") or message.content.startswith(prefix + "info"):
-        logwithinfos(message, "AIDE")
+        logwithinfos_message(message, "AIDE")
         yield from deleteMessage(message)
         yield from messageUser(message, aideMsg, forcePv=True)
 
     elif message.content.startswith(prefix + "giveback"):
         yield from deleteMessage(message)
 
-        logwithinfos(message, "GIVEBACK")
+        logwithinfos_message(message, "GIVEBACK")
 
         if int(message.author.id) in admins:
             yield from messageUser(message, _("En cours...", language))
-            logwithinfos(message, "En cours")
+            logwithinfos_message(message, "En cours")
             database.giveBack(logger)
             yield from messageUser(message, _(":ok: Terminé. Voir les logs sur la console ! ", language))
-            logwithinfos(message, "Terminé")
+            logwithinfos_message(message, "Terminé")
         else:
-            logwithinfos(message, "Interdit de giveback")
+            logwithinfos_message(message, "Interdit de giveback")
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
 
     elif message.content.startswith(prefix + "coin"):
         yield from deleteMessage(message)
-        logwithinfos(message, "COIN")
+        logwithinfos_message(message, "COIN")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             yield from nouveauCanard({"channel": message.channel, "time": int(time.time())})
-            logwithinfos(message, "Nouveau canard")
+            logwithinfos_message(message, "Nouveau canard")
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
-            logwithinfos(message, "Interdit")
+            logwithinfos_message(message, "Interdit")
 
     elif message.content.startswith(prefix + "nextduck"):
         yield from deleteMessage(message)
-        logwithinfos(message, "NEXTDUCK")
+        logwithinfos_message(message, "NEXTDUCK")
 
         if int(message.author.id) in admins:
             prochaincanard = yield from getprochaincanard()
@@ -1517,29 +1526,29 @@ def on_message(message):
                                                    "server"    : prochaincanard["channel"].server.name, "channel": prochaincanard["channel"].name,
                                                    "timetonext": timetonext, "time": prochaincanard["time"]
                                                }))
-                logwithinfos(message, "Envoyé")
+                logwithinfos_message(message, "Envoyé")
             except:
-                logwithinfos(message, "Erreur")
+                logwithinfos_message(message, "Erreur")
                 pass
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
-            logwithinfos(message, "Interdit de nextduck")
+            logwithinfos_message(message, "Interdit de nextduck")
 
     elif message.content.startswith(prefix + "delchannel"):
 
-        logwithinfos(message, "DELCHANNEL")
+        logwithinfos_message(message, "DELCHANNEL")
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
-                logwithinfos(message, "Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
+                logwithinfos_message(message, "Supression de la channel " + str(message.channel.id) + " | " + str(message.channel.name) + " du fichier...")
                 servers[str(message.channel.server.id)]["channels"].remove(message.channel.id)
                 JSONsaveToDisk(servers, "channels.json")
                 yield from messageUser(message, _(":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés...", language))
                 planification.pop(message.channel)
-                logwithinfos(message, "Supprimé")
+                logwithinfos_message(message, "Supprimé")
 
             else:
                 yield from messageUser(message, _(":x: Cette channel n'existe pas dans le jeu.", language))
-                logwithinfos(message, "Channel inexistante")
+                logwithinfos_message(message, "Channel inexistante")
         elif int(message.author.id) in admins:
             if message.channel.id in servers[message.channel.server.id]["channels"]:
                 logger.debug("Supression de la channel {channel_id} | {channel_name} du fichier...".format(
@@ -1549,24 +1558,24 @@ def on_message(message):
                 yield from messageUser(message, _(
                     ":robot: Channel supprimée du jeu ! Les scores sont neanmoins conservés... :warning: Vous n'etes pas administrateur du serveur",
                     language))
-                logwithinfos(message, "(GA) channel suprimée")
+                logwithinfos_message(message, "(GA) channel suprimée")
                 planification.pop(message.channel)
 
             else:
                 yield from messageUser(message,
                                        _(":x: Cette channel n'existe pas dans le jeu. :warning: Vous n'etes pas administrateur du serveur", language))
-                logwithinfos(message, "(GA) Channel inexistante")
+                logwithinfos_message(message, "(GA) Channel inexistante")
         else:
-            logwithinfos(message, "Interdit de delchannel")
+            logwithinfos_message(message, "Interdit de delchannel")
             yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
 
         return
 
     elif message.content.startswith(prefix + "set"):
-        logwithinfos(message, "SET")
+        logwithinfos_message(message, "SET")
         args_ = message.content.split(" ")
         if len(args_) == 1 or len(args_) > 3:
-            logwithinfos(message, "Erreur de syntaxe")
+            logwithinfos_message(message, "Erreur de syntaxe")
             yield from messageUser(message, _(":x: Oops, mauvaise syntaxe. !set [paramètre] <valeur>", language))
             x = PrettyTable()
 
@@ -1582,13 +1591,13 @@ def on_message(message):
 
         if not args_[1] in defaultSettings:
             yield from messageUser(message, _(":x: Oops, le paramètre n'as pas été reconnu. !set [paramètre] <valeur>", language))
-            logwithinfos(message, "Parametre introuvable : " + args_[1])
+            logwithinfos_message(message, "Parametre introuvable : " + args_[1])
             return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if len(args_) == 2:
                 if args_[1] in servers[message.server.id]["settings"]: servers[message.server.id]["settings"].pop(args_[1])
-                logwithinfos(message, "Valeur de " + args_[1] + " réinitialisée")
+                logwithinfos_message(message, "Valeur de " + args_[1] + " réinitialisée")
                 yield from messageUser(message, _(":ok: Valeur réinitialisée a la valeur par défaut !", language))
                 JSONsaveToDisk(servers, "channels.json")
                 return
@@ -1609,9 +1618,9 @@ def on_message(message):
 
                 if args_[1] == "canardsJours":
                     if args_[2] > 250:
-                        logwithinfos(message, "Limitation de canardsJours qui était à " + args_[2])
+                        logwithinfos_message(message, "Limitation de canardsJours qui était à " + args_[2])
                         args_[2] = 250
-                logwithinfos(message, "Changement du paramétre " + args_[1] + " pour " + str(args_[2]) + " (" + str(type(args_[2])) + ")")
+                logwithinfos_message(message, "Changement du paramétre " + args_[1] + " pour " + str(args_[2]) + " (" + str(type(args_[2])) + ")")
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
 
             JSONsaveToDisk(servers, "channels.json")
@@ -1621,19 +1630,19 @@ def on_message(message):
 
             if args_[1] == "canardsJours":
                 yield from planifie(channel=message.channel)
-                logwithinfos(message, "Replanification en cours pour la channel")
+                logwithinfos_message(message, "Replanification en cours pour la channel")
 
 
 
         else:
-            logwithinfos(message, "Interdit de set")
+            logwithinfos_message(message, "Interdit de set")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
         return
 
     elif message.content.startswith(prefix + "duckplanning"):
         yield from deleteMessage(message)
-        logwithinfos(message, "DUCKPLANNING")
+        logwithinfos_message(message, "DUCKPLANNING")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             table = ""
             for timestamp in planification[message.channel]:
@@ -1643,19 +1652,19 @@ def on_message(message):
                 yield from client.send_message(message.author,
                                                _(":hammer: TimeDelta en minutes pour les canards sur le chan\n```{table}```", language).format(
                                                    **{"table": table}))
-                logwithinfos(message, "Duckplanning envoyé")
+                logwithinfos_message(message, "Duckplanning envoyé")
             except:
-                logwithinfos(message, "Erreur dans duckplanning")
+                logwithinfos_message(message, "Erreur dans duckplanning")
                 pass
 
 
         else:
-            logwithinfos(message, "Interdit de duckplanning")
+            logwithinfos_message(message, "Interdit de duckplanning")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith(prefix + "stat"):
         yield from deleteMessage(message)
-        logwithinfos(message, "STATS")
+        logwithinfos_message(message, "STATS")
         compteurCanards = 0
         serveurs = 0
         channels = 0
@@ -1711,11 +1720,11 @@ def on_message(message):
             "memory_used"            : round(memoryUsed * 1000, 5),
             "python_version"         : str(sys.version)
         }))
-        logwithinfos(message, "Stats envoyées")
+        logwithinfos_message(message, "Stats envoyées")
 
     elif message.content.startswith(prefix + "permissions"):
         yield from deleteMessage(message)
-        logwithinfos(message, "PERMISSIONS")
+        logwithinfos_message(message, "PERMISSIONS")
         permissionsToHave = ["change_nicknames", "connect", "create_instant_invite", "embed_links", "manage_messages", "mention_everyone", "read_messages",
                              "send_messages", "send_tts_messages"]
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -1731,18 +1740,18 @@ def on_message(message):
                     emo += ":warning:"
                 permissions_str += "\n{value}\t{name}".format(**{"value": emo, "name": str(permission)})
             yield from messageUser(message, _("Permissions : {permissions}", language).format(**{"permissions": permissions_str}))
-            logwithinfos(message, "Permissions affichées")
+            logwithinfos_message(message, "Permissions affichées")
         else:
-            logwithinfos(message, "Interdit de voir les permissions")
+            logwithinfos_message(message, "Interdit de voir les permissions")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
     elif message.content.startswith(prefix + "dearm"):
-        logwithinfos(message, "DEARM")
+        logwithinfos_message(message, "DEARM")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
 
             if len(args_) == 1:
                 yield from messageUser(message, _(":x: Joueur non spécifié", language))
-                logwithinfos(message, "[dearm] Joueur non spécifié")
+                logwithinfos_message(message, "[dearm] Joueur non spécifié")
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
@@ -1751,32 +1760,32 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        logwithinfos(message, "[dearm] personne non reconnue : " + args_[1])
+                        logwithinfos_message(message, "[dearm] personne non reconnue : " + args_[1])
                         return
 
             if not database.getStat(message.channel, target, "banni", default=False):
                 if target.id not in servers[message.channel.server.id]["admins"] and int(target.id) not in admins:
                     database.setStat(message.channel, target, "banni", True)
                     yield from messageUser(message, _(":ok: Ce joueur est maintenant banni du bot !", language))
-                    logwithinfos(message, "[dearm] " + target.name + " est banni du bot")
+                    logwithinfos_message(message, "[dearm] " + target.name + " est banni du bot")
                 else:
                     yield from messageUser(message, _(":x: Il est admin ce mec, c'est mort !", language))
-                    logwithinfos(message, "[dearm] Fail : target admin")
+                    logwithinfos_message(message, "[dearm] Fail : target admin")
             else:
                 yield from messageUser(message, _(":x: Il est déja banni, lui ^^", language))
-                logwithinfos(message, "[dearm] Fail : déjà banni")
+                logwithinfos_message(message, "[dearm] Fail : déjà banni")
         else:
-            logwithinfos(message, "Interdit de dearm")
+            logwithinfos_message(message, "Interdit de dearm")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith(prefix + "rearm"):
-        logwithinfos(message, "REARM")
+        logwithinfos_message(message, "REARM")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
 
             if len(args_) == 1:
                 yield from messageUser(message, _(":x: Joueur non spécifié", language))
-                logwithinfos(message, "[rearm] Joueur non spécifié")
+                logwithinfos_message(message, "[rearm] Joueur non spécifié")
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
@@ -1785,29 +1794,29 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        logwithinfos(message, "[rearm] Personne inconnue : " + args_[1])
+                        logwithinfos_message(message, "[rearm] Personne inconnue : " + args_[1])
                         return
 
             if database.getStat(message.channel, target, "banni", default=False):
                 database.setStat(message.channel, target, "banni", False)
                 yield from messageUser(message, _(":ok: Ce joueur est maintenant dé-banni du bot !", language))
-                logwithinfos(message, "[rearm] " + target.name + " est débanni du bot")
+                logwithinfos_message(message, "[rearm] " + target.name + " est débanni du bot")
             else:
                 yield from messageUser(message, _(":x: Il est pas banni, lui ^^", language))
-                logwithinfos(message, "[rearm] Joueur non banni")
+                logwithinfos_message(message, "[rearm] Joueur non banni")
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
-            logwithinfos(message, "Non autorisé à rearm")
+            logwithinfos_message(message, "Non autorisé à rearm")
 
     elif message.content.startswith(prefix + "sendexp"):
         yield from deleteMessage(message)
-        logwithinfos(message, "SENDEXP")
+        logwithinfos_message(message, "SENDEXP")
         if getPref(message.server, "donExp"):
             args_ = message.content.split(" ")
 
             if len(args_) < 3:
                 yield from messageUser(message, _(":x: Joueur/Montant non spécifié : `!sendexp @joueur montant`", language))
-                logwithinfos(message, "[sendexp] Joueur non spécifié")
+                logwithinfos_message(message, "[sendexp] Joueur non spécifié")
                 return
             else:
                 args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
@@ -1816,12 +1825,12 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        logwithinfos(message, "[sendexp] Personne inconnue : " + args_[1])
+                        logwithinfos_message(message, "[sendexp] Personne inconnue : " + args_[1])
                         return
             montant = args_[2]
             if not representsInt(montant) or int(montant) <= 0:
                 yield from messageUser(message, _(":x: Essaye de préciser un montant valide, c'est a dire positif et entier", language))
-                logwithinfos(message, "[sendexp] montant invalide")
+                logwithinfos_message(message, "[sendexp] montant invalide")
                 return
             montant = int(montant)
             if database.getStat(message.channel, message.author, "exp") > montant:
@@ -1834,16 +1843,16 @@ def on_message(message):
                 yield from messageUser(message,
                                        _("Vous avez envoyé {amount} exp à {target} (et payé {taxes} exp de taxe de transfert) !", language).format(
                                            **{"amount": montant - taxes, "target": target.mention, "taxes": taxes}))
-                logwithinfos(message, "[sendexp] Exp envoyé à {target} : {amount} exp et {taxes}".format(
+                logwithinfos_message(message, "[sendexp] Exp envoyé à {target} : {amount} exp et {taxes}".format(
                     **{"amount": montant - taxes, "target": target.mention, "taxes": taxes}))
             else:
-                logwithinfos(message, "[sendexp] manque d'experience")
+                logwithinfos_message(message, "[sendexp] manque d'experience")
                 yield from messageUser(message, _("Vous n'avez pas assez d'experience", language))
 
 
 
         else:
-            logwithinfos(message, "[sendexp] Don non activé")
+            logwithinfos_message(message, "[sendexp] Don non activé")
             yield from messageUser(message,
                                    _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`",
                                      language))
@@ -1855,7 +1864,7 @@ def on_message(message):
 
             if len(args_) < 3:
                 messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
-                logwithinfos(message, "[giveexp] Erreur de syntaxe")
+                logwithinfos_message(message, "[giveexp] Erreur de syntaxe")
                 return
             else:
                 target = message.channel.server.get_member_named(args_[1])
@@ -1863,42 +1872,42 @@ def on_message(message):
                     target = message.channel.server.get_member(args_[1])
                     if target is None:
                         yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[1]}))
-                        logwithinfos(message, "[giveexp] Personne non reconnue : " + args_[1])
+                        logwithinfos_message(message, "[giveexp] Personne non reconnue : " + args_[1])
                         return
 
             if not representsInt(args_[2]):
                 yield from messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
-                logwithinfos(message, "[giveexp] Erreur de syntaxe, le 2eme argument n'est pas un int")
+                logwithinfos_message(message, "[giveexp] Erreur de syntaxe, le 2eme argument n'est pas un int")
                 return
             else:
                 args_[2] = int(args_[2])
 
                 database.addToStat(message.channel, target, "exp", args_[2])
-                logwithinfos(message, "[giveexp] Ajout de " + str(args_[2]) + " points d'experience à " + target.name)
+                logwithinfos_message(message, "[giveexp] Ajout de " + str(args_[2]) + " points d'experience à " + target.name)
                 yield from messageUser(message, _(":ok:, il a maintenant {newexp} points d'experience !", language).format(
                     **{"newexp": database.getStat(message.channel, target, "exp")}))
 
         else:
-            logwithinfos(message, "Giveexp interdit")
+            logwithinfos_message(message, "Giveexp interdit")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith(prefix + "purgemessages"):
-        logwithinfos(message, "PURGE MESSAGES (" + str(message.author) + ")")
+        logwithinfos_message(message, "PURGE MESSAGES (" + str(message.author) + ")")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if message.channel.permissions_for(message.server.me).manage_messages:
                 deleted = yield from client.purge_from(message.channel, limit=500)
                 yield from messageUser(message, _("{deleted} message(s) supprimés", language).format(**{"deleted": len(deleted)}))
-                logwithinfos(message, str(deleted) + " messages supprimés")
+                logwithinfos_message(message, str(deleted) + " messages supprimés")
             else:
                 yield from messageUser(message, _("0 message(s) supprimés : permission refusée", language))
-                logwithinfos(message, "Le bot n'as pas la permission")
+                logwithinfos_message(message, "Le bot n'as pas la permission")
         else:
-            logwithinfos(message, "Interdit de purgemessages")
+            logwithinfos_message(message, "Interdit de purgemessages")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith(prefix + "deladmin"):
-        logwithinfos(message, "DELADMIN")
+        logwithinfos_message(message, "DELADMIN")
 
         args_ = message.content.split(" ")
         if len(args_) == 1:
@@ -1910,13 +1919,13 @@ def on_message(message):
                 target = message.channel.server.get_member(args_[1])
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    logwithinfos(message, "Personne non reconnue : " + args_[1])
+                    logwithinfos_message(message, "Personne non reconnue : " + args_[1])
                     return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if target.id in servers[message.channel.server.id]["admins"]:
                 servers[message.channel.server.id]["admins"].remove(target.id)
-                logwithinfos(message, "Supression de l'admin {admin_name} | {admin_id}".format(
+                logwithinfos_message(message, "Supression de l'admin {admin_name} | {admin_id}".format(
                     **{
                         "admin_id"   : target.id, "admin_name": target.name
                     }))
@@ -1930,28 +1939,28 @@ def on_message(message):
                 JSONsaveToDisk(servers, "channels.json")
             else:
                 yield from messageUser(message, _(":x: Oops, cette personne n'est pas administrateur du serveur...", language))
-                logwithinfos(message, "Personne non administrateur")
+                logwithinfos_message(message, "Personne non administrateur")
         else:
-            logwithinfos(message, "Interdit de deladmin")
+            logwithinfos_message(message, "Interdit de deladmin")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
         return
 
     elif message.content.startswith(prefix + "deleteeverysinglescoreandstatonthischannel"):
-        logwithinfos(message, "deleteeverysinglescoreandstatonthischannel")
+        logwithinfos_message(message, "deleteeverysinglescoreandstatonthischannel")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             database.delChannelTable(message.channel)
             yield from messageUser(message, _(":ok: Les scores / stats de la channel ont bien étés supprimés.", language))
-            logwithinfos(message, "Scores + stats supprimés")
+            logwithinfos_message(message, "Scores + stats supprimés")
         else:
-            logwithinfos(message, "Action interdite")
+            logwithinfos_message(message, "Action interdite")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
     elif message.content.startswith(prefix + "serverlist"):
-        logwithinfos(message, "SERVERLIST")
+        logwithinfos_message(message, "SERVERLIST")
         if int(message.author.id) in admins:
-            logwithinfos(message, "Construction de la serverlist")
+            logwithinfos_message(message, "Construction de la serverlist")
             x = PrettyTable()
             args_ = message.content.split(" ")
             x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language),
@@ -2006,10 +2015,10 @@ def on_message(message):
                         x.add_row([server.name, "", str(0) + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
 
             yield from messageUser(message, x.get_string(sortby=_("Nombres de connectés", language)))
-            logwithinfos(message, "Serverlist envoyée")
+            logwithinfos_message(message, "Serverlist envoyée")
 
         else:
-            logwithinfos(message, "Interdit de serverlist")
+            logwithinfos_message(message, "Interdit de serverlist")
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
 
@@ -2067,6 +2076,7 @@ def on_message_edit(old, new):
 
     language = getPref(new.server, "lang")
     if getPref(new.server, "malusFauxCanards") and getPref(new.server, "malusFauxCanards") and any(word in new.content for word in canards_trace):
+        logwithinfos_message(new, "Faux canard edité")
         yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
         database.addToStat(new.channel, new.author, "exp", -5)
 
