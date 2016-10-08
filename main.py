@@ -558,8 +558,9 @@ def on_message(message):
 
     # Messages pour n'importe où
     language = getPref(message.server, "lang")
+    prefix = getPref(message.server, "prefix")
 
-    if message.content.startswith("!claimserver"):
+    if message.content.startswith(prefix + "claimserver"):
         logger.debug("> CLAIMSERVER (" + str(message.author) + ")")
         if not servers[message.channel.server.id]["admins"]:
             servers[message.channel.server.id]["admins"] = [message.author.id]
@@ -573,7 +574,7 @@ def on_message(message):
         JSONsaveToDisk(servers, "channels.json")
         return
 
-    elif message.content.startswith('!addchannel'):
+    elif message.content.startswith(prefix + "addchannel"):
         logger.debug("> ADDCHANNEL (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"]:
             if not message.channel.id in servers[message.channel.server.id]["channels"]:
@@ -602,7 +603,7 @@ def on_message(message):
             yield from messageUser(message, _(":x: Vous n'etes pas l'administrateur du serveur.", language))
 
         return
-    elif message.content.startswith("!broadcast"):
+    elif message.content.startswith(prefix + "broadcast"):
         logger.debug("> BROADCAST (" + str(message.author) + ")")
         bc = message.content.replace("!broadcast", "", 1)
         if int(message.author.id) in admins:
@@ -620,7 +621,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
 
-    elif message.content.startswith("!addadmin"):
+    elif message.content.startswith(prefix + "addadmin"):
         logger.debug("> ADDADMIN (" + str(message.author) + ")")
 
         args_ = message.content.split(" ")
@@ -665,7 +666,7 @@ def on_message(message):
         return
     # Messages en whitelist sur les channels activées
 
-    if message.content.startswith('!bang'):
+    if message.content.startswith(prefix + "bang"):
 
         yield from deleteMessage(message)
         logger.debug("> BANG (" + str(message.author) + ")")
@@ -887,7 +888,7 @@ def on_message(message):
             database.addToStat(message.channel, message.author, "tirsSansCanards", 1)
             database.addToStat(message.channel, message.author, "exp", -2)
 
-    elif message.content.startswith("!reload"):
+    elif message.content.startswith(prefix + "reload"):
         yield from deleteMessage(message)
         logger.debug("> RELOAD (" + str(message.author) + ")")
         yield from giveBackIfNeeded(message.channel, message.author)
@@ -941,7 +942,7 @@ def on_message(message):
             }))
             return
 
-    elif message.content.startswith("!shop"):
+    elif message.content.startswith(prefix + "shop"):
         yield from deleteMessage(message)
         logger.debug("> SHOP (" + str(message.author) + ")")
         yield from giveBackIfNeeded(message.channel, message.author)
@@ -1269,7 +1270,7 @@ def on_message(message):
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
 
-    elif message.content.startswith("!top"):
+    elif message.content.startswith(prefix + "top"):
         yield from deleteMessage(message)
         logger.debug("> TOPSCORES (" + str(message.author) + ")")
         args_ = message.content.split(" ")
@@ -1308,7 +1309,7 @@ def on_message(message):
                                    **{"channel_name": message.channel.name, "table": x.get_string(end=nombre, sortby=_("Position", language))}),
                                )
 
-    elif message.content.startswith('!ping'):
+    elif message.content.startswith(prefix + "ping"):
         yield from deleteMessage(message)
         logger.debug("> PING (" + str(message.author) + ")")
         try:
@@ -1321,7 +1322,7 @@ def on_message(message):
         except:
             pass
 
-    elif message.content.startswith("!duckstat"):
+    elif message.content.startswith(prefix + "duckstat"):
         yield from deleteMessage(message)
         logger.debug("> DUCKSTATS (" + str(message.author) + ")")
 
@@ -1380,11 +1381,11 @@ def on_message(message):
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
                                    **{"table": x.get_string()}))
 
-    elif message.content.startswith("!aide") or message.content.startswith("!help") or message.content.startswith("!info"):
+    elif message.content.startswith(prefix + "aide") or message.content.startswith(prefix + "help") or message.content.startswith(prefix + "info"):
         yield from deleteMessage(message)
         yield from messageUser(message, aideMsg, forcePv=True)
 
-    elif message.content.startswith("!giveback"):
+    elif message.content.startswith(prefix + "giveback"):
         yield from deleteMessage(message)
         logger.debug("> GIVEBACK (" + str(message.author) + ")")
 
@@ -1395,7 +1396,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
 
-    elif message.content.startswith("!coin"):
+    elif message.content.startswith(prefix + "coin"):
         yield from deleteMessage(message)
         logger.debug("> COIN (" + str(message.author) + ")")
 
@@ -1404,7 +1405,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oupas (Permission Denied)", language))
 
-    elif message.content.startswith("!nextduck"):
+    elif message.content.startswith(prefix + "nextduck"):
         yield from deleteMessage(message)
         logger.debug("> NEXTDUCK (" + str(message.author) + ")")
 
@@ -1422,7 +1423,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _("Oupas (Permission Denied)", language))
 
-    elif message.content.startswith('!delchannel'):
+    elif message.content.startswith(prefix + "delchannel"):
 
         logger.debug("> DELCHANNEL (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"]:
@@ -1454,7 +1455,7 @@ def on_message(message):
 
         return
 
-    elif message.content.startswith("!set"):
+    elif message.content.startswith(prefix + "set"):
         logger.debug("> SET (" + str(message.author) + ")")
         args_ = message.content.split(" ")
         if len(args_) == 1 or len(args_) > 3:
@@ -1524,7 +1525,7 @@ def on_message(message):
 
         return
 
-    elif message.content.startswith("!duckplanning"):
+    elif message.content.startswith(prefix + "duckplanning"):
         yield from deleteMessage(message)
         logger.debug("> DUCKPLANNING (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -1543,7 +1544,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
-    elif message.content.startswith("!stat"):
+    elif message.content.startswith(prefix + "stat"):
         yield from deleteMessage(message)
         logger.debug("> STATS (" + str(message.author) + ")")
         compteurCanards = 0
@@ -1602,7 +1603,7 @@ def on_message(message):
             "python_version"         : str(sys.version)
         }))
 
-    elif message.content.startswith("!permissions"):
+    elif message.content.startswith(prefix + "permissions"):
         yield from deleteMessage(message)
         logger.debug("> PERMISSIONS (" + str(message.author) + ")")
         permissionsToHave = ["change_nicknames", "connect", "create_instant_invite", "embed_links", "manage_messages", "mention_everyone", "read_messages",
@@ -1622,7 +1623,7 @@ def on_message(message):
             yield from messageUser(message, _("Permissions : {permissions}", language).format(**{"permissions": permissions_str}))
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
-    elif message.content.startswith("!dearm"):
+    elif message.content.startswith(prefix + "dearm"):
         logger.debug("> DEARM (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
@@ -1651,7 +1652,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
-    elif message.content.startswith("!rearm"):
+    elif message.content.startswith(prefix + "rearm"):
         logger.debug("> REARM (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
@@ -1677,7 +1678,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
-    elif message.content.startswith("!sendexp"):
+    elif message.content.startswith(prefix + "sendexp"):
         yield from deleteMessage(message)
         logger.debug("> SENDEXP (" + str(message.author) + ")")
         if getPref(message.server, "donExp"):
@@ -1719,7 +1720,7 @@ def on_message(message):
                                    _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`",
                                      language))
 
-    elif message.content.startswith("!giveexp"):
+    elif message.content.startswith(prefix + "giveexp"):
         logger.debug("> GIVEEXP (" + str(message.author) + ")")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
@@ -1748,7 +1749,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
-    elif message.content.startswith("!purgemessages"):
+    elif message.content.startswith(prefix + "purgemessages"):
         logger.debug("> PURGE MESSAGES (" + str(message.author) + ")")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -1760,7 +1761,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
-    elif message.content.startswith("!deladmin"):
+    elif message.content.startswith(prefix + "deladmin"):
         logger.debug("> DELADMIN (" + str(message.author) + ")")
 
         args_ = message.content.split(" ")
@@ -1799,7 +1800,7 @@ def on_message(message):
 
         return
 
-    elif message.content.startswith("!deleteeverysinglescoreandstatonthischannel"):
+    elif message.content.startswith(prefix + "deleteeverysinglescoreandstatonthischannel"):
         logger.debug("> deleteeverysinglescoreandstatonthischannel (" + str(message.author) + ")")
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
@@ -1808,7 +1809,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Oops, vous n'etes pas administrateur du serveur...", language))
 
-    elif message.content.startswith("!serverlist"):
+    elif message.content.startswith(prefix + "serverlist"):
         logger.debug("> SERVER LIST (" + str(message.author) + ")")
         if int(message.author.id) in admins:
 
