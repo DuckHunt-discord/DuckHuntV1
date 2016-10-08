@@ -254,10 +254,10 @@ def messageUser(message, toSend, forcePv=False):
             pass
 
 def logwithinfos_message(message_obj, log_str):
-    logger.debug((message_obj.server.name if len(message_obj.server.name) < 16 else message_obj.server.name[:16]) + " :: #" + (message_obj.channel.name if len(message_obj.channel.name) < 16 else message_obj.channel.name[:16]) + " :: <" + message_obj.author.name + "> " + log_str)
+    logger.debug((message_obj.server.name.center(16, " ") if len(message_obj.server.name) < 16 else message_obj.server.name[:16]) + " :: " + (("#" + message_obj.channel.name).center(16, " ") if len(message_obj.channel.name) < 16 else message_obj.channel.name[:16]) + " :: <" + message_obj.author.name + "> " + log_str)
 
 def logwithinfos(channel, author, log_str):
-    logger.debug(((channel.server.name if len(channel.server.name) < 16 else channel.server.name[:16]) if channel else "XX") + " :: #" + ((channel.name if len(channel.name) < 16 else channel.name[:16]) if channel else "XX") + " :: " + ("<" + author.name + ">" if author else "") + log_str)
+    logger.debug(((channel.server.name.center(16, " ") if len(channel.server.name) < 16 else channel.server.name[:16]) if channel else "XX") + " :: " + ((("#" + channel.name).center(16, " ") if len(channel.name) < 16 else channel.name[:16]) if channel else "XX") + " :: " + ("<" + author.name + ">" if author else "") + log_str)
 
 def representsInt(s):
     try:
@@ -288,7 +288,7 @@ def newserver(server):
 def updateJSON():
     logger.debug("Verfification du fichier channels.json")
     servers = JSONloadFromDisk("channels.json", default="{}")
-    logger.debug("Version parsée de servers : " + str(servers))
+    #logger.debug("Version parsée de servers : " + str(servers))
 
     for server in list(servers.keys()):
         server_obj = client.get_server(server)
@@ -305,7 +305,7 @@ def updateJSON():
             if not "detecteur" in servers[server]:
                 logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
                 servers[server]["detecteur"] = {}
-            logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
+            #logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
 
             names = {"server": server_obj.name}
             ids = []
@@ -357,7 +357,7 @@ def planifie(channel=None):
                                 for id_ in range(1, getPref(server, "canardsJours") + 1):
                                     templist.append(int(thisDay + random.randint(0, 86400)))
                                 planification_[channel] = sorted(templist)
-        logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification_}))
+        #logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification_}))
         logger.debug("Supression de l'ancienne planification, et application de la nouvelle")
 
         planification = planification_  # {"channel":[time objects]}
@@ -1338,7 +1338,7 @@ def on_message(message):
                     ":money_with_wings: Tu prépares un canard mécanique sur le chan pour 50 points d'experience. C'est méchant, mais tellement drôle !",
                     language), forcePv=True)
                 database.addToStat(message.channel, message.author, "exp", -50)
-                logwithinfos_message(message, "[shop] 23 | OK : ATtente spawn")
+                logwithinfos_message(message, "[shop] 23 | OK : Attente spawn")
                 yield from asyncio.sleep(75)
                 try:
                     if getPref(message.server, "mecaRandom") == 0:
@@ -1618,7 +1618,7 @@ def on_message(message):
 
                 if args_[1] == "canardsJours":
                     if args_[2] > 250:
-                        logwithinfos_message(message, "Limitation de canardsJours qui était à " + args_[2])
+                        logwithinfos_message(message, "Limitation de canardsJours qui était à " + str(args_[2]))
                         args_[2] = 250
                 logwithinfos_message(message, "Changement du paramétre " + args_[1] + " pour " + str(args_[2]) + " (" + str(type(args_[2])) + ")")
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
@@ -1858,7 +1858,7 @@ def on_message(message):
                                      language))
 
     elif message.content.startswith(prefix + "giveexp"):
-        logger.debug("> GIVEEXP (" + str(message.author) + ")")
+        logwithinfos_message(message, "GIVEEXP")
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             args_ = message.content.split(" ")
 
@@ -1898,7 +1898,7 @@ def on_message(message):
             if message.channel.permissions_for(message.server.me).manage_messages:
                 deleted = yield from client.purge_from(message.channel, limit=500)
                 yield from messageUser(message, _("{deleted} message(s) supprimés", language).format(**{"deleted": len(deleted)}))
-                logwithinfos_message(message, str(deleted) + " messages supprimés")
+                logwithinfos_message(message, str(len(deleted)) + " messages supprimés")
             else:
                 yield from messageUser(message, _("0 message(s) supprimés : permission refusée", language))
                 logwithinfos_message(message, "Le bot n'as pas la permission")
