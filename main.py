@@ -524,6 +524,14 @@ def on_ready():
         client.loop.close()
         sys.exit(1)
 
+def objectTD(channel, target, language, object):
+    date_expiration = datetime.datetime.fromtimestamp(database.getStat(channel, target, object, default=0))
+    td = date_expiration - datetime.datetime.now()
+    return _("{date} (dans {dans_jours}{dans_heures} et {dans_minutes})", language).format(**{
+        "date" : date_expiration.strftime(_('%H:%M:%S le %d/%m', language)),
+        "dans_jours": _("{dans} jours ").format(**{"dans": td.days}) if td.days else "",
+        "dans_heures": _("{dans} heures").format(**{"dans": td.seconds//3600}),
+        "dans_minutes": _("{dans} minutes").format(**{"dans": (td.seconds//60)%60})})
 
 @client.async_event
 def on_message(message):
@@ -718,11 +726,16 @@ def on_message(message):
             if canardencours:
                 if getPref(message.server, "duckLeaves"):
                     if random.randint(1, 100) < getPref(message.server, "duckChanceLeave") and database.getStat(message.channel, message.author, "silencieux", default=0) < int(time.time()) :
-                        canards.remove(canardencours)
                         try:
                             tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                         except:
                             pass
+                        try:
+                            canards.remove(canardencours)
+                        except ValueError:
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
+
+
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
                             " > **FLAPP**\tEffrayé par tout ce bruit, le canard s'échappe ! AH BAH BRAVO ! [raté : -1 xp]", language))
@@ -746,8 +759,10 @@ def on_message(message):
                             vieenmoins = 1
 
                         if canardencours["SCvie"] <= 0:
-
-                            canards.remove(canardencours)
+                            try:
+                                canards.remove(canardencours)
+                            except ValueError:
+                                yield from client.edit_message(tmp, str(message.author.mention) + _(" > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
                             gain = int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"]))
                             if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
                                 gain += database.getStat(message.channel, message.author, "trefle_exp", default=0)
@@ -783,7 +798,12 @@ def on_message(message):
 
 
                     else:
-                        canards.remove(canardencours)
+                        try:
+                            canards.remove(canardencours)
+                        except ValueError:
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
+
+
                         gain = int(getPref(message.server, "expParCanard"))
                         if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
                             gain += database.getStat(message.channel, message.author, "trefle_exp", default=0)
@@ -1326,24 +1346,17 @@ def on_message(message):
         x.add_row([_("Précision des tirs", language), database.getPlayerLevel(message.channel, target)["precision"]])
         x.add_row([_("Fiabilité de l'arme", language), database.getPlayerLevel(message.channel, target)["fiabilitee"]])
         if database.getStat(message.channel, target, "graisse", default=0) > int(time.time()):
-            x.add_row([_("Objet : graisse", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "graisse", default=0)).strftime('%H:%M:%S le %d/%m')])
+            x.add_row([_("Objet : graisse", language), objectTD(message.channel, target, language, "graisse")])
         if database.getStat(message.channel, target, "detecteurInfra", default=0) > int(time.time()):
-            x.add_row([_("Objet : détecteur infrarouge", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "detecteurInfra", default=0)).strftime('%H:%M:%S le %d/%m')])
+            x.add_row([_("Objet : détecteur infrarouge", language), objectTD(message.channel, target, language, "detecteurInfra")])
         if database.getStat(message.channel, target, "silencieux", default=0) > int(time.time()):
-            x.add_row([_("Objet : silencieux", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "silencieux", default=0)).strftime('%H:%M:%S le %d/%m')])
+            x.add_row([_("Objet : silencieux", language), objectTD(message.channel, target, language, "silencieux")])
         if database.getStat(message.channel, target, "trefle", default=0) > int(time.time()):
-            x.add_row([_("Objet : trefle", language), "{time} ({exp} exp)".format(**{"time" : datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "trefle", default=0)).strftime('%H:%M:%S le %d/%m'),
-                                                                                  "exp" : database.getStat(message.channel, target, "trefle_exp", default=0)}) ])
+            x.add_row([_("Objet : trefle {exp} exp", language).format(**{"exp" : database.getStat(message.channel, target, "trefle_exp", default=0)}), objectTD(message.channel, target, language, "trefle")])
         if database.getStat(message.channel, target, "mouille", default=0) > int(time.time()):
-            x.add_row([_("Effet : mouille", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "mouille", default=0)).strftime('%H:%M:%S le %d/%m')])
+            x.add_row([_("Effet : mouille", language), objectTD(message.channel, target, language, "mouille")])
         if database.getStat(message.channel, target, "AssuranceVie", default=0) > int(time.time()):
-            x.add_row([_("Objet : assurance vie", language), datetime.datetime.fromtimestamp(database.getStat(message.channel, target, "AssuranceVie", default=0)).strftime('%H:%M:%S le %d/%m')])
-        if database.getStat(message.channel, target, "AssuranceVie", default=0) > int(time.time()):
-            x.add_row([_("Objet : detecteur", language), _("Restant : 1", language)])
-        
-
-
-
+            x.add_row([_("Objet : assurance vie", language), objectTD(message.channel, target, language, "AssuranceVie")])
 
         yield from messageUser(message,
                                _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
@@ -1670,8 +1683,8 @@ def on_message(message):
             montant = int(montant)
             if database.getStat(message.channel, message.author, "exp") > montant:
                 database.addToStat(message.channel, message.author, "exp", -montant)
-                if getPref(message.server, "donExp") > 0:
-                    taxes = exp * (100/getPref(message.server, "donExp"))
+                if getPref(message.server, "donExpTaxe") > 0:
+                    taxes = montant * (getPref(message.server, "donExpTaxe")/100)
                 else:
                     taxes = 0
                 database.addToStat(message.channel, target, "exp", montant - taxes)
