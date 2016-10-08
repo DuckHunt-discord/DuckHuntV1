@@ -312,8 +312,6 @@ def updateJSON():
             logger.warning("Le serveur " + server + " n'existe pas dans la liste des serveurs du bot...")
             servers.pop(server)
 
-
-
     JSONsaveToDisk(servers, "channels.json")
 
 
@@ -519,19 +517,22 @@ def on_ready():
             allCanardsGo()
         except:
             pass
-        #sentry.captureException()
+        # sentry.captureException()
         client.loop.run_until_complete(client.logout())
         client.loop.close()
         sys.exit(1)
+
 
 def objectTD(channel, target, language, object):
     date_expiration = datetime.datetime.fromtimestamp(database.getStat(channel, target, object, default=0))
     td = date_expiration - datetime.datetime.now()
     return _("{date} (dans {dans_jours}{dans_heures} et {dans_minutes})", language).format(**{
-        "date" : date_expiration.strftime(_('%H:%M:%S le %d/%m', language)),
-        "dans_jours": _("{dans} jours ").format(**{"dans": td.days}) if td.days else "",
-        "dans_heures": _("{dans} heures").format(**{"dans": td.seconds//3600}),
-        "dans_minutes": _("{dans} minutes").format(**{"dans": (td.seconds//60)%60})})
+        "date"        : date_expiration.strftime(_('%H:%M:%S le %d/%m', language)),
+        "dans_jours"  : _("{dans} jours ").format(**{"dans": td.days}) if td.days else "",
+        "dans_heures" : _("{dans} heures").format(**{"dans": td.seconds // 3600}),
+        "dans_minutes": _("{dans} minutes").format(**{"dans": (td.seconds // 60) % 60})
+    })
+
 
 @client.async_event
 def on_message(message):
@@ -642,7 +643,7 @@ def on_message(message):
                     **{
                         "admin_id"   : target.id, "admin_name": target.name, "server_id": message.channel.server.id,
                         "server_name": message.channel.server.name
-                        }))
+                    }))
                 yield from messageUser(message,
                                        _(":robot: Ajout de l'admin {admin_name} | {admin_id} sur le serveur : {server_name} | {server_id}",
                                          language).format(
@@ -725,7 +726,9 @@ def on_message(message):
 
             if canardencours:
                 if getPref(message.server, "duckLeaves"):
-                    if random.randint(1, 100) < getPref(message.server, "duckChanceLeave") and database.getStat(message.channel, message.author, "silencieux", default=0) < int(time.time()) :
+                    if random.randint(1, 100) < getPref(message.server, "duckChanceLeave") and database.getStat(message.channel, message.author,
+                                                                                                                "silencieux", default=0) < int(
+                            time.time()):
                         try:
                             tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > BANG", language))
                         except:
@@ -733,8 +736,8 @@ def on_message(message):
                         try:
                             canards.remove(canardencours)
                         except ValueError:
-                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
-
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
 
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
@@ -762,7 +765,8 @@ def on_message(message):
                             try:
                                 canards.remove(canardencours)
                             except ValueError:
-                                yield from client.edit_message(tmp, str(message.author.mention) + _(" > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
+                                yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                    " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
                             gain = int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"]))
                             if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
                                 gain += database.getStat(message.channel, message.author, "trefle_exp", default=0)
@@ -801,8 +805,8 @@ def on_message(message):
                         try:
                             canards.remove(canardencours)
                         except ValueError:
-                            yield from client.edit_message(tmp, str(message.author.mention) + _(" > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
-
+                            yield from client.edit_message(tmp, str(message.author.mention) + _(
+                                " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
 
                         gain = int(getPref(message.server, "expParCanard"))
                         if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
@@ -951,24 +955,37 @@ def on_message(message):
         x.add_row(["3", _("Munitions AP qui doublent vos dégâts pour 1 journée", language), "15"])
         x.add_row(["4", _("Munitions Explosives qui triplent vos dégâts pour 1 journée", language), "25"])
         x.add_row(["5", _("Vous permet de récupérer une arme confisquée.", language), "40"])
-        x.add_row(["6", _("Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et protège (une seule fois) contre une poignée de sable.", language), "8"])
+        x.add_row(["6", _("Réduit de 50 pourcents le risque d'enrayement de l'arme pendant 24h et protège (une seule fois) contre une poignée de sable.",
+                          language), "8"])
         # x.add_row(["7", _("Améliore la précision du prochain tir de (100 - précision actuelle) / 3", language), "6"])
-        x.add_row(["8", _("Bloque la gâchette de l'arme quand il n'y a pas de canard dans les environs dans le but d'éviter le gaspillage de munitions pendant 24h", language), "15"])
+        x.add_row(["8", _(
+            "Bloque la gâchette de l'arme quand il n'y a pas de canard dans les environs dans le but d'éviter le gaspillage de munitions pendant 24h",
+            language), "15"])
         x.add_row(["9", _("Réduit considérablement le bruit des tirs pendant 24h afin de ne pas effrayer les canards", language), "5"])
-        x.add_row(["10", _("Vous fait gagner un bonus aléatoire d'xp sur tous les canards que vous tuez pendant 24h. Ce bonus est déterminé lors de l'achat et peut valoir de 1 à 10.", language), "13"])
+        x.add_row(["10", _(
+            "Vous fait gagner un bonus aléatoire d'xp sur tous les canards que vous tuez pendant 24h. Ce bonus est déterminé lors de l'achat et peut valoir de 1 à 10.",
+            language), "13"])
         # x.add_row(["11", _("Protège contre l'effet éblouissant du miroir pendant 24h", language), "5"])
         x.add_row(["12", _("Annule l'effet du seau d'eau.", language), "7"])
         # x.add_row(["13", _("Annule l'effet de la poignée de sable et du sabotage.", language), "7"])
         # x.add_row(["14", _("Éblouit un chasseur de votre choix pour lui faire perdre 50% de précision lors de son prochain tir.", language), "7"])
         # x.add_row(["15", _("Poignée de sable Jetez du sable sur l'arme d'un chasseur de votre choix pour lui faire perdre 50% de fiabilité lors de son prochain tir. Supprime l'effet de la graisse.", language), "7"])
-        x.add_row(["16", _("Videz un seau d'eau sur un chasseur de votre choix, l'obligeant ainsi à attendre pendant 1h que ses vêtements sèchent avant de pouvoir retourner chasser", language), "10"])
-        x.add_row(["17", _("Sabotez l'arme d'un chasseur de votre choix. Celle-ci s'enrayera et lui explosera à la figure lors de son prochain tir.", language), "14"])
-        x.add_row(["18", _("Assurance à usage unique permettant de gagner un bonus d'xp équivalent à 2x le niveau du tireur si vous êtes victime d'un accident de chasse pendant 1 semaine.", language), "10"])
+        x.add_row(["16", _(
+            "Videz un seau d'eau sur un chasseur de votre choix, l'obligeant ainsi à attendre pendant 1h que ses vêtements sèchent avant de pouvoir retourner chasser",
+            language), "10"])
+        x.add_row(
+            ["17", _("Sabotez l'arme d'un chasseur de votre choix. Celle-ci s'enrayera et lui explosera à la figure lors de son prochain tir.", language),
+             "14"])
+        x.add_row(["18", _(
+            "Assurance à usage unique permettant de gagner un bonus d'xp équivalent à 2x le niveau du tireur si vous êtes victime d'un accident de chasse pendant 1 semaine.",
+            language), "10"])
         # x.add_row(["19", _("Divise par 3 la pénalité d'xp encourue en cas d'accident de chasse pendant 2 jours.", language), "5"])
         x.add_row(["20", _("Attire un canard dans les 10 prochaines minutes.", language), "8"])
         # x.add_row(["21", _("Jetez des morceaux de pain pour augmenter la probabilité qu'un canard apparaisse pendant 1h. Le pain augmente aussi de 20s le temps pendant lequel les canards restent avant de partir. Plusieurs morceaux de pain peuvent être achetés pour en cumuler l'effet. ", language), "2"])
         x.add_row(["22", _("Appareil à usage unique permettant d'être averti quand le prochain canard s'envolera", language), "5"])
-        x.add_row(["23", _("Faites une bonne blague aux autres chasseurs en lançant un faux canard ne rapportant pas d'xp. Il sera lancé automatiquement 75 secondes après l'achat.", language), "50"])
+        x.add_row(["23", _(
+            "Faites une bonne blague aux autres chasseurs en lançant un faux canard ne rapportant pas d'xp. Il sera lancé automatiquement 75 secondes après l'achat.",
+            language), "50"])
 
         shopitems = x.get_string()
         if len(args_) == 1:
@@ -1248,7 +1265,7 @@ def on_message(message):
         else:
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
 
-    elif getPref(message.server, "malusFauxCanards") and any(word in message.content for word in canards_trace) :
+    elif getPref(message.server, "malusFauxCanards") and any(word in message.content for word in canards_trace):
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
 
@@ -1352,7 +1369,8 @@ def on_message(message):
         if database.getStat(message.channel, target, "silencieux", default=0) > int(time.time()):
             x.add_row([_("Objet : silencieux", language), objectTD(message.channel, target, language, "silencieux")])
         if database.getStat(message.channel, target, "trefle", default=0) > int(time.time()):
-            x.add_row([_("Objet : trefle {exp} exp", language).format(**{"exp" : database.getStat(message.channel, target, "trefle_exp", default=0)}), objectTD(message.channel, target, language, "trefle")])
+            x.add_row([_("Objet : trefle {exp} exp", language).format(**{"exp": database.getStat(message.channel, target, "trefle_exp", default=0)}),
+                       objectTD(message.channel, target, language, "trefle")])
         if database.getStat(message.channel, target, "mouille", default=0) > int(time.time()):
             x.add_row([_("Effet : mouille", language), objectTD(message.channel, target, language, "mouille")])
         if database.getStat(message.channel, target, "AssuranceVie", default=0) > int(time.time()):
@@ -1552,7 +1570,7 @@ def on_message(message):
                 membres += 1
         pid = os.getpid()
         py = psutil.Process(pid)
-        memoryUsed = py.memory_info()[0]/2.**30
+        memoryUsed = py.memory_info()[0] / 2. ** 30
         uptime = int(time.time() - startTime)
 
         yield from messageUser(message, _("""Statistiques de DuckHunt:
@@ -1580,7 +1598,7 @@ def on_message(message):
             "uptime_min"             : int(uptime / 60),
             "uptime_heures"          : int(uptime / 60 / 60),
             "uptime_jours"           : int(uptime / 60 / 60 / 24),
-            "memory_used"            : round(memoryUsed * 1000,5),
+            "memory_used"            : round(memoryUsed * 1000, 5),
             "python_version"         : str(sys.version)
         }))
 
@@ -1684,18 +1702,22 @@ def on_message(message):
             if database.getStat(message.channel, message.author, "exp") > montant:
                 database.addToStat(message.channel, message.author, "exp", -montant)
                 if getPref(message.server, "donExpTaxe") > 0:
-                    taxes = montant * (getPref(message.server, "donExpTaxe")/100)
+                    taxes = montant * (getPref(message.server, "donExpTaxe") / 100)
                 else:
                     taxes = 0
                 database.addToStat(message.channel, target, "exp", montant - taxes)
-                yield from messageUser(message, _("Vous avez envoyé {amount} exp à {target} (et payé {taxes} exp de taxe de transfert) !", language).format(**{"amount" : montant - taxes, "target": target.mention, "taxes": taxes}))
+                yield from messageUser(message,
+                                       _("Vous avez envoyé {amount} exp à {target} (et payé {taxes} exp de taxe de transfert) !", language).format(
+                                           **{"amount": montant - taxes, "target": target.mention, "taxes": taxes}))
             else:
                 yield from messageUser(message, _("Vous n'avez pas assez d'experience", language))
 
 
 
         else:
-            yield from messageUser(message, _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`", language))
+            yield from messageUser(message,
+                                   _("Le don d'exp n'est pas activé sur le serveur, vous pouvez demander aux admins de l'activer avec `!set donExp True`",
+                                     language))
 
     elif message.content.startswith("!giveexp"):
         logger.debug("> GIVEEXP (" + str(message.author) + ")")
@@ -1792,7 +1814,8 @@ def on_message(message):
 
             x = PrettyTable()
             args_ = message.content.split(" ")
-            x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language), _("Permissions en trop", language), _("Permissions manquantes", language)])
+            x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language),
+                                _("Permissions en trop", language), _("Permissions manquantes", language)])
             x.reversesort = True
 
             tmp = yield from client.send_message(message.channel, str(message.author.mention) + _(" > En cours", language))
@@ -1810,36 +1833,37 @@ def on_message(message):
                         pass
                 invite = None
 
-                permissionsToHave = ["change_nicknames", "connect", "create_instant_invite", "embed_links", "manage_messages", "mention_everyone", "read_messages",
+                permissionsToHave = ["change_nicknames", "connect", "create_instant_invite", "embed_links", "manage_messages", "mention_everyone",
+                                     "read_messages",
                                      "send_messages", "send_tts_messages"]
 
                 permEnMoins = 0
                 permEnPlus = 0
                 channel = server.default_channel
                 for permission, value in channel.permissions_for(server.me):
-                    if not value and permission in permissionsToHave :
+                    if not value and permission in permissionsToHave:
                         permEnMoins += 1
                     elif value and not permission in permissionsToHave:
                         permEnPlus += 1
-
-
 
                 if "invitations" in args_:
                     for channel in server.channels:
                         permissions = channel.permissions_for(server.me)
                         if permissions.create_instant_invite:
-                            invite = yield from client.create_invite(channel, max_age=10*60)
+                            invite = yield from client.create_invite(channel, max_age=10 * 60)
                             try:
-                                x.add_row([server.name, invite.url, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)) , server.member_count, permEnPlus, permEnMoins])
-                            except KeyError: # Pas de channels ou une autre merde dans le genre ?
+                                x.add_row([server.name, invite.url, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)),
+                                           server.member_count, permEnPlus, permEnMoins])
+                            except KeyError:  # Pas de channels ou une autre merde dans le genre ?
                                 x.add_row([server.name, invite.url, "0" + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
                             break
                 if not invite:
                     try:
-                        x.add_row([server.name, "", str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
-                    except KeyError: # Pas de channels ou une autre merde dans le genre ?
+                        x.add_row(
+                            [server.name, "", str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, permEnPlus,
+                             permEnMoins])
+                    except KeyError:  # Pas de channels ou une autre merde dans le genre ?
                         x.add_row([server.name, "", str(0) + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
-
 
             yield from messageUser(message, x.get_string(sortby=_("Nombres de connectés", language)))
 
@@ -1900,7 +1924,7 @@ def on_message_edit(old, new):
         return
 
     language = getPref(new.server, "lang")
-    if getPref(new.server, "malusFauxCanards") and getPref(new.server, "malusFauxCanards") and any(word in new.content for word in canards_trace) :
+    if getPref(new.server, "malusFauxCanards") and getPref(new.server, "malusFauxCanards") and any(word in new.content for word in canards_trace):
         yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
         database.addToStat(new.channel, new.author, "exp", -5)
 
