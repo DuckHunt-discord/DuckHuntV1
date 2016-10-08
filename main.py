@@ -377,7 +377,7 @@ def planifie(channel=None):
                         templist.append(int(thisDay + random.randint(0, 86400)))
                     planification[channel] = sorted(templist)
 
-        logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification}))
+        #logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification}))
 
 
 def nouveauCanard(canard, canBeSC=True):
@@ -486,7 +486,7 @@ def mainloop():
                 "timetonext": timetonext,
                 "time"  : prochaincanard["time"]
             }))
-            logger.debug("Canards en cours : {canards}".format(**{"canards": canards}))
+            logger.debug("Canards en cours : {canards}".format(**{"canards": len(canards)}))
 
         if prochaincanard["time"] < now and prochaincanard["time"] != 0:  # CANARD !
             yield from nouveauCanard(prochaincanard)
@@ -709,8 +709,7 @@ def on_message(message):
             logwithinfos_message(message, "[bang] Fail : arme (déjà) entayée")
             return
         if database.getStat(message.channel, message.author, "sabotee", default="-") is not "-":
-            logger.debug("Arme sabotée par : " + database.getStat(message.channel, message.author, "sabotee", default="-"))
-            logwithinfos_message(message, "[bang] Fail : arme sabotée")
+            logwithinfos_message(message, "[bang] Fail : arme sabotée par " + database.getStat(message.channel, message.author, "sabotee", default="-"))
             yield from messageUser(message, _("Votre arme est sabotée, remerciez {assaillant} pour cette mauvaise blague.", language).format(
                 **{"assaillant": database.getStat(message.channel, message.author, "sabotee", default="-")}))
             database.setStat(message.channel, message.author, "enrayee", True)
