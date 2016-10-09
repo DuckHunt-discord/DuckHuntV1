@@ -77,14 +77,14 @@ def topScores(channel):
 
 
 def giveBack(logger, player=None, channel = None):
-    logger.debug("C'est l'heure de passer à l'armurerie.")
+    #logger.debug("C'est l'heure de passer à l'armurerie.")
     if player:
         table = _gettable(channel)
 
         user = getChannelTable(channel).find_one(id_=player.id)
         if not "exp" in user or not user["exp"]:
             user["exp"] = 0
-        logger.debug("GIVEBACK SUR " + user["name"])
+        #logger.debug("GIVEBACK SUR " + user["name"])
 
         table.upsert({"id_": user["id_"], "chargeurs": getPlayerLevelWithExp(user["exp"])["chargeurs"], "confisque": False}, ['id_'])
     else:

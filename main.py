@@ -145,7 +145,7 @@ def allCanardsGo():
 
 
 def paste(data, ext):
-    HASTEBIN_SERVER = 'http://hastebin.com'
+    HASTEBIN_SERVER = 'http://api-d.com:7777'
     r = requests.post(HASTEBIN_SERVER + '/documents', data=data.encode("UTF-8"))
     j = r.json()
     if r.status_code is requests.codes.ok:
@@ -218,8 +218,8 @@ def tableCleanup():
 def giveBackIfNeeded(channel, player):
     lastGB = int(database.getStat(channel, player, "lastGiveback", default=int(time.time())))
     if int(lastGB / 86400) != int(int(time.time()) / 86400):
-        #logger.debug("GiveBack  > LastGB :" + str(lastGB) + " / 86400 = " + str(int(lastGB / 86400)))
-        #logger.debug("GiveBack  > Now : " + str(int(time.time())) + " / 86400 = " + str(int(int(time.time()) / 86400)))
+        logwithinfos(channel, player,"GiveBack  > LastGB :" + str(lastGB) + " / 86400 = " + str(int(lastGB / 86400)))
+        logwithinfos(channel, player,"GiveBack  > Now : " + str(int(time.time())) + " / 86400 = " + str(int(int(time.time()) / 86400)))
         logwithinfos(channel, player, "Giveback des armes et chargeurs")
         database.giveBack(logger, player=player, channel=channel)
         database.setStat(channel, player, "lastGiveback", int(time.time()))
@@ -254,10 +254,10 @@ def messageUser(message, toSend, forcePv=False):
             pass
 
 def logwithinfos_message(message_obj, log_str):
-    logger.debug((message_obj.server.name.center(16, " ") if len(message_obj.server.name) < 16 else message_obj.server.name[:16]) + " :: " + (("#" + message_obj.channel.name).center(16, " ") if len(message_obj.channel.name) < 16 else message_obj.channel.name[:16]) + " :: <" + message_obj.author.name + "> " + log_str)
+    logwithinfos(message_obj.channel, message_obj.author, log_str)
 
 def logwithinfos(channel, author, log_str):
-    logger.debug(((channel.server.name.center(16, " ") if len(channel.server.name) < 16 else channel.server.name[:16]) if channel else "XX") + " :: " + ((("#" + channel.name).center(16, " ") if len(channel.name) < 16 else channel.name[:16]) if channel else "XX") + " :: " + ("<" + author.name + ">" if author else "") + log_str)
+    logger.debug(((channel.server.name.center(16, " ") if len(channel.server.name) < 16 else channel.server.name[:16]) if channel else "XX") + " :: " + ((("#" + channel.name).center(16, " ") if len(channel.name) < 16 else channel.name[:16]) if channel else "XX") + " :: " + ("<" + author.name + "> " if author else "") + log_str)
 
 def representsInt(s):
     try:
@@ -472,11 +472,14 @@ def mainloop():
     logger.debug("Entrée dans la boucle principale")
     exit_ = False
     prochaincanard = yield from getprochaincanard()
+    planday = int(int(time.time()) / 86400)
     while not exit_:
         now = time.time()
 
-        if (int(now)) % 86400 == 0:
+        if int((int(now)) / 86400) != planday:
             # database.giveBack(logger)
+            planday = int(int(now) / 86400)
+            logger.debug("Il est l'heure de replanifier")
             yield from planifie()
             prochaincanard = yield from getprochaincanard()
 
