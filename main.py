@@ -380,7 +380,7 @@ def planifie(channel=None):
         #logger.debug("Nouvelle planification : {planification}".format(**{"planification": planification}))
 
 
-def nouveauCanard(canard, canBeSC=True):
+def nouveauCanard(canard:dict, canBeSC=True) :
     servers = JSONloadFromDisk("channels.json", default="{}")
     if servers[canard["channel"].server.id]["detecteur"].get(canard["channel"].id, False):
         for playerid in servers[canard["channel"].server.id]["detecteur"][canard["channel"].id]:
@@ -767,6 +767,7 @@ def on_message(message):
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
                             logwithinfos_message(message, "[bang] Fail : balle défectueuse")
+                            return
 
                         yield from asyncio.sleep(getPref(message.server, "lagOnBang"))
                         yield from client.edit_message(tmp, str(message.author.mention) + _(
@@ -800,6 +801,7 @@ def on_message(message):
                                 yield from client.edit_message(tmp, str(message.author.mention) + _(
                                     " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language)) # Canare déjà tué de toute facon :x
                                 logwithinfos_message(message, "[bang] Fail : balle défectueuse")
+                                return
 
                             gain = int(getPref(message.server, "expParCanard") * (getPref(message.server, "SClevelmultiplier") * canardencours["level"]))
                             if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
@@ -845,6 +847,7 @@ def on_message(message):
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
                             logwithinfos_message(message, "[bang] Fail : balle défectueuse")
+                            return
 
                         gain = int(getPref(message.server, "expParCanard"))
                         if database.getStat(message.channel, message.author, "trefle", default=0) > time.time():
@@ -1200,7 +1203,7 @@ def on_message(message):
                     logwithinfos_message(message, "[shop] 10 | Pas d'exp")
 
             else:
-                yield from messageUser(message, _("Trop de chance tue la chance, c'est mort, je ne te donnerait pas un 2eme trefle!", language))
+                yield from messageUser(message, _("Trop de chance tue la chance, c'est mort, je ne te donnerais pas un 2eme trefle!", language))
                 logwithinfos_message(message, "[shop] 10 | Pas besoin")
 
         elif item == 12:
@@ -1374,13 +1377,13 @@ def on_message(message):
         logwithinfos_message(message, "TOPSCORES")
         args_ = message.content.split(" ")
         if len(args_) == 1:
-            nombre = 15
+            nombre = 10
         else:
             try:
                 nombre = int(args_[1])
-                if nombre not in range(1, 30 + 1):
+                if nombre not in range(1, 100 + 1):
                     yield from messageUser(message,
-                                           _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 30", language))
+                                           _(":mortar_board: Le nombre maximum de joueurs pour le tableau des meilleurs scores est de 100", language))
                     logwithinfos_message(message, "Nombre trop grand")
                     return
 
@@ -1674,6 +1677,11 @@ def on_message(message):
         servsFr = 0
         servsEn = 0
         servsEt = 0
+        servsDon = 0
+        p100cj = 0
+        p50cj = 0
+        p24cj = 0
+        m24cj = 0
         for server in client.servers:
             serveurs += 1
             if getPref(server, "lang") == "fr":
@@ -1682,13 +1690,27 @@ def on_message(message):
                 servsEn += 1
             else:
                 servsEt += 1
+            if getPref(server, "donExp"):
+                servsDon += 1
+            cj = getPref(server, "canardsJours")
+            if cj is not None:
+                if cj >= 100:
+                    p100cj += 1
+                    p50cj += 1
+                    p24cj += 1
+                elif cj >= 50:
+                    p50cj += 1
+                    p24cj += 1
+                elif cj >= 24:
+                    p24cj += 1
+                else:
+                    m24cj += 1
 
             for channel in server.channels:
                 channels += 1
                 if channel in planification.keys():
                     compteurCanards += len(planification[channel])
-            for membre in server.members:
-                membres += 1
+            membres += len(server.members)
         pid = os.getpid()
         py = psutil.Process(pid)
         memoryUsed = py.memory_info()[0] / 2. ** 30
@@ -1701,6 +1723,7 @@ def on_message(message):
     Au total, le bot connait `{nbre_serveurs_francais}` serveurs francais, `{nbre_serveurs_anglais}` serveurs anglais et `{nbre_serveurs_etrangers}` serveurs étrangers.
     Il a reçu au total durant la session `{messages}` message(s) (soit `{messages_minute}` message(s) par minute).
     Le bot est lancé depuis `{uptime_sec}` seconde(s), ce qui équivaut à `{uptime_min}` minute(s) ou encore `{uptime_heures}` heure(s), ou, en jours, `{uptime_jours}` jour(s).
+    Sur l'ensemble des serveurs, `{servsDon}` ont activé le don d'experience, `{plusde100cj}` serveurs font apparaitre plus de 100 canards par jour, `{plusde24cj}` serveurs en font plus de 24 par jours, tandis que `{moinsde24cj}` en font apparaitre moins de 24 par jour!
     Le bot utilise actuellement `{memory_used}` MB de ram.
 
     Le bot est lancé avec Python ```{python_version}```""", language).format(**{
@@ -1719,6 +1742,11 @@ def on_message(message):
             "uptime_min"             : int(uptime / 60),
             "uptime_heures"          : int(uptime / 60 / 60),
             "uptime_jours"           : int(uptime / 60 / 60 / 24),
+            "servsDon"               : servsDon,
+            "plusde100cj"            : p100cj,
+            "plusde50cj"             : p50cj, # NU
+            "plusde24cj"             : p24cj,
+            "moinsde24cj"            : m24cj,
             "memory_used"            : round(memoryUsed * 1000, 5),
             "python_version"         : str(sys.version)
         }))
