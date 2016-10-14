@@ -895,14 +895,14 @@ msgid ""
 ":money_with_wings: Tu achetes un trefle à 4 feuilles, qui te donnera {exp} "
 "points d'exp supplémentaires à chaque canard tué pendant 24 heures!"
 msgstr ""
-":money_with_wings: You buy a 4 leaf clover, that’ll give you {exp} exp by "
+":money_with_wings: You buy a 4 leaf clover, that’ll give you {exp} exp per "
 "duck killed in the next 24 hours."
 
 #: main.py:1206
 msgid ""
 "Trop de chance tue la chance, c'est mort, je ne te donnerais pas un 2eme "
 "trefle!"
-msgstr "Too much luck. I can’t give you another one…"
+msgstr "Too much lick will spoil your luck. I won't sell you another clover"
 
 #: main.py:1215
 msgid ""
