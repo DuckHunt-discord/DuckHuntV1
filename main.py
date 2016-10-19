@@ -766,6 +766,7 @@ def on_message(message):
                         except ValueError:
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
+                            database.addToStat(message.channel, message.author, "balles", 1)
                             logwithinfos_message(message, "[bang] Fail : balle défectueuse")
                             return
 
@@ -799,7 +800,8 @@ def on_message(message):
                                 canards.remove(canardencours)
                             except ValueError:
                                 yield from client.edit_message(tmp, str(message.author.mention) + _(
-                                    " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language)) # Canare déjà tué de toute facon :x
+                                    " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
+                                database.addToStat(message.channel, message.author, "balles", 1)# Canare déjà tué de toute facon :x
                                 logwithinfos_message(message, "[bang] Fail : balle défectueuse")
                                 return
 
@@ -846,6 +848,7 @@ def on_message(message):
                         except ValueError:
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > La balle n'est pas partie de l'arme, peut-etre est elle defectueuse ? :x", language))
+                            database.addToStat(message.channel, message.author, "balles", 1)
                             logwithinfos_message(message, "[bang] Fail : balle défectueuse")
                             return
 
@@ -1367,7 +1370,7 @@ def on_message(message):
             yield from messageUser(message, _(":x: Objet non trouvé :'(", language))
             logwithinfos_message(message, "[shop] Objet non trouvé")
 
-    elif getPref(message.server, "malusFauxCanards") and any(word in message.content for word in canards_trace):
+    elif getPref(message.server, "malusFauxCanards") and any(word in message.content for word in canards_trace_tocheck):
         yield from messageUser(message, _("Tu as tendu un drapeau de canard et tu t'es fait tirer dessus. Too bad ! [-1 exp]", language))
         database.addToStat(message.channel, message.author, "exp", -1)
         logwithinfos_message(message, "FAUX CANARD")
@@ -1483,8 +1486,9 @@ def on_message(message):
             x.add_row([_("Objet : assurance vie", language), objectTD(message.channel, target, language, "AssuranceVie")])
 
         yield from messageUser(message,
-                               _("Statistiques du chasseur : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
-                                   **{"table": x.get_string()}))
+                               _("Statistiques de {mention} : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
+                                   **{"table": x.get_string(),
+                                      "mention" : target.mention}))
         logwithinfos_message(message, "Duckstats affichés pour " + target.name)
 
     elif message.content.startswith(prefix + "aide") or message.content.startswith(prefix + "help") or message.content.startswith(prefix + "info"):
@@ -2059,10 +2063,9 @@ def on_channel_delete(channel):
     if channel in planification.keys():
         planification.pop(channel)
     if channel.id in servers[channel.server.id]["channels"]:
-        for canard in canards:
-            if channel in canard["channel"]:
-                logger.debug("Canard supprimé : " + str(canard))
-                canards.remove(canard)
+        prev = len(canards)
+        canards[:] = [canard for canard in canards if not channel == canard["channel"]]
+        logwithinfos(channel, "", "Canards supprimés : " + str(prev - len(canards)))
         servers[channel.server.id]["channels"].remove(channel.id)
         database.delChannelTable(channel)
         JSONsaveToDisk(servers, "channels.json")
@@ -2071,20 +2074,14 @@ def on_channel_delete(channel):
 @client.async_event
 def on_server_remove(server):
     logger.info(_("Serveur supprimé... {server_id} | {server_name}").format(**{"server_id": server.id, "server_name": server.name}))
+    for channel in server.channels:
+        yield from on_channel_delete(channel)
+    database.delServerTables(server)
     servers = JSONloadFromDisk("channels.json", default="{}")
-    if server.id in servers:
-        for canard in canards:
-            for channel in server.channels:
-                try:
-                    planification.pop(channel)
-                except:
-                    pass
-                if channel == canard["channel"]:
-                    logger.debug("Canard supprimé : " + str(canard))
-                    canards.remove(canard)
-        servers.pop(server.id)
-        database.delServerTables(server)
-        JSONsaveToDisk(servers, "channels.json")
+    servers.pop(server.id)
+    JSONsaveToDisk(servers, "channels.json")
+    logger.debug("Serveur supprimé")
+
 
 
 @client.async_event
@@ -2105,7 +2102,7 @@ def on_message_edit(old, new):
         return
 
     language = getPref(new.server, "lang")
-    if getPref(new.server, "malusFauxCanards") and getPref(new.server, "malusFauxCanards") and any(word in new.content for word in canards_trace):
+    if getPref(new.server, "malusFauxCanards") and getPref(new.server, "malusFauxCanards") and any(word in new.content for word in canards_trace_tocheck):
         logwithinfos_message(new, "Faux canard edité")
         yield from messageUser(new, _("Tu as essayé de brain le bot sortant un drapeau de canard après coup! [-5 exp]", language))
         database.addToStat(new.channel, new.author, "exp", -5)
@@ -2122,3 +2119,4 @@ except KeyboardInterrupt:
     # cancel all tasks lingering
 finally:
     client.loop.close()
+
