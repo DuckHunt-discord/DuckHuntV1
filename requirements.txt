@@ -1,0 +1,6 @@
+dataset
+discord.py
+prettytable
+psutil
+raven
+requests
