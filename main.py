@@ -1626,9 +1626,9 @@ def on_message(message):
                     args_[2] = str(args_[2])
 
                 if args_[1] == "canardsJours":
-                    if args_[2] > 250:
+                    if args_[2] > 100 + int(message.server.member_count/100):
                         logwithinfos_message(message, "Limitation de canardsJours qui était à " + str(args_[2]))
-                        args_[2] = 250
+                        args_[2] = 100 + int(message.server.member_count/100)
                 logwithinfos_message(message, "Changement du paramétre " + args_[1] + " pour " + str(args_[2]) + " (" + str(type(args_[2])) + ")")
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
 
@@ -1997,7 +1997,7 @@ def on_message(message):
             logwithinfos_message(message, "Construction de la serverlist")
             x = PrettyTable()
             args_ = message.content.split(" ")
-            x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language),
+            x._set_field_names([_("Nom", language), _("Invitation", language), _("Channels actives", language), _("Nombres de connectés", language), _("Canards par jour", language),
                                 _("Permissions en trop", language), _("Permissions manquantes", language)])
             x.reversesort = True
 
@@ -2006,9 +2006,11 @@ def on_message(message):
 
             total = len(client.servers)
             i = 0
+            lu = 0
             for server in client.servers:
                 i += 1
-                if total < 10 or i % 10 == 0 or i == total:
+                if time.time() - lu >= 1.5 or i == total:
+                    lu = time.time()
                     try:
                         yield from client.edit_message(tmp, str(message.author.mention) + _(" > En cours ({done}/{total})", language).format(
                             **{"done": i, "total": total}))
@@ -2036,17 +2038,17 @@ def on_message(message):
                             invite = yield from client.create_invite(channel, max_age=10 * 60)
                             try:
                                 x.add_row([server.name, invite.url, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)),
-                                           server.member_count, permEnPlus, permEnMoins])
+                                           server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
                             except KeyError:  # Pas de channels ou une autre merde dans le genre ?
-                                x.add_row([server.name, invite.url, "0" + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
+                                x.add_row([server.name, invite.url, "0" + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
                             break
                 if not invite:
                     try:
                         x.add_row(
-                            [server.name, "", str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, permEnPlus,
+                            [server.name, "", str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
                              permEnMoins])
                     except KeyError:  # Pas de channels ou une autre merde dans le genre ?
-                        x.add_row([server.name, "", str(0) + "/" + str(len(server.channels)), server.member_count, permEnPlus, permEnMoins])
+                        x.add_row([server.name, "", str(0) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
 
             yield from messageUser(message, x.get_string(sortby=_("Nombres de connectés", language)))
             logwithinfos_message(message, "Serverlist envoyée")
