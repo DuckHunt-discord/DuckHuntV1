@@ -1064,7 +1064,7 @@ def on_message(message):
                 yield from messageUser(message, shopitems)
                 logwithinfos_message(message, "[shop] Fail : argument non int")
                 return
-        if item == 17:
+        if item == 17 or item == 23:
             yield from deleteMessage(message, force=True)
         else:
             yield from deleteMessage(message)
