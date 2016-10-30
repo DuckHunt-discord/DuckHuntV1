@@ -521,6 +521,9 @@ def on_ready():
         logger.info("Creation de la planification")
         yield from planifie()
         logger.info("Lancers de canards planifiés")
+        logger.debug("Changement du jeu discord")
+        yield from client.change_status(game=discord.Game(name="Killing ducks | !help"))
+
         if args.debug:
             steam_handler.setLevel(logging.DEBUG)
         logger.info("Initialisation terminée :) Ce jeu, ca va faire un carton !")
