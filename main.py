@@ -423,8 +423,8 @@ def nouveauCanard(canard:dict, canBeSC=True) :
 
 
 @asyncio.coroutine
-def deleteMessage(message):
-    if getPref(message.server, "deleteCommands"):
+def deleteMessage(message, force=False):
+    if getPref(message.server, "deleteCommands") or force:
         if message.channel.permissions_for(message.server.me).manage_messages:
             logwithinfos_message(message, "Supression du message : {author} | {content}".format(**{"author": message.author.name, "content": message.content}))
             try:
@@ -999,7 +999,6 @@ def on_message(message):
             return
 
     elif message.content.startswith(prefix + "shop"):
-        yield from deleteMessage(message)
         logwithinfos_message(message, "SHOP")
         yield from giveBackIfNeeded(message.channel, message.author)
 
@@ -1046,6 +1045,7 @@ def on_message(message):
 
         shopitems = x.get_string()
         if len(args_) == 1:
+            yield from deleteMessage(message)
             yield from messageUser(message,
                                    _(":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. `!shop [N° item]`", language))
             yield from messageUser(message, shopitems)
@@ -1056,6 +1056,7 @@ def on_message(message):
             try:
                 item = int(args_[1])
             except ValueError:
+                yield from deleteMessage(message)
 
                 yield from messageUser(message, _(
                     ":mortar_board: Tu dois préciser le numéro de l'item à acheter aprés cette commande. Le numéro donné n'est pas valide. `!shop [N° item]`",
@@ -1063,6 +1064,10 @@ def on_message(message):
                 yield from messageUser(message, shopitems)
                 logwithinfos_message(message, "[shop] Fail : argument non int")
                 return
+        if item == 17:
+            yield from deleteMessage(message, force=True)
+        else:
+            yield from deleteMessage(message)
 
         if item == 1:
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) < \
