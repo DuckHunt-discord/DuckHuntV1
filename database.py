@@ -148,7 +148,7 @@ def getPref(server, pref):
     try:
         return servers[server.id]["settings"].get(pref, defaultSettings[pref])
     except KeyError:
-        return None
+        return defaultSettings[pref]
 
 
 def JSONsaveToDisk(data, filename):

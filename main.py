@@ -1696,11 +1696,13 @@ def on_message(message):
         m24cj = 0
         for server in client.servers:
             serveurs += 1
-            if getPref(server, "lang") == "fr":
+            slang = getPref(server, "lang")
+            if slang == "fr":
                 servsFr += 1
-            elif getPref(server, "lang") == "en":
+            elif slang == "en":
                 servsEn += 1
             else:
+                logger.debug("Serveur étranger : {lang : " + str(lang) + ", server:" + str(server.name) + "|" + str(server.id) + "}" )
                 servsEt += 1
             if getPref(server, "donExp"):
                 servsDon += 1
