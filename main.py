@@ -283,45 +283,56 @@ def newserver(server):
     JSONsaveToDisk(servers, "channels.json")
     yield from updateJSON()
 
+def fixserver(servers, server_obj):
+    server = server_obj.id
+    if not server in servers.keys():
+        servers[server] = {}
+    if not "admins" in servers[server]:
+        logger.debug("Le parametre admins n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
+        servers[server]["admins"] = []
+    if not "channels" in servers[server]:
+        logger.debug("Le parametre channels n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
+        servers[server]["channels"] = []
+    if not "settings" in servers[server]:
+        logger.debug("Le parametre settings n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
+        servers[server]["settings"] = {}
+    if not "detecteur" in servers[server]:
+        logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
+        servers[server]["detecteur"] = {}
+        #logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
+
+    names = {"server": server_obj.name}
+    ids = []
+    for channel in server_obj.channels:
+        names[channel.id] = channel.name
+        ids += [channel.id]
+
+    for channel in servers[server]["channels"]:
+        if channel not in ids:
+            servers[server]["channels"].remove(channel)
+            logger.debug("Supression de " + str(channel) + " du channels.json")
+
+    servers[server]["name"] = names
+    return servers
 
 @asyncio.coroutine
 def updateJSON():
-    logger.debug("Verfification du fichier channels.json")
+    logger.debug("Verification du fichier channels.json")
     servers = JSONloadFromDisk("channels.json", default="{}")
     #logger.debug("Version parsée de servers : " + str(servers))
+    serversnonvus = list(client.servers)
 
     for server in list(servers.keys()):
         server_obj = client.get_server(server)
         if server_obj:
-            if not "admins" in servers[server]:
-                logger.debug("Le parametre admins n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
-                servers[server]["admins"] = []
-            if not "channels" in servers[server]:
-                logger.debug("Le parametre channels n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
-                servers[server]["channels"] = []
-            if not "settings" in servers[server]:
-                logger.debug("Le parametre settings n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
-                servers[server]["settings"] = {}
-            if not "detecteur" in servers[server]:
-                logger.debug("Le parametre detecteur n'existait pas dans le serveur {server}, creation...".format(**{"server": server}))
-                servers[server]["detecteur"] = {}
-            #logger.debug("Mise à jour de name dans le serveur {server}...".format(**{"server": server}))
-
-            names = {"server": server_obj.name}
-            ids = []
-            for channel in server_obj.channels:
-                names[channel.id] = channel.name
-                ids += [channel.id]
-
-            for channel in servers[server]["channels"]:
-                if channel not in ids:
-                    servers[server]["channels"].remove(channel)
-                    logger.debug("Supression de " + str(channel) + " du channels.json")
-
-            servers[server]["name"] = names
+            serversnonvus.remove(server_obj)
+            servers = fixserver(servers, server_obj)
         else:
             logger.warning("Le serveur " + server + " n'existe pas dans la liste des serveurs du bot...")
             servers.pop(server)
+    for server in serversnonvus:
+        logger.debug("Le serveur " + str(server.name) + " | " + str(server.id) + " n'existe pas dans la configuration du bot!")
+        servers = fixserver(servers, server)
 
     JSONsaveToDisk(servers, "channels.json")
 
