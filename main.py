@@ -899,7 +899,7 @@ def on_message(message):
                                 " > **BANG**\tTu as raté le canard... Et tu t'es tiré dessus. Apprends à tenir ton fusil à l'endroit la prochaine fois, boulet ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
                                 language))
                         if database.getStat(message.channel, victime, "AssuranceVie", default=0) > int(time.time()):
-                            exp = int(database.getPlayerLevel(message.channel, message.author) / 2)
+                            exp = int(database.getPlayerLevel(message.channel, message.author)["niveau"] / 2)
                             logwithinfos_message(message, "[bang] Assurance vie de " + victime.name + " ajout de " + str(exp) + "exp.")
                             database.addToStat(message.channel, victime, "exp", exp)
                             yield from client.send_message(message.channel, str(victime.mention) + _(" > Tu gagnes {exp} avec ton assurance vie".format(**{"exp": exp})))
