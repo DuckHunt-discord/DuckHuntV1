@@ -963,7 +963,7 @@ def on_message(message):
             yield from messageUser(message, _("Vous n'etes pas armé", language))
             return
         if database.getStat(message.channel, message.author, "enrayee", default=False):
-            logwithinfos_message(message, "[reload] Arme déconcée")
+            logwithinfos_message(message, "[reload] Arme décoincée")
             yield from messageUser(message, _("Tu décoinces ton arme.", language))
             database.setStat(message.channel, message.author, "enrayee", False)
             if database.getStat(message.channel, message.author, "balles", default=database.getPlayerLevel(message.channel, message.author)["balles"]) > 0:
