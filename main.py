@@ -2,7 +2,7 @@
 # !/usr/bin/env python3.5
 """
 Discord-duckhunt -- main.py
-MODULE DESC 
+Ce module permet l'interaction du robot avec les serveurs discord. Il gere ausssi le démarrage et les commandes.
 """
 # Constants #
 
@@ -1645,9 +1645,11 @@ def on_message(message):
                     args_[2] = str(args_[2])
 
                 if args_[1] == "canardsJours":
-                    if args_[2] > 100 + int(message.server.member_count/100):
-                        logwithinfos_message(message, "Limitation de canardsJours qui était à " + str(args_[2]))
-                        args_[2] = 100 + int(message.server.member_count/100)
+                    maxCJ = int(125 + (message.server.member_count / (5+ ( message.server.member_count / 300))))
+                    if args_[2] > maxCJ:
+                        messageUser(message, _(":warning: Nombres de canards par jour limité afin de ne pas abuser des resources du bot.", language))
+                        logwithinfos_message(message, "Limitation de canardsJours qui était à " + str(args_[2]) )
+                        args_[2] = maxCJ
                 logwithinfos_message(message, "Changement du paramétre " + args_[1] + " pour " + str(args_[2]) + " (" + str(type(args_[2])) + ")")
                 servers[message.server.id]["settings"][args_[1]] = args_[2]
 
