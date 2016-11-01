@@ -1728,7 +1728,7 @@ def on_message(message):
                 elif cj >= 50:
                     p50cj += 1
                     p24cj += 1
-                elif cj >= 24:
+                elif cj > 24:
                     p24cj += 1
                 else:
                     m24cj += 1
