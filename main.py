@@ -1730,7 +1730,7 @@ def on_message(message):
                     p24cj += 1
                 elif cj > 24:
                     p24cj += 1
-                else:
+                elif cj < 24:
                     m24cj += 1
 
             for channel in server.channels:
