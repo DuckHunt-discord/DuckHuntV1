@@ -146,7 +146,7 @@ def delChannelTable(channel):
 def getPref(server, pref):
     servers = JSONloadFromDisk("channels.json")
     try:
-        return servers[server.id]["settings"].get(pref, defaultSettings[pref])
+        return servers[server.id]["settings"].get(pref, defaultSettings[pref]["value"])
     except KeyError:
         return defaultSettings[pref]
 

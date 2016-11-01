@@ -1635,14 +1635,14 @@ def on_message(message):
                 elif args_[2].lower() == "false":
                     args_[2] = False
 
-                elif representsFloat(args_[2]):
-                    if float(args_[2]).is_integer():
-                        args_[2] = int(args_[2])
-                    else:
-                        args_[2] = float(args_[2])
+                try:
+                    args_[2] = defaultSettings[args_[1]]["type"](args_[2])
+                except ValueError:
+                    logwithinfos_message(message, "Erreur de typage pour {arg} avec un type attendu à {type}".format(**{"type": defaultSettings[args_[1]]["type"].__name__,
+                                                                                                                        "arg" : args_[2]}))
 
-                else:
-                    args_[2] = str(args_[2])
+                    yield from messageUser(message, _(":x: Erreur, l'argument n'est pas typé correctement (attendu : {type})", language).format(**{"type": defaultSettings[args_[1]]["type"].__name__}))
+                    return
 
                 if args_[1] == "canardsJours":
                     maxCJ = int(125 + (message.server.member_count / (5+ ( message.server.member_count / 300))))
