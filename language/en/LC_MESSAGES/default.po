@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: duckhunt\n"
-"POT-Creation-Date: 2016-11-01 19:30+0100\n"
+"POT-Creation-Date: 2016-11-01 21:17+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -228,159 +228,159 @@ msgstr "duck genocider"
 msgid "chômeur pour cause d'extinction de l'espèce"
 msgstr "unemployed due to extinction of the duck specie"
 
-#: config.py:81 config.sample.py:79
+#: config.py:83 config.sample.py:79
 msgid "Toasteur de canards"
 msgstr "Duck toaster"
 
-#: config.py:82 config.sample.py:80
+#: config.py:84 config.sample.py:80
 msgid "Vieux noob"
 msgstr "old noob"
 
-#: config.py:93 config.sample.py:91
+#: config.py:99 config.sample.py:91
 msgid "un canard en peluche."
 msgstr "a stuffed duck."
 
-#: config.py:93 config.sample.py:91
+#: config.py:99 config.sample.py:91
 msgid "un canard en plastique pour le bain."
 msgstr "a rubber ducky."
 
-#: config.py:93 config.sample.py:91
+#: config.py:99 config.sample.py:91
 msgid "un canard vibrant."
 msgstr "a vibrating duck."
 
-#: config.py:93 config.sample.py:91
+#: config.py:99 config.sample.py:91
 msgid "un tas de plumes."
 msgstr "a bunch of feathers."
 
-#: config.py:94 config.sample.py:92
+#: config.py:100 config.sample.py:92
 msgid "un chewing-gum mâchouillé."
 msgstr "a chewed chewing gum."
 
-#: config.py:95 config.sample.py:93
+#: config.py:101 config.sample.py:93
 msgid "un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards)."
 msgstr "a leaflet from CACAD (Coalition Against the Comitee Against Ducks)."
 
-#: config.py:95 config.sample.py:93
+#: config.py:101 config.sample.py:93
 msgid "une vieille chaussure."
 msgstr "an old shoe."
 
-#: config.py:95 config.sample.py:93
+#: config.py:101 config.sample.py:93
 msgid "un truc à ressort."
 msgstr "a spring thingy."
 
-#: config.py:96 config.sample.py:94
+#: config.py:102 config.sample.py:94
 msgid "une bouse de vache."
 msgstr "a cow dung."
 
-#: config.py:96 config.sample.py:94
+#: config.py:102 config.sample.py:94
 msgid "une crotte de chien."
 msgstr "dog shit."
 
-#: config.py:96 config.sample.py:94
+#: config.py:102 config.sample.py:94
 msgid "un permis de chasse expiré."
 msgstr "an expired hunting license."
 
-#: config.py:96 config.sample.py:94
+#: config.py:102 config.sample.py:94
 msgid "une douille."
 msgstr "a cartridge."
 
-#: config.py:96 config.sample.py:94
+#: config.py:102 config.sample.py:94
 msgid "un mégot."
 msgstr "a butt."
 
-#: config.py:97 config.sample.py:95
+#: config.py:103 config.sample.py:95
 msgid "un préservatif usagé."
 msgstr "a used condom."
 
-#: config.py:98 config.sample.py:96
+#: config.py:104 config.sample.py:96
 msgid "une lunette de visée cassée."
 msgstr "a broken telescopic sight."
 
-#: config.py:98 config.sample.py:96
+#: config.py:104 config.sample.py:96
 msgid "un détecteur infrarouge cassé."
 msgstr "a broken infrared detector."
 
-#: config.py:98 config.sample.py:96
+#: config.py:104 config.sample.py:96
 msgid "un silencieux tordu."
 msgstr "a bent silencer."
 
-#: config.py:98 config.sample.py:96
+#: config.py:104 config.sample.py:96
 msgid "une boîte vide de munitions AP."
 msgstr "an empty box of AP ammunition."
 
-#: config.py:99 config.sample.py:97
+#: config.py:105 config.sample.py:97
 msgid "une boîte vide de munitions explosives."
 msgstr "an empty box of explosive ammo."
 
-#: config.py:99 config.sample.py:97
+#: config.py:105 config.sample.py:97
 msgid "un trèfle à 4 feuilles auquel il en manque une."
 msgstr "a four-leaf clover with only 3 left."
 
-#: config.py:99 config.sample.py:97
+#: config.py:105 config.sample.py:97
 msgid "un appeau cassé."
 msgstr "broken decoy."
 
-#: config.py:100 config.sample.py:98
+#: config.py:106 config.sample.py:98
 msgid "un miroir cassé."
 msgstr "a broken mirror."
 
-#: config.py:101 config.sample.py:99
+#: config.py:107 config.sample.py:99
 msgid "un canard mécanique rouillé."
 msgstr "a rusty mechanical duck."
 
-#: config.py:101 config.sample.py:99
+#: config.py:107 config.sample.py:99
 msgid "une paire de lunettes de soleil sans ses verres."
 msgstr "a pair of sunglasses without glasses."
 
-#: config.py:101 config.sample.py:99
+#: config.py:107 config.sample.py:99
 msgid "le béret de Donald."
 msgstr "Donald beret."
 
-#: config.py:102 config.sample.py:100
+#: config.py:108 config.sample.py:100
 msgid "une pastille de menthe à moitié fondue."
 msgstr "a half-melted peppermint."
 
-#: config.py:102 config.sample.py:100
+#: config.py:108 config.sample.py:100
 msgid "une boîte de nettoyant Abraxo."
 msgstr "a box of Abraxo, polisher for handguns"
 
-#: config.py:102 config.sample.py:100
+#: config.py:108 config.sample.py:100
 msgid "un fusil avec le bout du canon en fleur."
 msgstr "a gun with the tip in flowers"
 
-#: config.py:103 config.sample.py:101
+#: config.py:109 config.sample.py:101
 msgid "un vieux couteau de chasse."
 msgstr "an old hunting knife."
 
-#: config.py:103 config.sample.py:101
+#: config.py:109 config.sample.py:101
 msgid "un vieil enregistrement vidéo : http://tinyurl.com/zbejktu"
 msgstr "an old video recording: http://tinyurl.com/zbejktu"
 
-#: config.py:104 config.sample.py:102
+#: config.py:110 config.sample.py:102
 msgid "une vieille photo de chasse : http://tinyurl.com/hmn4r88"
 msgstr "an old hunting pic: http://tinyurl.com/hmn4r88"
 
-#: config.py:104 config.sample.py:102
+#: config.py:110 config.sample.py:102
 msgid "une vieille carte postale : http://tinyurl.com/hbnkpzr"
 msgstr "an old postcard: http://tinyurl.com/hbnkpzr"
 
-#: config.py:105 config.sample.py:103
+#: config.py:111 config.sample.py:103
 msgid "une photo de super-canard : http://tinyurl.com/hle8fjf"
 msgstr "a super duck picture: http://tinyurl.com/hle8fjf"
 
-#: config.py:105 config.sample.py:103
+#: config.py:111 config.sample.py:103
 msgid "un pin's de chasseur : http://tinyurl.com/hqy7fhq"
 msgstr "a hunter's pin: http://tinyurl.com/hqy7fhq"
 
-#: config.py:105 config.sample.py:103
+#: config.py:111 config.sample.py:103
 msgid "des buissons."
 msgstr "bushes."
 
-#: config.py:106 config.sample.py:104
+#: config.py:112 config.sample.py:104
 msgid "100 balles et un mars."
 msgstr "10 bucks."
 
-#: config.py:106 config.sample.py:104
+#: config.py:113 config.sample.py:104
 msgid ""
 "Une tomate : http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-"
 "shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"
@@ -388,7 +388,7 @@ msgstr ""
 "A tomato: http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-"
 "shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"
 
-#: config.py:106 config.sample.py:104
+#: config.py:114 config.sample.py:104
 msgid "un hippie qui te propose de tirer une douille sur son bang"
 msgstr "someone that looks creepy"
 
@@ -1211,6 +1211,11 @@ msgstr ""
 #: main.py:1629
 msgid ":ok: Valeur réinitialisée a la valeur par défaut !"
 msgstr ":ok: Value reset to the default value!"
+
+#: main.py:1644
+#, python-brace-format
+msgid ":x: Erreur, l'argument n'est pas typé correctement (attendu : {type})"
+msgstr ":x: error, the argument is not typed correctly (expected: {type})"
 
 #: main.py:1650
 msgid ""
