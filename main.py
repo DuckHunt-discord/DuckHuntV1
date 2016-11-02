@@ -533,7 +533,7 @@ def on_ready():
         yield from planifie()
         logger.info("Lancers de canards planifiés")
         logger.debug("Changement du jeu discord")
-        yield from client.change_status(game=discord.Game(name="Killing ducks | !help"))
+        yield from client.change_presence(game=discord.Game(name="Killing ducks | !help"))
 
         if args.debug:
             steam_handler.setLevel(logging.DEBUG)
