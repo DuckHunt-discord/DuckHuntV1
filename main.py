@@ -1920,13 +1920,12 @@ def on_message(message):
                 logwithinfos_message(message, "[giveexp] Erreur de syntaxe")
                 return
             else:
-                target = message.channel.server.get_member_named(args_[1])
+                target = findUser(message, args_[1])
+
                 if target is None:
-                    target = message.channel.server.get_member(args_[1])
-                    if target is None:
-                        yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[1]}))
-                        logwithinfos_message(message, "[giveexp] Personne non reconnue : " + args_[1])
-                        return
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                    logwithinfos_message(message, "[giveexp] | Personne non reconnue : " + str(args_[2]))
+                    return
 
             if not representsInt(args_[2]):
                 yield from messageUser(message, _("Erreur de syntaxe : !giveexp <joueur> <exp>", language))
