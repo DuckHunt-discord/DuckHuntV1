@@ -238,7 +238,8 @@ def findUser(message, user):
             if target is None:
 
                 logwithinfos_message(message, "Personne non reconnue : " + str(user))
-                return
+                return None
+    return target
 
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
@@ -1263,7 +1264,7 @@ def on_message(message):
                 logwithinfos_message(message, "[shop] 16 | Manque pseudo")
                 return
 
-            target = findUser(message, args_[2])
+            target = yield from findUser(message, args_[2])
             if target is None:
                 yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
                 logwithinfos_message(message, "[shop] 16 | Personne non reconnue : " + str(args_[2]))
@@ -1289,7 +1290,7 @@ def on_message(message):
                                        _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
                 logwithinfos_message(message, "[shop] 17 | Manque pseudo")
                 return
-            target = findUser(message, args_[2])
+            target = yield from findUser(message, args_[2])
 
             if target is None:
                 yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
@@ -1462,7 +1463,7 @@ def on_message(message):
         if len(args_) == 1:
             target = message.author
         else:
-            target = findUser(message, args_[1])
+            target = yield from findUser(message, args_[1])
 
             if target is None:
                 yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
@@ -1813,7 +1814,7 @@ def on_message(message):
                 logwithinfos_message(message, "[dearm] Joueur non spécifié")
                 return
             else:
-                target = findUser(message, args_[1])
+                target = yield from findUser(message, args_[1])
 
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
@@ -1845,7 +1846,7 @@ def on_message(message):
                 logwithinfos_message(message, "[rearm] Joueur non spécifié")
                 return
             else:
-                target = findUser(message, args_[1])
+                target = yield from findUser(message, args_[1])
 
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
@@ -1874,7 +1875,7 @@ def on_message(message):
                 logwithinfos_message(message, "[sendexp] Joueur non spécifié")
                 return
             else:
-                target = findUser(message, args_[1])
+                target = yield from findUser(message, args_[1])
 
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
@@ -1920,7 +1921,7 @@ def on_message(message):
                 logwithinfos_message(message, "[giveexp] Erreur de syntaxe")
                 return
             else:
-                target = findUser(message, args_[1])
+                target = yield from findUser(message, args_[1])
 
                 if target is None:
                     yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
@@ -1965,7 +1966,7 @@ def on_message(message):
         if len(args_) == 1:
             target = message.author
         else:
-            target = findUser(message, args_[1])
+            target = yield from findUser(message, args_[1])
 
             if target is None:
                 yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
