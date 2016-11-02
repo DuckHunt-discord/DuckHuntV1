@@ -82,10 +82,17 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
 
 defaultSettings = {
-    "deleteCommands" : False, "canardsJours": 24, "findObjects": True, "duckLeaves": True, "pmMostMessages": False, "tempsAttente": 11 * 60, "lagOnBang": .5,
-    "expParCanard"   : 10, "lang": lang, "randomCanard": True, "malusFauxCanards": False, "SCactif": True, "SCchance": 10, "SCviemin": 3, "SCviemax": 7,
-    "duckChanceLeave": 5, "SClevelmultiplier": 1.10, "global": False, "trefleMin" : 1, "trefleMax" : 10, "mecaRandom": 0, "donExp": True, "donExpTaxe": 0, "prefix" : "!"
+    "deleteCommands"  : {"value": False, "type": bool}, "canardsJours": {"value": 24, "type": int}, "findObjects": {"value": True, "type": bool},
+    "duckLeaves"      : {"value": True, "type": bool}, "pmMostMessages": {"value": False, "type": bool}, "tempsAttente": {"value": 11 * 60, "type": int},
+    "lagOnBang"       : {"value": .5, "type": float},
+    "expParCanard"    : {"value": 10, "type": int}, "lang": {"value": lang, "type": str}, "randomCanard": {"value": True, "type": bool},
+    "malusFauxCanards": {"value": False, "type": bool}, "SCactif": {"value": True, "type": bool}, "SCchance": {"value": 10, "type": int},
+    "SCviemin"        : {"value": 3, "type": int}, "SCviemax": {"value": 7, "type": int},
+    "duckChanceLeave" : {"value": 5, "type": int}, "SClevelmultiplier": {"value": 1.10, "type": float}, "global": {"value": False, "type": bool},
+    "trefleMin"       : {"value": 1, "type": int}, "trefleMax": {"value": 10, "type": int}, "mecaRandom": {"value": 0, "type": int},
+    "donExp"          : {"value": True, "type": bool}, "donExpTaxe": {"value": 0, "type": int}, "prefix": {"value": "!", "type": str}
 }
+
 
 aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide | https://discord.gg/4MK2KyM"
 inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain."), _("un canard vibrant."), _("un tas de plumes."),
