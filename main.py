@@ -227,6 +227,18 @@ def giveBackIfNeeded(channel, player):
         #logger.debug("Pas besoin de passer à l'armurerie")
         return
 
+@asyncio.coroutine
+def findUser(message, user):
+    target = message.mentions[0]
+    if target is None:
+        user = user.replace("@", "").replace("<", "").replace(">", "").replace("!","")
+        target = message.server.get_member_named(user)
+        if target is None:
+            target = message.server.get_member(user)
+            if target is None:
+
+                logwithinfos_message(message, "Personne non reconnue : " + str(user))
+                return
 
 @asyncio.coroutine
 def messageUser(message, toSend, forcePv=False):
@@ -662,14 +674,10 @@ def on_message(message):
         if len(args_) == 1:
             target = message.author
         else:
-            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-            target = message.channel.server.get_member_named(args_[1])
+            target = yield from findUser(message, args_[1])
             if target is None:
-                target = message.channel.server.get_member(args_[1])
-                if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    logwithinfos_message(message, "Personne non reconnue : " + str(args[1]))
-                    return
+                yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
+
         logwithinfos_message(message, "La personne visée est : " + target.name + " | " + target.id)
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if not target.id in servers[message.channel.server.id]["admins"]:
@@ -1254,14 +1262,13 @@ def on_message(message):
                                        _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
                 logwithinfos_message(message, "[shop] 16 | Manque pseudo")
                 return
-            args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
-            target = message.channel.server.get_member_named(args_[2])
+
+            target = findUser(message, args_[2])
             if target is None:
-                target = message.channel.server.get_member(args_[2])
-                if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
-                    logwithinfos_message(message, "[shop] 16 | Personne non reconnue : " + str(args_[2]))
-                    return
+                yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                logwithinfos_message(message, "[shop] 16 | Personne non reconnue : " + str(args_[2]))
+                return
+
 
             if database.getStat(message.channel, message.author, "exp") > 10:
                 logwithinfos_message(message, "[shop] 16 | OK")
@@ -1282,14 +1289,12 @@ def on_message(message):
                                        _("C'est pas exactement comme ca que l'on fait... Essaye de mettre le pseudo de la personne ? :p", language))
                 logwithinfos_message(message, "[shop] 17 | Manque pseudo")
                 return
-            args_[2] = args_[2].replace("@", "").replace("<", "").replace(">", "")
-            target = message.channel.server.get_member_named(args_[2])
+            target = findUser(message, args_[2])
+
             if target is None:
-                target = message.channel.server.get_member(args_[2])
-                if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
-                    logwithinfos_message(message, "[shop] 17 | Personne non reconnue : " + str(args_[2]))
-                    return
+                yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                logwithinfos_message(message, "[shop] 17 | Personne non reconnue : " + str(args_[2]))
+                return
 
             if database.getStat(message.channel, message.author, "exp") > 14:
                 if database.getStat(message.channel, target, "sabotee", "-") == "-":
@@ -1457,14 +1462,11 @@ def on_message(message):
         if len(args_) == 1:
             target = message.author
         else:
-            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-            target = message.channel.server.get_member_named(args_[1])
+            target = findUser(message, args_[1])
+
             if target is None:
-                target = message.channel.server.get_member(args_[1])
-                if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    logwithinfos_message(message, "Personne inconnue : " + str(args_[1]))
-                    return
+                yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                return
         x = PrettyTable()
         if database.getStat(message.channel, target, "canardsTues") > 0:
             ratio = round(database.getStat(message.channel, target, "exp") / database.getStat(message.channel, target, "canardsTues"), 4)
@@ -1811,14 +1813,12 @@ def on_message(message):
                 logwithinfos_message(message, "[dearm] Joueur non spécifié")
                 return
             else:
-                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-                target = message.channel.server.get_member_named(args_[1])
+                target = findUser(message, args_[1])
+
                 if target is None:
-                    target = message.channel.server.get_member(args_[1])
-                    if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        logwithinfos_message(message, "[dearm] personne non reconnue : " + args_[1])
-                        return
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                    logwithinfos_message(message, "[dearm] | Personne non reconnue : " + str(args_[2]))
+                    return
 
             if not database.getStat(message.channel, target, "banni", default=False):
                 if target.id not in servers[message.channel.server.id]["admins"] and int(target.id) not in admins:
@@ -1845,14 +1845,12 @@ def on_message(message):
                 logwithinfos_message(message, "[rearm] Joueur non spécifié")
                 return
             else:
-                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-                target = message.channel.server.get_member_named(args_[1])
+                target = findUser(message, args_[1])
+
                 if target is None:
-                    target = message.channel.server.get_member(args_[1])
-                    if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        logwithinfos_message(message, "[rearm] Personne inconnue : " + args_[1])
-                        return
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                    logwithinfos_message(message, "[rearm] | Personne non reconnue : " + str(args_[2]))
+                    return
 
             if database.getStat(message.channel, target, "banni", default=False):
                 database.setStat(message.channel, target, "banni", False)
@@ -1876,14 +1874,12 @@ def on_message(message):
                 logwithinfos_message(message, "[sendexp] Joueur non spécifié")
                 return
             else:
-                args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-                target = message.channel.server.get_member_named(args_[1])
+                target = findUser(message, args_[1])
+
                 if target is None:
-                    target = message.channel.server.get_member(args_[1])
-                    if target is None:
-                        yield from messageUser(message, _(":x: Je ne reconnais pas cette personne :x", language))
-                        logwithinfos_message(message, "[sendexp] Personne inconnue : " + args_[1])
-                        return
+                    yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                    logwithinfos_message(message, "[sendexp] | Personne non reconnue : " + str(args_[2]))
+                    return
             montant = args_[2]
             if not representsInt(montant) or int(montant) <= 0:
                 yield from messageUser(message, _(":x: Essaye de préciser un montant valide, c'est a dire positif et entier", language))
@@ -1970,14 +1966,11 @@ def on_message(message):
         if len(args_) == 1:
             target = message.author
         else:
-            args_[1] = args_[1].replace("@", "").replace("<", "").replace(">", "")
-            target = message.channel.server.get_member_named(args_[1])
+            target = findUser(message, args_[1])
+
             if target is None:
-                target = message.channel.server.get_member(args_[1])
-                if target is None:
-                    yield from messageUser(message, _("Je ne reconnais pas cette personne :x", language))
-                    logwithinfos_message(message, "Personne non reconnue : " + args_[1])
-                    return
+                yield from messageUser(message, _("Je ne reconnais pas cette personne : {target}", language).format(**{"target": args_[2]}))
+                return
 
         if message.author.id in servers[message.channel.server.id]["admins"] or int(message.author.id) in admins:
             if target.id in servers[message.channel.server.id]["admins"]:
