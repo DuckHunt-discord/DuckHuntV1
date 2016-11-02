@@ -9,6 +9,7 @@ token = ""
 admins = [138751484517941259]  # Global admins
 
 canards_trace = ["-,_,.-'\`'°-,_,.-'\`'°", "-,..,.-'\`'°-,_,.-'\`'°", "-._..-'\`'°-,_,.-'\`'°", "-,_,.-'\`'°-,_,.-''\`"]
+canards_trace_tocheck = [w.replace("\\", "") for w in canards_trace] + canards_trace
 canards_portrait = ["\\_O<", "\\_o<", "\\_Õ<", "\\_õ<", "\\_Ô<", "\\_ô<", "\\_Ö<", "\\_ö<", "\\_Ø<", "\\_ø<", "\\_Ò<", "\\_ò<", "\\_Ó<", "\\_ó<", "\\_0<",
                     "\\_©<", "\\_@<", "\\_º<", "\\_°<", "\\_^<", "/_O<", "/_o<", "/_Õ<", "/_õ<", "/_Ô<", "/_ô<", "/_Ö<", "/_ö<", "/_Ø<", "/_ø<", "/_Ò<",
                     "/_ò<", "/_Ó<", "/_ó<", "/_0<", "/_©<", "/_@<", "/_^<", "§_O<", "§_o<", "§_Õ<", "§_õ<", "§_Ô<", "§_ô<", "§_Ö<", "§_ö<", "§_Ø<", "§_ø<",
@@ -35,6 +36,7 @@ canards_bye = [_("Le canard prend la fuite.  ·°'\`'°-.,¸¸.·°'\`"),
                _("Le canard se dissipe dans l'espace-temps.  ·°'\`'°-.,¸¸.·°'\`"),
                _("Le canard en a ras le bol d'être ignoré et fuit.  ·°'\`'°-.,¸¸.·°'\`"),
                _("Le canard ne veut pas etre canardé.  ·°'\`'°-.,¸¸.·°'\`")]
+
 levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 1},
           {"niveau": 1, "expMin": -4, "nom": _("touriste"), "precision": 55, "fiabilitee": 85, "balles": 6, "chargeurs": 2},
           {"niveau": 2, "expMin": 20, "nom": _("noob"), "precision": 56, "fiabilitee": 86, "balles": 6, "chargeurs": 2},
@@ -75,12 +77,14 @@ levels = [{"niveau": 0, "expMin": -999, "nom": _("danger public"), "precision": 
           {"niveau": 37, "expMin": 7020, "nom": _("annihilateur de canards"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 38, "expMin": 7400, "nom": _("serial duck killer"), "precision": 96, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
           {"niveau": 39, "expMin": 7790, "nom": _("génocideur de canards"), "precision": 97, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
-          {"niveau": 40, "expMin": 8200, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1, "chargeurs": 5},
+          {
+              "niveau"   : 40, "expMin": 8200, "nom": _("chômeur pour cause d'extinction de l'espèce"), "precision": 97, "fiabilitee": 99, "balles": 1,
+              "chargeurs": 5
+          },
           {"niveau": 41, "expMin": 9999, "nom": _("Toasteur de canards"), "precision": 98, "fiabilitee": 99, "balles": 1, "chargeurs": 6},
           {"niveau": 42, "expMin": 11111, "nom": _("Vieux noob"), "precision": 99, "fiabilitee": 99, "balles": 1, "chargeurs": 7}]
 
 lang = "fr"  # Language specified here is for console messages, everything that is not sent to a server
-
 defaultSettings = {
     "deleteCommands"  : {"value": False, "type": bool}, "canardsJours": {"value": 24, "type": int}, "findObjects": {"value": True, "type": bool},
     "duckLeaves"      : {"value": True, "type": bool}, "pmMostMessages": {"value": False, "type": bool}, "tempsAttente": {"value": 11 * 60, "type": int},
@@ -93,8 +97,7 @@ defaultSettings = {
     "donExp"          : {"value": True, "type": bool}, "donExpTaxe": {"value": 0, "type": int}, "prefix": {"value": "!", "type": str}
 }
 
-
-aideMsg = "https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide | https://discord.gg/4MK2KyM"
+aideMsg = "Nouveau wiki, plus clair, plus simple : https://api-d.com/duckhunt/index.php/Accueil | Old wiki but in english : https://github.com/DuckHunt-discord/DuckHunt-Discord/wiki/Aide | Support server : https://discord.gg/4MK2KyM"
 inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain."), _("un canard vibrant."), _("un tas de plumes."),
              _("un chewing-gum mâchouillé."),
              _("un prospectus du CCCCC (Coalition Contre le Comité Contre les Canards)."), _("une vieille chaussure."), _("un truc à ressort."),
@@ -108,7 +111,9 @@ inutilite = [_("un canard en peluche."), _("un canard en plastique pour le bain.
              _("un vieux couteau de chasse."), _("un vieil enregistrement vidéo : http://tinyurl.com/zbejktu"),
              _("une vieille photo de chasse : http://tinyurl.com/hmn4r88"), _("une vieille carte postale : http://tinyurl.com/hbnkpzr"),
              _("une photo de super-canard : http://tinyurl.com/hle8fjf"), _("un pin's de chasseur : http://tinyurl.com/hqy7fhq"), _("des buissons."),
-             _("100 balles et un mars."), _("Une tomate : http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"), _("un hippie qui te propose de tirer une douille sur son bang")]
+             _("100 balles et un mars."),
+             _("Une tomate : http://i2.cdn.turner.com/cnnnext/dam/assets/150918221030-duck-shaped-tomato-found-in-garden-pkg-00005828-full-169.jpg"),
+             _("un hippie qui te propose de tirer une douille sur son bang")]
 
 #### NE PLUS MODIFIER APRES CETTE LIGNE ####
 
