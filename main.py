@@ -2058,8 +2058,8 @@ def on_message(message):
                                 invite = yield from client.create_invite(channel, max_age=10 * 60).url
                             except:
                                 invite = ""
-                if not invite:
-                    invite = ""
+                        else:
+                            invite = ""
                 try:
                     x.add_row(
                         [server.name, invite, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
