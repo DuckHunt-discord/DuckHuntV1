@@ -2061,11 +2061,13 @@ def on_message(message):
                         else:
                             invite = ""
                 try:
-                    x.add_row(
-                        [server.name, invite, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
-                         permEnMoins])
+                    channels = str(len(servers[server.id]["channels"]))
                 except KeyError:  # Pas de channels ou une autre merde dans le genre ?
-                    x.add_row([server.name, invite, str(0) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
+                    channels = 0
+                x.add_row(
+                    [server.name, invite, channels + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
+                     permEnMoins])
+
 
             yield from messageUser(message, x.get_string(sortby=_("Nombres de connectés", language)))
             logwithinfos_message(message, "Serverlist envoyée")
