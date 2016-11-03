@@ -2054,20 +2054,18 @@ def on_message(message):
                     for channel in server.channels:
                         permissions = channel.permissions_for(server.me)
                         if permissions.create_instant_invite:
-                            invite = yield from client.create_invite(channel, max_age=10 * 60)
                             try:
-                                x.add_row([server.name, invite.url, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)),
-                                           server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
-                            except KeyError:  # Pas de channels ou une autre merde dans le genre ?
-                                x.add_row([server.name, invite.url, "0" + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
-                            break
+                                invite = yield from client.create_invite(channel, max_age=10 * 60).url
+                            except:
+                                invite = ""
                 if not invite:
-                    try:
-                        x.add_row(
-                            [server.name, "", str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
-                             permEnMoins])
-                    except KeyError:  # Pas de channels ou une autre merde dans le genre ?
-                        x.add_row([server.name, "", str(0) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
+                    invite = ""
+                try:
+                    x.add_row(
+                        [server.name, invite, str(len(servers[server.id]["channels"])) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
+                         permEnMoins])
+                except KeyError:  # Pas de channels ou une autre merde dans le genre ?
+                    x.add_row([server.name, invite, str(0) + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus, permEnMoins])
 
             yield from messageUser(message, x.get_string(sortby=_("Nombres de connectés", language)))
             logwithinfos_message(message, "Serverlist envoyée")
