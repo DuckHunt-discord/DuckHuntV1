@@ -1502,10 +1502,13 @@ def on_message(message):
         if database.getStat(message.channel, target, "trefle", default=0) > int(time.time()):
             x.add_row([_("Objet : trefle {exp} exp", language).format(**{"exp": database.getStat(message.channel, target, "trefle_exp", default=0)}),
                        objectTD(message.channel, target, language, "trefle")])
+        if database.getStat(message.channel, target, "munExplo", default=0) > int(time.time()):
+            x.add_row([_("Objet : munitions explosives", language), objectTD(message.channel, target, language, "munExplo")])
+        elif database.getStat(message.channel, target, "munAp_", default=0) > int(time.time()):
+            x.add_row([_("Objet : munitions AP", language), objectTD(message.channel, target, language, "munAp_")])
         if database.getStat(message.channel, target, "mouille", default=0) > int(time.time()):
             x.add_row([_("Effet : mouille", language), objectTD(message.channel, target, language, "mouille")])
-        if database.getStat(message.channel, target, "AssuranceVie", default=0) > int(time.time()):
-            x.add_row([_("Objet : assurance vie", language), objectTD(message.channel, target, language, "AssuranceVie")])
+
 
         yield from messageUser(message,
                                _("Statistiques de {mention} : \n```{table}```\nhttps://api-d.com/snaps/table_de_progression.html", language).format(
