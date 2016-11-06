@@ -912,7 +912,7 @@ def on_message(message):
                             logwithinfos_message(message, "[bang] Fail : raté, accident de chasse")
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
                                 " > **BANG**\tTu as raté le canard... Et tu as tiré sur {player}. ! [raté : -1 xp] [accident de chasse : -2 xp] [arme confisquée]",
-                                language).format(**{"player": victime.mention}))
+                                language).format(**{"player": victime.mention if getPref(message.server, "mentionOnKill") else victime.name}))
                         else:
                             logwithinfos_message(message, "[bang] Fail : raté, accident de chasse, mort")
                             yield from client.edit_message(tmp, str(message.author.mention) + _(
@@ -1615,7 +1615,7 @@ def on_message(message):
 
             x._set_field_names([_("Paramètre", language), _("Valeur actuelle", language), _("Valeur par défaut", language)])
             for param in defaultSettings.keys():
-                x.add_row([param, getPref(message.server, param), defaultSettings[param]])
+                x.add_row([param, getPref(message.server, param), defaultSettings[param]["value"]])
 
             yield from messageUser(message,
                                    _("Liste des paramètres disponibles : \n```{table}```", language).format(
@@ -2055,7 +2055,8 @@ def on_message(message):
                         permissions = channel.permissions_for(server.me)
                         if permissions.create_instant_invite:
                             try:
-                                invite = yield from client.create_invite(channel, max_age=10 * 60).url
+                                invite = yield from client.create_invite(channel, max_age=10 * 60)
+                                invite = invite.url
                             except:
                                 invite = ""
                         else:
@@ -2063,7 +2064,8 @@ def on_message(message):
                 try:
                     channels = str(len(servers[server.id]["channels"]))
                 except KeyError:  # Pas de channels ou une autre merde dans le genre ?
-                    channels = 0
+                    channels = "0"
+
                 x.add_row(
                     [server.name, invite, channels + "/" + str(len(server.channels)), server.member_count, database.getPref(server, "canardsJours"), permEnPlus,
                      permEnMoins])
@@ -2138,6 +2140,14 @@ except KeyboardInterrupt:
     client.loop.run_until_complete(client.logout())
     asyncio.sleep(2)
     # cancel all tasks lingering
+except Exception:
+    logger.exception("Erreur fatale dans la mainloop")
+    try:
+        client.loop.run_until_complete(allCanardsGo())
+        client.loop.run_until_complete(client.logout())
+        asyncio.sleep(2)
+    except:
+        logger.exception("Erreur lors de l'arret")
 finally:
     client.loop.close()
 
