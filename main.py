@@ -532,7 +532,10 @@ def mainloop():
                     yield from client.send_message(canard["channel"], _(random.choice(canards_bye), language=getPref(canard["channel"].server, "lang")))
                 except:
                     pass
-                canards.remove(canard)
+                try:
+                    canards.remove(canard)
+                except:
+                    logger.warning("Oops, je n'ai pas réussi à remove le canard " + str(canard))
         yield from asyncio.sleep(1)
 
 
