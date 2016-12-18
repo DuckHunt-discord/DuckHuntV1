@@ -1,3 +1,7 @@
+# DEPRECATED !
+Use https://github.com/DuckHunt-discord/dhv2
+
+
 # DuckHunt-Discord
 Un super bot pour discord. idée du jeu par MenzAgitat, porté selon son idée (http://scripts.eggdrop.fr/details-Duck+Hunt-s228.html)
 
