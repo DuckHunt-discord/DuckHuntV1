@@ -1,5 +1,13 @@
-# DEPRECATED !
-Use https://github.com/DuckHunt-discord/dhv2
+# :warning: DEPRECATED ! :warning:
+:warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning:
+
+## Use https://github.com/DuckHunt-discord/dhv2
+
+:warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning::warning:
+
+---
+
+
 
 
 # DuckHunt-Discord
